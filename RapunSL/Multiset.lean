@@ -245,3 +245,169 @@ lemma Multiset.sum_bigsum (A B : Multiset α) :
   A + B = Multiset.bigsum (fun b : Bool => if b then A else B) := by
   rw (occs := [1]) [←Quotient.out_eq A, ←Quotient.out_eq B]; apply Quotient.sound;
   apply Premultiset.sum_bigsum <;> rfl
+
+/-! ## Functor -/
+
+/-- Functor over a premultiset -/
+def Premultiset.map {α β} (f : α → β) (A : Premultiset α) : Premultiset β :=
+  .mk A.dom (fun i => f (A.elem i))
+
+@[simp] lemma Premultiset.map.dom (f : α → β) A :
+  (Premultiset.map f A).dom = A.dom := rfl
+
+@[simp] lemma Premultiset.map.elem (f : α → β) A i :
+  (Premultiset.map f A).elem i = f (A.elem i) := rfl
+
+lemma Premultiset.map.proper (A B : Premultiset α) :
+  A ≈ B → Premultiset.map f A ≈ Premultiset.map f B := by
+  rintro ⟨g, h, _, _, AB⟩; exists g, h; and_intros; iterate 2 { assumption };
+  unfold map; simp only; intro _; rw [AB]
+
+/-- Functor over a multiset -/
+def Multiset.map {α β} (f : α → β) : Multiset α → Multiset β :=
+  .lift (fun A => ⟦ .map f A ⟧) <| by
+    intros; apply Quotient.sound; apply Premultiset.map.proper; assumption
+
+/-! ### Functor laws -/
+
+lemma Multiset.map_map (f : α → β) (g : β → γ) (A : Multiset α) :
+  Multiset.map g (Multiset.map f A) = Multiset.map (g ∘ f) A := by
+  rw [←Quotient.out_eq A]; rfl
+
+lemma Multiset.map_id (A : Multiset α) :
+  Multiset.map id A = A := by
+  rw [←Quotient.out_eq A]; rfl
+
+/-! ### `map` over `+` -/
+
+private lemma Premultiset.map_sum (f : α → β) (A B : Premultiset α) :
+  Premultiset.map f (A + B) ≈ Premultiset.map f A + Premultiset.map f B := by
+  exists id, id; and_intros; all_goals { rintro (_ | _) <;> rfl }
+
+lemma Multiset.map_sum (f : α → β) (A B : Multiset α) :
+  Multiset.map f (A + B) = Multiset.map f A + Multiset.map f B := by
+  rw [←Quotient.out_eq A, ←Quotient.out_eq B]; apply Quotient.sound;
+  apply Premultiset.map_sum
+
+/-! ## Binary multiset product -/
+
+/-- Product of two premultisets -/
+def Premultiset.prod {α β} (A : Premultiset α) (B : Premultiset β)
+  : Premultiset (α × β) :=
+  .mk (A.dom × B.dom) (fun (i, j) => (A.elem i, B.elem j))
+
+instance Premultiset.HMul :
+  HMul (Premultiset α) (Premultiset β) (Premultiset (α × β)) where
+  hMul := Premultiset.prod
+
+lemma Premultiset.mul.unfold (A : Premultiset α) (B : Premultiset β) :
+  A * B = Premultiset.prod A B := rfl
+
+@[simp] lemma Premultiset.prod.dom (A : Premultiset α) (B : Premultiset β) :
+  (A * B).dom = (A.dom × B.dom) := rfl
+
+@[simp] lemma Premultiset.prod.elem
+  (A : Premultiset α) (B : Premultiset β) i j :
+  (A * B).elem (i, j) = (A.elem i, B.elem j) := rfl
+
+lemma Premultiset.prod.proper (A A' : Premultiset α) (B B' : Premultiset β) :
+  A ≈ A' → B ≈ B' → A * B ≈ A' * B' := by
+  rintro ⟨f, g, fg, gf, AA'⟩ ⟨h, k, kh, hk, BB'⟩;
+  exists fun (i, j) => (f i, h j), fun (i', j') => (g i', k j');
+  and_intros <;> intro (_, _) <;> simp only;
+  { rw [fg, kh]; }; { rw [gf, hk] }; { simp only [elem]; rw [AA', BB'] }
+
+/-- Product of two multisets -/
+def Multiset.prod {α β} : Multiset α → Multiset β → Multiset (α × β) :=
+  .lift₂ (fun A B => ⟦ A * B ⟧) <| by
+    intros; apply Quotient.sound; apply Premultiset.prod.proper <;> assumption
+
+instance Multiset.HMul :
+  HMul (Multiset α) (Multiset β) (Multiset (α × β)) where
+  hMul := Multiset.prod
+
+lemma Multiset.prod.unfold {A : Multiset α} {B : Multiset β} :
+  A * B = Multiset.prod A B := rfl
+
+/-! ### `*` over `map` -/
+
+lemma Multiset.prod_map
+  (f : α → α') (g : β → β') (A : Multiset α) (B : Multiset β) :
+  Multiset.map f A * Multiset.map g B =
+    Multiset.map (Prod.map f g) (A * B) := by
+  rw [←Quotient.out_eq A, ←Quotient.out_eq B]; rfl
+
+lemma Multiset.prod_map_l
+  (f : α → α') (A : Multiset α) (B : Multiset β) :
+  Multiset.map f A * B = Multiset.map (Prod.map f id) (A * B) := by
+  rw [←Multiset.prod_map, Multiset.map_id]
+
+lemma Multiset.prod_map_r
+  (g : β → β') (A : Multiset α) (B : Multiset β) :
+  A * Multiset.map g B = Multiset.map (Prod.map id g) (A * B) := by
+  rw [←Multiset.prod_map, Multiset.map_id]
+
+/-! ### `*` is commutative -/
+
+lemma Premultiset.prod.comm (A : Premultiset α) (B : Premultiset β) :
+  A * B ≈ .map Prod.swap (B * A) := by
+  exists fun (i, j) => (j, i), fun (j, i) => (i, j);
+  and_intros <;> intro (_, _) <;> rfl
+
+lemma Multiset.prod.comm (A : Multiset α) (B : Multiset β) :
+  A * B = .map Prod.swap (B * A) := by
+  rw [←Quotient.out_eq A, ←Quotient.out_eq B]; apply Quotient.sound;
+  apply Premultiset.prod.comm
+
+/-! ### `*` is unital -/
+
+lemma Premultiset.prod.id_r (A : Premultiset α) (b : β) :
+  A * Premultiset.singl b ≈ Premultiset.map (fun a => (a, b)) A := by
+  exists fun (i, _) => i, fun i => (i, ());
+  and_intros; { intros; trivial }; all_goals
+    rintro ⟨_, _⟩; rfl
+
+lemma Multiset.prod.id_r (A : Multiset α) (b : β) :
+  A * Multiset.singl b = Multiset.map (fun a => (a, b)) A := by
+  rw [←Quotient.out_eq A]; apply Quotient.sound;
+  apply Premultiset.prod.id_r
+
+lemma Multiset.prod.id_l (a : α) (B : Multiset β) :
+  Multiset.singl a * B = Multiset.map (fun b => (a, b)) B := by
+  rw [Multiset.prod.comm, Multiset.prod.id_r, Multiset.map_map]; rfl
+
+/-! ### `*` is associative -/
+
+private lemma Premultiset.prod.assoc
+  (A : Premultiset α) (B : Premultiset β) (C : Premultiset γ) :
+  (A * B) * C ≈ .map (fun (a, b, c) => (⟨a, b⟩, c)) (A * (B * C)) := by
+  exists fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩;
+  and_intros <;> intro ⟨_, _⟩ <;> rfl
+
+lemma Multiset.prod.assoc
+  (A : Multiset α) (B : Multiset β) (C : Multiset γ) :
+  (A * B) * C = .map (fun ⟨a, b, c⟩ => (⟨a, b⟩, c)) (A * (B * C)) := by
+  rw [←Quotient.out_eq A, ←Quotient.out_eq B, ←Quotient.out_eq C]; apply Quotient.sound;
+  apply Premultiset.prod.assoc
+
+/-! ### `*` distributes over `+` -/
+
+private lemma Premultiset.prod_sum_distrib_l
+  (A : Premultiset α) (B C : Premultiset β) :
+  A * (B + C) ≈ (A * B) + (A * C) := by
+  exists fun ⟨i, s⟩ => match s with | .inl j => .inl (i, j) | .inr k => .inr (i, k),
+         fun | .inl (i, j) => ⟨i, .inl j⟩ | .inr (i, k) => ⟨i, .inr k⟩;
+  and_intros; { rintro (_ | _) <;> rfl }; all_goals
+    rintro ⟨_, (_ | _)⟩ <;> rfl
+
+lemma Multiset.prod_sum_distrib_l (A : Multiset α) (B C : Multiset β) :
+  A * (B + C) = A * B + A * C := by
+  rw [←Quotient.out_eq A, ←Quotient.out_eq B, ←Quotient.out_eq C]; apply Quotient.sound;
+  apply Premultiset.prod_sum_distrib_l
+
+lemma Multiset.prod_sum_distrib_r (A B : Multiset α) (C : Multiset β) :
+  (A + B) * C = A * C + B * C := by
+  rw [Multiset.prod.comm, Multiset.prod_sum_distrib_l,
+      Multiset.prod.comm C A, Multiset.prod.comm C B, Multiset.map_sum,
+      Multiset.map_map, Multiset.map_map, Prod.swap_swap_eq,
+      Multiset.map_id, Multiset.map_id]
