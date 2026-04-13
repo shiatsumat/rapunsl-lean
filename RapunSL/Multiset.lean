@@ -194,7 +194,7 @@ private lemma Premultiset.bigsum.comm {ι ι' : Type}
   and_intros <;> intro ⟨_, _⟩;
   · congr; { rw [σσ'] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
   · congr; { rw [σ'σ] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
-  · unfold bigsum; simp only [Function.comp_apply]; congr; { rw [σ'σ] };
+  · simp only [bigsum, Function.comp_apply]; congr; { rw [σ'σ] };
     simp only [heq_eqRec_iff_heq, heq_eq_eq]
 
 lemma Multiset.bigsum.comm {ι ι' : Type}
@@ -243,8 +243,8 @@ private lemma Premultiset.sum_bigsum (A B : Premultiset α) :
 
 lemma Multiset.sum_bigsum (A B : Multiset α) :
   A + B = Multiset.bigsum (fun b : Bool => if b then A else B) := by
-  rw (occs := [1]) [←Quotient.out_eq A, ←Quotient.out_eq B]; apply Quotient.sound;
-  apply Premultiset.sum_bigsum <;> rfl
+  rw (occs := [1]) [←Quotient.out_eq A, ←Quotient.out_eq B];
+  apply Quotient.sound; apply Premultiset.sum_bigsum <;> rfl
 
 /-! ## Functor -/
 
@@ -261,7 +261,7 @@ def Premultiset.map {α β} (f : α → β) (A : Premultiset α) : Premultiset �
 lemma Premultiset.map.proper (A B : Premultiset α) :
   A ≈ B → Premultiset.map f A ≈ Premultiset.map f B := by
   rintro ⟨g, h, _, _, AB⟩; exists g, h; and_intros; iterate 2 { assumption };
-  unfold map; simp only; intro _; rw [AB]
+  simp only [map]; intro _; rw [AB]
 
 /-- Functor over a multiset -/
 def Multiset.map {α β} (f : α → β) : Multiset α → Multiset β :=
@@ -386,24 +386,24 @@ private lemma Premultiset.prod.assoc
 
 lemma Multiset.prod.assoc
   (A : Multiset α) (B : Multiset β) (C : Multiset γ) :
-  (A * B) * C = .map (fun ⟨a, b, c⟩ => (⟨a, b⟩, c)) (A * (B * C)) := by
-  rw [←Quotient.out_eq A, ←Quotient.out_eq B, ←Quotient.out_eq C]; apply Quotient.sound;
-  apply Premultiset.prod.assoc
+  (A * B) * C = .map (fun (a, b, c) => ((a, b), c)) (A * (B * C)) := by
+  rw [←Quotient.out_eq A, ←Quotient.out_eq B, ←Quotient.out_eq C];
+  apply Quotient.sound; apply Premultiset.prod.assoc
 
 /-! ### `*` distributes over `+` -/
 
 private lemma Premultiset.prod_sum_distrib_l
   (A : Premultiset α) (B C : Premultiset β) :
   A * (B + C) ≈ (A * B) + (A * C) := by
-  exists fun ⟨i, s⟩ => match s with | .inl j => .inl (i, j) | .inr k => .inr (i, k),
+  exists fun (i, s) => match s with | .inl j => .inl (i, j) | .inr k => .inr (i, k),
          fun | .inl (i, j) => ⟨i, .inl j⟩ | .inr (i, k) => ⟨i, .inr k⟩;
   and_intros; { rintro (_ | _) <;> rfl }; all_goals
     rintro ⟨_, (_ | _)⟩ <;> rfl
 
 lemma Multiset.prod_sum_distrib_l (A : Multiset α) (B C : Multiset β) :
   A * (B + C) = A * B + A * C := by
-  rw [←Quotient.out_eq A, ←Quotient.out_eq B, ←Quotient.out_eq C]; apply Quotient.sound;
-  apply Premultiset.prod_sum_distrib_l
+  rw [←Quotient.out_eq A, ←Quotient.out_eq B, ←Quotient.out_eq C];
+  apply Quotient.sound; apply Premultiset.prod_sum_distrib_l
 
 lemma Multiset.prod_sum_distrib_r (A B : Multiset α) (C : Multiset β) :
   (A + B) * C = A * C + B * C := by
