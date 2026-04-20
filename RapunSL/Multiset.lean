@@ -117,8 +117,8 @@ private lemma Premultiset.sum.comm (A B : Premultiset α) :
 instance Multiset.sum.Commutative :
     Std.Commutative (HAdd.hAdd (α := Multiset α)) where
   comm A B := by
-    rw [←Quotient.out_eq A, ←Quotient.out_eq B]; apply Quotient.sound;
-    apply Premultiset.sum.comm
+    cases A using Quotient.ind; cases B using Quotient.ind;
+    apply Quotient.sound; apply Premultiset.sum.comm
 
 /-! ### [+] is unital -/
 
@@ -131,7 +131,7 @@ private lemma Premultiset.sum.right_id {A : Premultiset α} :
 instance Multiset.sum.LawfulCommIdentity :
     Std.LawfulCommIdentity (HAdd.hAdd (α := Multiset α)) Multiset.empty where
   right_id A := by
-    rw [←Quotient.out_eq A]; apply Quotient.sound;
+    cases A using Quotient.ind; apply Quotient.sound;
     exact Premultiset.sum.right_id
 
 /-! ### [+] is assoc -/
@@ -148,7 +148,7 @@ private lemma Premultiset.sum.assoc (A B C : Premultiset α) :
 instance Multiset.sum.Associative :
     Std.Associative (HAdd.hAdd (α := Multiset α)) where
   assoc A B C := by
-    rw [←Quotient.out_eq A, ←Quotient.out_eq B, ←Quotient.out_eq C];
+    cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
     apply Quotient.sound; apply Premultiset.sum.assoc
 
 /-! ## Big sum of multisets -/
@@ -271,11 +271,11 @@ def Multiset.map {α β} (f : α → β) : Multiset α → Multiset β :=
 
 lemma Multiset.map_map (f : α → β) (g : β → γ) (A : Multiset α) :
     Multiset.map g (Multiset.map f A) = Multiset.map (g ∘ f) A := by
-  rw [←Quotient.out_eq A]; rfl
+  cases A using Quotient.ind; rfl
 
 lemma Multiset.map_id (A : Multiset α) :
     Multiset.map id A = A := by
-  rw [←Quotient.out_eq A]; rfl
+  cases A using Quotient.ind; rfl
 
 /-! ### `map` over `+` -/
 
@@ -285,8 +285,8 @@ private lemma Premultiset.map_sum (f : α → β) (A B : Premultiset α) :
 
 lemma Multiset.map_sum (f : α → β) (A B : Multiset α) :
     Multiset.map f (A + B) = Multiset.map f A + Multiset.map f B := by
-  rw [←Quotient.out_eq A, ←Quotient.out_eq B]; apply Quotient.sound;
-  apply Premultiset.map_sum
+  cases A using Quotient.ind; cases B using Quotient.ind;
+  apply Quotient.sound; apply Premultiset.map_sum
 
 /-! ## Binary multiset product -/
 
@@ -334,7 +334,7 @@ lemma Multiset.prod_map
     (f : α → α') (g : β → β') (A : Multiset α) (B : Multiset β) :
     Multiset.map f A * Multiset.map g B =
       Multiset.map (Prod.map f g) (A * B) := by
-  rw [←Quotient.out_eq A, ←Quotient.out_eq B]; rfl
+  cases A using Quotient.ind; cases B using Quotient.ind; rfl
 
 lemma Multiset.prod_map_l
     (f : α → α') (A : Multiset α) (B : Multiset β) :
@@ -355,8 +355,8 @@ lemma Premultiset.prod.comm (A : Premultiset α) (B : Premultiset β) :
 
 lemma Multiset.prod.comm (A : Multiset α) (B : Multiset β) :
     A * B = .map Prod.swap (B * A) := by
-  rw [←Quotient.out_eq A, ←Quotient.out_eq B]; apply Quotient.sound;
-  apply Premultiset.prod.comm
+  cases A using Quotient.ind; cases B using Quotient.ind;
+  apply Quotient.sound; apply Premultiset.prod.comm
 
 /-! ### `*` is unital -/
 
@@ -368,7 +368,7 @@ lemma Premultiset.prod.id_r (A : Premultiset α) (b : β) :
 
 lemma Multiset.prod.id_r (A : Multiset α) (b : β) :
     A * Multiset.singl b = Multiset.map (fun a => (a, b)) A := by
-  rw [←Quotient.out_eq A]; apply Quotient.sound;
+  cases A using Quotient.ind; apply Quotient.sound;
   apply Premultiset.prod.id_r
 
 lemma Multiset.prod.id_l (a : α) (B : Multiset β) :
@@ -386,7 +386,7 @@ private lemma Premultiset.prod.assoc
 lemma Multiset.prod.assoc
     (A : Multiset α) (B : Multiset β) (C : Multiset γ) :
     (A * B) * C = .map (fun (a, b, c) => ((a, b), c)) (A * (B * C)) := by
-  rw [←Quotient.out_eq A, ←Quotient.out_eq B, ←Quotient.out_eq C];
+  cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
   apply Quotient.sound; apply Premultiset.prod.assoc
 
 /-! ### `*` distributes over `+` -/
@@ -401,7 +401,7 @@ private lemma Premultiset.prod_sum_distrib_l
 
 lemma Multiset.prod_sum_distrib_l (A : Multiset α) (B C : Multiset β) :
     A * (B + C) = A * B + A * C := by
-  rw [←Quotient.out_eq A, ←Quotient.out_eq B, ←Quotient.out_eq C];
+  cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
   apply Quotient.sound; apply Premultiset.prod_sum_distrib_l
 
 lemma Multiset.prod_sum_distrib_r (A B : Multiset α) (C : Multiset β) :
