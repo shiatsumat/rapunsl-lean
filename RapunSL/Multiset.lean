@@ -110,7 +110,7 @@ lemma Multiset.sum.unfold (A B : Multiset α) :
 
 /-! ### `+` is commutative -/
 
-private lemma Premultiset.sum.comm (A B : Premultiset α) :
+lemma Premultiset.sum.comm (A B : Premultiset α) :
     A + B ≈ B + A := by
   exists fun | .inl i => .inr i | .inr j => .inl j,
          fun | .inl j => .inr j | .inr i => .inl i;
@@ -124,7 +124,7 @@ instance Multiset.sum.Commutative :
 
 /-! ### `+` is unital -/
 
-private lemma Premultiset.sum.id_r {A : Premultiset α} :
+lemma Premultiset.sum.id_r {A : Premultiset α} :
     A + ∅ ≈ A := by
   exists fun | .inl i => i | .inr e => (nomatch e), .inl
   and_intros; { intro _; rfl }; all_goals
@@ -138,7 +138,7 @@ instance Multiset.sum.LawfulCommIdentity :
 
 /-! ### `+` is assoc -/
 
-private lemma Premultiset.sum.assoc (A B C : Premultiset α) :
+lemma Premultiset.sum.assoc (A B C : Premultiset α) :
     (A + B) + C ≈ A + (B + C) := by
   exists fun | .inl (.inl i) => .inl i | .inl (.inr j) => .inr (.inl j)
              | .inr k => .inr (.inr k),
@@ -185,7 +185,7 @@ lemma Multiset.bigsum.proper (A A' : ι → Multiset α) :
 
 /-! ### `bigsum` is commutative -/
 
-private lemma Premultiset.bigsum.comm {ι ι' : Type}
+lemma Premultiset.bigsum.comm {ι ι' : Type}
     (A : ι → Premultiset α) (σ : ι → ι') (σ' : ι' → ι) :
     (∀ i', σ (σ' i') = i') → (∀ i, σ' (σ i) = i) →
     Premultiset.bigsum A ≈ Premultiset.bigsum (A ∘ σ') := fun σσ' σ'σ => by
@@ -206,7 +206,7 @@ lemma Multiset.bigsum.comm {ι ι' : Type}
 
 /-! ### `bigsum` is associative -/
 
-private lemma Premultiset.bigsum.assoc {ι : Type} {ι' : ι → Type}
+lemma Premultiset.bigsum.assoc {ι : Type} {ι' : ι → Type}
     (A : ∀ ι, ι' ι → Premultiset α) :
     Premultiset.bigsum (fun i => Premultiset.bigsum (A i)) ≈
       Premultiset.bigsum (ι := Σ ι, ι' ι) (fun ⟨i, j⟩ => A i j) := by
@@ -223,7 +223,7 @@ lemma Multiset.bigsum.assoc {ι : Type} {ι' : ι → Type}
 
 /-! ### `empty` as `bigsum` -/
 
-private lemma Premultiset.empty_bigsum :
+lemma Premultiset.empty_bigsum :
     ∅ ≈ Premultiset.bigsum (ι := Empty) A := by
   exists nofun, nofun; and_intros <;> nofun
 
@@ -233,7 +233,7 @@ lemma Multiset.empty_bigsum :
 
 /-! ### `+` as `bigsum` -/
 
-private lemma Premultiset.sum_bigsum (A B : Premultiset α) :
+lemma Premultiset.sum_bigsum (A B : Premultiset α) :
     F true = A → F false = B →
     A + B ≈ Premultiset.bigsum F := by
   intro rfl rfl;
@@ -281,7 +281,7 @@ lemma Multiset.map_id (A : Multiset α) :
 
 /-! ### `map` over `+` -/
 
-private lemma Premultiset.map_sum (f : α → β) (A B : Premultiset α) :
+lemma Premultiset.map_sum (f : α → β) (A B : Premultiset α) :
     Premultiset.map f (A + B) ≈ Premultiset.map f A + Premultiset.map f B := by
   exists id, id; and_intros; all_goals { rintro (_ | _) <;> rfl }
 
@@ -379,7 +379,7 @@ lemma Multiset.prod.id_l (a : α) (B : Multiset β) :
 
 /-! ### `*` is associative -/
 
-private lemma Premultiset.prod.assoc
+lemma Premultiset.prod.assoc
     (A : Premultiset α) (B : Premultiset β) (C : Premultiset γ) :
     (A * B) * C ≈ .map (fun (a, b, c) => (⟨a, b⟩, c)) (A * (B * C)) := by
   exists fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩;
@@ -393,7 +393,7 @@ lemma Multiset.prod.assoc
 
 /-! ### `*` distributes over `+` -/
 
-private lemma Premultiset.prod_sum_distrib_l
+lemma Premultiset.prod_sum_distrib_l
     (A : Premultiset α) (B C : Premultiset β) :
     A * (B + C) ≈ (A * B) + (A * C) := by
   exists fun (i, s) => match s with | .inl j => .inl (i, j) | .inr k => .inr (i, k),
