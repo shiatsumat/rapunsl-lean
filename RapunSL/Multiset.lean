@@ -106,7 +106,7 @@ instance Multiset.Add : Add (Multiset.{u} α) where
 lemma Multiset.sum.unfold (A B : Multiset α) :
   A + B = Multiset.sum A B := rfl
 
-/-! ### [+] is commutative -/
+/-! ### `+` is commutative -/
 
 private lemma Premultiset.sum.comm (A B : Premultiset α) :
     A + B ≈ B + A := by
@@ -120,7 +120,7 @@ instance Multiset.sum.Commutative :
     cases A using Quotient.ind; cases B using Quotient.ind;
     apply Quotient.sound; apply Premultiset.sum.comm
 
-/-! ### [+] is unital -/
+/-! ### `+` is unital -/
 
 private lemma Premultiset.sum.right_id {A : Premultiset α} :
     A + .empty ≈ A := by
@@ -134,7 +134,7 @@ instance Multiset.sum.LawfulCommIdentity :
     cases A using Quotient.ind; apply Quotient.sound;
     exact Premultiset.sum.right_id
 
-/-! ### [+] is assoc -/
+/-! ### `+` is assoc -/
 
 private lemma Premultiset.sum.assoc (A B C : Premultiset α) :
     (A + B) + C ≈ A + (B + C) := by
