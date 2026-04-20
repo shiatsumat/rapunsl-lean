@@ -44,10 +44,12 @@ def Multiset.{u} (α : Type u) : Type (max u 1) :=
 /-! ## Empty multiset -/
 
 /-- Empty premultiset -/
-def Premultiset.empty : Premultiset α := .mk Empty nofun
+instance Premultiset.empty : EmptyCollection (Premultiset α) where
+  emptyCollection := .mk Empty nofun
 
 /-- Empty Multiset -/
-def Multiset.empty : Multiset α := ⟦ .empty ⟧
+instance Multiset.empty : EmptyCollection (Multiset α) where
+  emptyCollection := ⟦ ∅ ⟧
 
 /-! ## Singleton multiset -/
 
@@ -123,13 +125,13 @@ instance Multiset.sum.Commutative :
 /-! ### `+` is unital -/
 
 private lemma Premultiset.sum.right_id {A : Premultiset α} :
-    A + .empty ≈ A := by
+    A + ∅ ≈ A := by
   exists fun | .inl i => i | .inr e => (nomatch e), .inl
   and_intros; { intro _; rfl }; all_goals
     rintro (_ | _); { rfl }; { nofun }
 
 instance Multiset.sum.LawfulCommIdentity :
-    Std.LawfulCommIdentity (HAdd.hAdd (α := Multiset α)) Multiset.empty where
+    Std.LawfulCommIdentity (HAdd.hAdd (α := Multiset α)) ∅ where
   right_id A := by
     cases A using Quotient.ind; apply Quotient.sound;
     exact Premultiset.sum.right_id
@@ -222,11 +224,11 @@ lemma Multiset.bigsum.assoc {ι : Type} {ι' : ι → Type}
 /-! ### `empty` as `bigsum` -/
 
 private lemma Premultiset.empty_bigsum :
-    Premultiset.empty ≈ Premultiset.bigsum (ι := Empty) A := by
+    ∅ ≈ Premultiset.bigsum (ι := Empty) A := by
   exists nofun, nofun; and_intros <;> nofun
 
 lemma Multiset.empty_bigsum :
-    Multiset.empty = Multiset.bigsum (ι := Empty) (α := α) nofun := by
+    ∅ = Multiset.bigsum (ι := Empty) (α := α) nofun := by
   apply Quotient.sound; apply Premultiset.empty_bigsum
 
 /-! ### `+` as `bigsum` -/
