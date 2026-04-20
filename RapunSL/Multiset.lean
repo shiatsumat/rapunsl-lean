@@ -124,7 +124,7 @@ instance Multiset.sum.Commutative :
 
 /-! ### `+` is unital -/
 
-private lemma Premultiset.sum.right_id {A : Premultiset α} :
+private lemma Premultiset.sum.id_r {A : Premultiset α} :
     A + ∅ ≈ A := by
   exists fun | .inl i => i | .inr e => (nomatch e), .inl
   and_intros; { intro _; rfl }; all_goals
@@ -134,7 +134,7 @@ instance Multiset.sum.LawfulCommIdentity :
     Std.LawfulCommIdentity (HAdd.hAdd (α := Multiset α)) ∅ where
   right_id A := by
     cases A using Quotient.ind; apply Quotient.sound;
-    exact Premultiset.sum.right_id
+    exact Premultiset.sum.id_r
 
 /-! ### `+` is assoc -/
 
