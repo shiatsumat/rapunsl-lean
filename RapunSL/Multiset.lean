@@ -307,8 +307,7 @@ lemma Premultiset.mul.unfold (A : Premultiset α) (B : Premultiset β) :
 @[simp] lemma Premultiset.prod.dom (A : Premultiset α) (B : Premultiset β) :
     (A * B).dom = (A.dom × B.dom) := rfl
 
-@[simp] lemma Premultiset.prod.elem
-    (A : Premultiset α) (B : Premultiset β) i j :
+@[simp] lemma Premultiset.prod.elem (A : Premultiset α) (B : Premultiset β) i j :
   (A * B).elem (i, j) = (A.elem i, B.elem j) := rfl
 
 lemma Premultiset.prod.proper (A A' : Premultiset α) (B B' : Premultiset β) :
@@ -323,8 +322,7 @@ def Multiset.prod {α β} : Multiset α → Multiset β → Multiset (α × β) 
   .lift₂ (fun A B => ⟦ A * B ⟧) <| by
     intros; apply Quotient.sound; apply Premultiset.prod.proper <;> assumption
 
-instance Multiset.HMul :
-    HMul (Multiset α) (Multiset β) (Multiset (α × β)) where
+instance Multiset.HMul : HMul (Multiset α) (Multiset β) (Multiset (α × β)) where
   hMul := Multiset.prod
 
 lemma Multiset.prod.unfold {A : Multiset α} {B : Multiset β} :
@@ -338,13 +336,11 @@ lemma Multiset.prod_map
       Multiset.map (Prod.map f g) (A * B) := by
   cases A using Quotient.ind; cases B using Quotient.ind; rfl
 
-lemma Multiset.prod_map_l
-    (f : α → α') (A : Multiset α) (B : Multiset β) :
+lemma Multiset.prod_map_l (f : α → α') (A : Multiset α) (B : Multiset β) :
     Multiset.map f A * B = Multiset.map (Prod.map f id) (A * B) := by
   rw [←Multiset.prod_map, Multiset.map_id]
 
-lemma Multiset.prod_map_r
-    (g : β → β') (A : Multiset α) (B : Multiset β) :
+lemma Multiset.prod_map_r (g : β → β') (A : Multiset α) (B : Multiset β) :
     A * Multiset.map g B = Multiset.map (Prod.map id g) (A * B) := by
   rw [←Multiset.prod_map, Multiset.map_id]
 
@@ -385,16 +381,14 @@ lemma Premultiset.prod.assoc
   exists fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩;
   and_intros <;> intro ⟨_, _⟩ <;> rfl
 
-lemma Multiset.prod.assoc
-    (A : Multiset α) (B : Multiset β) (C : Multiset γ) :
+lemma Multiset.prod.assoc (A : Multiset α) (B : Multiset β) (C : Multiset γ) :
     (A * B) * C = .map (fun (a, b, c) => ((a, b), c)) (A * (B * C)) := by
   cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
   apply Quotient.sound; apply Premultiset.prod.assoc
 
 /-! ### `*` distributes over `+` -/
 
-lemma Premultiset.prod_sum_distrib_l
-    (A : Premultiset α) (B C : Premultiset β) :
+lemma Premultiset.prod_sum_distrib_l (A : Premultiset α) (B C : Premultiset β) :
     A * (B + C) ≈ (A * B) + (A * C) := by
   exists fun (i, s) => match s with | .inl j => .inl (i, j) | .inr k => .inr (i, k),
          fun | .inl (i, j) => ⟨i, .inl j⟩ | .inr (i, k) => ⟨i, .inr k⟩;
