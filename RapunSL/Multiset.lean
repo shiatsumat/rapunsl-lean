@@ -20,6 +20,13 @@ def Premultiset.equiv.{u} (A B : Premultiset.{u} α) : Prop :=
   ∃ f : A.dom → B.dom, ∃ g : B.dom → A.dom,
   (∀ j, f (g j) = j) ∧ (∀ i, g (f i) = i) ∧ ∀ i, A.elem i = B.elem (f i)
 
+/-- Utility for getting the inverse element equality -/
+lemma Premultiset.equiv.elem_eq_symm {A B : Premultiset α}
+    {f : A.dom → B.dom} {g : B.dom → A.dom} :
+    (∀ j, f (g j) = j) → (∀ i, A.elem i = B.elem (f i)) →
+    ∀ j, B.elem j = A.elem (g j) := by
+  intro fg AB j; rw [AB, fg]
+
 lemma Premultiset.equiv.is_equiv :
     Equivalence (α:=Premultiset.{u} α) Premultiset.equiv where
   refl _ := by exists id, id; and_intros <;> intros <;> rfl
@@ -315,6 +322,17 @@ lemma Multiset.empty_bigsum :
     ∅ = bigsum (ι := Empty) (α := α) nofun := by
   apply Quotient.sound; apply Premultiset.empty_bigsum
 
+/-! ### Unary `bigsum` -/
+
+lemma Premultiset.unary_bigsum (A : Premultiset α) :
+    bigsum (fun _ : Unit => A) ≈ A := by
+  exists fun ⟨_, i⟩ => i, fun i => ⟨(), i⟩; and_intros; iterate 3 { intro _; rfl }
+
+lemma Multiset.unary_bigsum (A : Multiset α) :
+    bigsum (fun _ : Unit => A) = A := by
+  cases A using Quotient.ind; apply Quotient.sound;
+  trans; swap; { apply Quotient.mk_out }; apply Premultiset.unary_bigsum
+
 /-! ### `+` as `bigsum` -/
 
 lemma Premultiset.sum_bigsum (A B : Premultiset α) :
@@ -462,14 +480,96 @@ lemma Multiset.pure.unfold {α} :
 lemma Multiset.seq.unfold (F : Multiset (α → β)) A :
     F <*> A = (fun (f, a) => f a) <$> (F * A) := rfl
 
-/-- Applicative laws for `Multiset` -/
-instance Multiset.LawfulApplicative : LawfulApplicative Multiset.{u} where
+/-! `LawfulApplicative` is later derived from `LawfulMonad` -/
+
+/-! ## Join -/
+
+/-- `join` for `Premultiset` -/
+noncomputable def Premultiset.join {α} (A : Premultiset (Multiset α)) : Multiset α :=
+  Multiset.bigsum A.elem
+
+lemma Premultiset.join.proper (A B : Premultiset (Multiset α)) :
+    A ≈ B → A.join = B.join := by
+  rintro ⟨f, g, fg, gf, AB⟩; apply Quotient.sound;
+  exists (fun ⟨i, k⟩ => ⟨f i, congrArg (·.out.dom) (AB i) ▸ k⟩),
+         (fun ⟨j, k⟩ => ⟨g j,
+           congrArg (·.out.dom) (equiv.elem_eq_symm fg AB j).symm ▸ k⟩);
+  and_intros <;> intro ⟨i, k⟩ <;> simp only [bigsum.dom, bigsum.elem]
+  · congr; { rw [fg] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
+  · congr; { rw [gf] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
+  · revert k; simp only; generalize AB i = eq; revert eq;
+    generalize A.elem i = Ai; generalize B.elem (f i) = Bj; intro rfl _; rfl
+
+/-- `join` for `Multiset` -/
+noncomputable def Multiset.join {α} : Multiset (Multiset α) → Multiset α :=
+  .lift (·.join) <| by intros; apply Premultiset.join.proper; assumption
+
+/-! ### Join laws -/
+
+lemma Multiset.map_join (f : α → β) (A : Multiset (Multiset α)) :
+    f <$> join A = join ((f <$> ·) <$> A) := by
+  revert A; apply Quotient.ind; rintro ⟨_, F⟩;
+  apply Quotient.sound; trans; { apply Premultiset.bigsum.map };
+  apply Premultiset.bigsum.proper; simp only [Premultiset.map.elem];
+  intro i; cases F i using Quotient.ind; trans; swap;
+  { symm; apply Quotient.mk_out }; apply Premultiset.map.proper; apply Quotient.mk_out
+
+lemma Multiset.join_map_seq (F : Multiset (α → β)) :
+    join ((· <$> A) <$> F) = F <*> A := by
+  cases F using Quotient.ind; cases A using Quotient.ind;
+  apply Quotient.sound; simp only [Premultiset.map.elem]; trans;
+  { apply Premultiset.bigsum.proper; { intro _; apply Quotient.mk_out } }
+  exists fun ⟨i, j⟩ => ⟨i, j⟩, fun ⟨i, j⟩ => ⟨i, j⟩; and_intros <;> { intro _; rfl }
+
+lemma Multiset.join_pure (A : Multiset α) :
+    join (pure A) = A := by
+  cases A using Quotient.ind; apply Quotient.sound;
+  simp only [Premultiset.singl.elem]; trans; swap; { apply Quotient.mk_out };
+  apply Premultiset.unary_bigsum
+
+lemma Premultiset.bigsum_singl (A : Premultiset α) :
+    bigsum (singl <$> A).elem ≈ A := by
+  exists fun ⟨i, _⟩ => i, fun i => ⟨i, ()⟩; and_intros; iterate 3 { intro _; rfl }
+
+lemma Multiset.join_pure_map (A : Multiset α) :
+    join (pure <$> A) = A := by
+  cases A using Quotient.ind; apply Quotient.sound; trans; swap;
+  { apply Premultiset.bigsum_singl }; apply Premultiset.bigsum.proper;
+  intro _; apply Quotient.mk_out
+
+lemma Multiset.join_join (A : Multiset (Multiset (Multiset α))) :
+    join (join A) = join (join <$> A) := by
+  revert A; apply Quotient.ind; rintro ⟨_, F⟩; apply Quotient.sound;
+  unfold join; unfold Premultiset.join;
+  simp only [Premultiset.bigsum.dom, Premultiset.map.dom, Premultiset.map.elem];
+  trans; swap;
+  { apply Premultiset.bigsum.proper;
+    { intro i; rewrite [←Quotient.out_eq (F i), Quotient.lift_mk];
+      symm; unfold Multiset.bigsum; apply Quotient.mk_out }; }
+  exists fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩;
+  and_intros; iterate 3 { rintro _; rfl }
+
+/-! ## Monad -/
+
+/-- `Monad` for `Multiset` -/
+noncomputable instance Multiset.Monad : Monad Multiset where
+  bind A K := join (K <$> A)
+
+lemma Multiset.bind.unfold (A : Multiset α) (K : α → Multiset β) :
+    A >>= K = join (K <$> A) := rfl
+
+/-- Monad laws for `Multiset` -/
+instance Multiset.LawfulMonad : LawfulMonad Multiset where
   seqLeft_eq _ _ := rfl
   seqRight_eq _ _ := rfl
-  map_pure _ _ := rfl
-  seq_pure _ _ := by
-    rw [seq.unfold, pure.unfold, prod.id_r, ←comp_map]; rfl
   pure_seq _ _ := by
     rw [seq.unfold, pure.unfold, prod.id_l, ←comp_map]; rfl
-  seq_assoc _ _ _ := by
-    simp only [seq.unfold, prod.map_l, prod.map_r, ←comp_map, prod.assoc_l]; rfl
+  pure_bind _ _ := by
+    rw [bind.unfold, pure.unfold, singl.map, ←pure.unfold, join_pure]
+  bind_pure_comp _ _ := by
+    rw [bind.unfold, ←Function.comp_def, comp_map, join_pure_map]
+  bind_map _ _ := by rw [bind.unfold, join_map_seq]
+  bind_assoc A F G := by
+    have eq : (F · >>= G) = join ∘ (G <$> F ·) := rfl;
+    rw [bind.unfold, bind.unfold, bind.unfold, eq];
+    rw [comp_map, ←join_join, map_join, ←comp_map]; rfl
