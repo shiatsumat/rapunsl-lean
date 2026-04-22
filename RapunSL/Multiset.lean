@@ -47,6 +47,9 @@ def Multiset.{u} (α : Type u) : Type (max u 1) :=
 instance Premultiset.empty : EmptyCollection (Premultiset α) where
   emptyCollection := .mk Empty nofun
 
+@[simp] lemma Premultiset.empty.dom :
+    (∅ : Premultiset α).dom = Empty := rfl
+
 /-- Empty multiset -/
 instance Multiset.empty : EmptyCollection (Multiset α) where
   emptyCollection := ⟦ ∅ ⟧
@@ -55,6 +58,12 @@ instance Multiset.empty : EmptyCollection (Multiset α) where
 
 /-- Singleton premultiset -/
 def Premultiset.singl (a : α) : Premultiset α := .mk Unit (fun _ => a)
+
+@[simp] lemma Premultiset.singl.dom (a : α) :
+    (singl a).dom = Unit := rfl
+
+@[simp] lemma Premultiset.singl.elem (a : α) u :
+    (singl a).elem u = a := rfl
 
 /-- Singleton multiset -/
 def Multiset.singl (a : α) : Multiset α := ⟦ .singl a ⟧
