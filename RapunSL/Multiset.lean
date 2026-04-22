@@ -112,24 +112,32 @@ instance Multiset.empty : EmptyCollection (Multiset α) where
 /-! ## Singleton -/
 
 /-- Singleton premultiset -/
-def Premultiset.singl (a : α) : Premultiset α := .mk Unit (fun _ => a)
+instance Premultiset.Pure : Pure Premultiset where
+  pure a := .mk Unit (fun _ => a)
 
-@[simp] lemma Premultiset.singl.dom (a : α) :
-    (singl a).dom = Unit := rfl
+lemma Premultiset.pure.unfold (a : α) :
+    pure (f:=Premultiset) a = .mk Unit (fun _ => a) := rfl
 
-@[simp] lemma Premultiset.singl.elem (a : α) u :
-    (singl a).elem u = a := rfl
+@[simp] lemma Premultiset.pure.dom (a : α) :
+    (pure (f:=Premultiset) a).dom = Unit := rfl
+
+@[simp] lemma Premultiset.pure.elem (a : α) u :
+    (pure (f:=Premultiset) a).elem u = a := rfl
 
 /-- Singleton multiset -/
-def Multiset.singl (a : α) : Multiset α := ⟦ .singl a ⟧
+instance Multiset.Pure : Pure Multiset where
+  pure a := ⟦ pure a ⟧
 
-/-! ## `<$>` over `singl` -/
+lemma Multiset.pure.unfold (a : α) :
+    pure (f:=Multiset) a = ⟦ .mk Unit (fun _ => a) ⟧ := rfl
 
-lemma Premultiset.singl.map (f : α → β) (a : α) :
-    f <$> singl a = singl (f a) := rfl
+/-! ## `<$>` over `pure` -/
 
-lemma Multiset.singl.map (f : α → β) (a : α) :
-    f <$> singl a = singl (f a) := rfl
+lemma Premultiset.pure.map (f : α → β) (a : α) :
+    f <$> pure (f:=Premultiset) a = pure (f a) := rfl
+
+lemma Multiset.pure.map (f : α → β) (a : α) :
+    f <$> pure (f:=Multiset) a = pure (f a) := rfl
 
 /-! ## Binary sum -/
 
@@ -417,18 +425,18 @@ lemma Multiset.prod.comm (A : Multiset α) (B : Multiset β) :
 /-! ### `*` is unital -/
 
 lemma Premultiset.prod.id_r (A : Premultiset α) (b : β) :
-    A * singl b ≈ (·, b) <$> A := by
+    A * pure (f:=Premultiset) b ≈ (·, b) <$> A := by
   exists fun (i, _) => i, fun i => (i, ());
   and_intros; { intros; trivial }; all_goals
     rintro ⟨_, _⟩; rfl
 
 lemma Multiset.prod.id_r (A : Multiset α) (b : β) :
-    A * singl b = (·, b) <$> A := by
+    A * pure (f:=Multiset) b = (·, b) <$> A := by
   cases A using Quotient.ind; apply Quotient.sound;
   apply Premultiset.prod.id_r
 
 lemma Multiset.prod.id_l (a : α) (B : Multiset β) :
-    singl a * B = (a, ·) <$> B := by
+    pure (f:=Multiset) a * B = (a, ·) <$> B := by
   rw [prod.comm, prod.id_r, ←comp_map]; rfl
 
 /-! ### `*` is associative -/
@@ -471,11 +479,7 @@ lemma Multiset.prod.sum.distrib_r (A B : Multiset α) (C : Multiset β) :
 
 /-- `Applicative` for `Multiset` -/
 instance Multiset.Applicative : Applicative Multiset.{u} where
-  pure := singl
   seq F A := (fun (f, a) => f a) <$> (F * A ())
-
-lemma Multiset.pure.unfold {α} :
-    pure = singl (α:=α) := rfl
 
 lemma Multiset.seq.unfold (F : Multiset (α → β)) A :
     F <*> A = (fun (f, a) => f a) <$> (F * A) := rfl
@@ -524,17 +528,17 @@ lemma Multiset.join_map_seq (F : Multiset (α → β)) :
 lemma Multiset.join_pure (A : Multiset α) :
     join (pure A) = A := by
   cases A using Quotient.ind; apply Quotient.sound;
-  simp only [Premultiset.singl.elem]; trans; swap; { apply Quotient.mk_out };
+  simp only [Premultiset.pure.elem]; trans; swap; { apply Quotient.mk_out };
   apply Premultiset.unary_bigsum
 
-lemma Premultiset.bigsum_singl (A : Premultiset α) :
-    bigsum (singl <$> A).elem ≈ A := by
+lemma Premultiset.bigsum_pure (A : Premultiset α) :
+    bigsum (pure <$> A).elem ≈ A := by
   exists fun ⟨i, _⟩ => i, fun i => ⟨i, ()⟩; and_intros; iterate 3 { intro _; rfl }
 
 lemma Multiset.join_pure_map (A : Multiset α) :
     join (pure <$> A) = A := by
   cases A using Quotient.ind; apply Quotient.sound; trans; swap;
-  { apply Premultiset.bigsum_singl }; apply Premultiset.bigsum.proper;
+  { apply Premultiset.bigsum_pure }; apply Premultiset.bigsum.proper;
   intro _; apply Quotient.mk_out
 
 lemma Multiset.join_join (A : Multiset (Multiset (Multiset α))) :
@@ -563,9 +567,9 @@ instance Multiset.LawfulMonad : LawfulMonad Multiset where
   seqLeft_eq _ _ := rfl
   seqRight_eq _ _ := rfl
   pure_seq _ _ := by
-    rw [seq.unfold, pure.unfold, prod.id_l, ←comp_map]; rfl
+    rw [seq.unfold, prod.id_l, ←comp_map]; rfl
   pure_bind _ _ := by
-    rw [bind.unfold, pure.unfold, singl.map, ←pure.unfold, join_pure]
+    rw [bind.unfold, pure.map, join_pure]
   bind_pure_comp _ _ := by
     rw [bind.unfold, ←Function.comp_def, comp_map, join_pure_map]
   bind_map _ _ := by rw [bind.unfold, join_map_seq]
