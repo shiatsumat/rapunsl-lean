@@ -178,11 +178,6 @@ noncomputable def Multiset.bigsum.{u} {ι : Type}
   (A : ι → Multiset.{u} α) : Multiset.{u} α :=
   ⟦ Premultiset.bigsum (fun i => (A i).out) ⟧
 
-lemma Multiset.bigsum.proper (A A' : ι → Multiset α) :
-    (∀ i, A i = A' i) → bigsum A = bigsum A' := by
-  intro AA'; apply Quotient.sound;
-  apply Premultiset.bigsum.proper; intro _; rw [AA']
-
 /-! ### `bigsum` is commutative -/
 
 lemma Premultiset.bigsum.comm {ι ι' : Type}
