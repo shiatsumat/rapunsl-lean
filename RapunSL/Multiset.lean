@@ -372,12 +372,12 @@ lemma Multiset.prod.id_l (a : α) (B : Multiset β) :
 
 lemma Premultiset.prod.assoc_l
     (A : Premultiset α) (B : Premultiset β) (C : Premultiset γ) :
-    (A * B) * C ≈ (fun (a, b, c) => (⟨a, b⟩, c)) <$> (A * (B * C)) := by
-  exists fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩;
-  and_intros <;> intro ⟨_, _⟩ <;> rfl
+    (A * B) * C ≈ (fun (a, (b, c)) => ((a, b), c)) <$> (A * (B * C)) := by
+  exists fun ((i, j), k) => (i, (j, k)), fun (i, (j, k)) => ((i, j), k);
+  and_intros <;> intro <;> rfl
 
 lemma Multiset.prod.assoc_l (A : Multiset α) (B : Multiset β) (C : Multiset γ) :
-    (A * B) * C = (fun (a, b, c) => ((a, b), c)) <$> (A * (B * C)) := by
+    (A * B) * C = (fun (a, (b, c)) => ((a, b), c)) <$> (A * (B * C)) := by
   cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
   apply Quotient.sound; apply Premultiset.prod.assoc_l
 
@@ -388,9 +388,9 @@ lemma Multiset.prod.assoc_r (A : Multiset α) (B : Multiset β) (C : Multiset γ
 /-! ### `*` distributes over `+` -/
 
 lemma Premultiset.prod_sum_distrib_l (A : Premultiset α) (B C : Premultiset β) :
-    A * (B + C) ≈ (A * B) + (A * C) := by
+    A * (B + C) ≈ A * B + A * C := by
   exists fun (i, s) => match s with | .inl j => .inl (i, j) | .inr k => .inr (i, k),
-         fun | .inl (i, j) => ⟨i, .inl j⟩ | .inr (i, k) => ⟨i, .inr k⟩;
+         fun | .inl (i, j) => (i, .inl j) | .inr (i, k) => (i, .inr k);
   and_intros; { rintro (_ | _) <;> rfl }; all_goals
     rintro ⟨_, (_ | _)⟩ <;> rfl
 
