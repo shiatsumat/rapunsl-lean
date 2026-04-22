@@ -181,22 +181,22 @@ noncomputable def Multiset.bigsum.{u} {ι : Type}
 /-! ### `bigsum` is commutative -/
 
 lemma Premultiset.bigsum.comm {ι ι' : Type}
-    (A : ι → Premultiset α) (σ : ι → ι') (σ' : ι' → ι) :
-    (∀ i', σ (σ' i') = i') → (∀ i, σ' (σ i) = i) →
-    Premultiset.bigsum A ≈ Premultiset.bigsum (A ∘ σ') := fun σσ' σ'σ => by
-  exists fun ⟨i, j⟩ => ⟨σ i, congrArg (fun i => (A i).dom) (σ'σ i).symm ▸ j⟩,
-         fun ⟨i', j⟩ => ⟨σ' i', j⟩;
+    (A : ι → Premultiset α) (f : ι → ι') (g : ι' → ι) :
+    (∀ j, f (g j) = j) → (∀ i, g (f i) = i) →
+    Premultiset.bigsum A ≈ Premultiset.bigsum (A ∘ g) := fun fg gf => by
+  exists fun ⟨i, k⟩ => ⟨f i, congrArg (fun i => (A i).dom) (gf i).symm ▸ k⟩,
+         fun ⟨j, k⟩ => ⟨g j, k⟩;
   simp only [dom, Function.comp_apply];
   and_intros <;> intro ⟨_, _⟩;
-  · congr; { rw [σσ'] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
-  · congr; { rw [σ'σ] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
-  · simp only [bigsum, Function.comp_apply]; congr; { rw [σ'σ] };
+  · congr; { rw [fg] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
+  · congr; { rw [gf] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
+  · simp only [bigsum, Function.comp_apply]; congr; { rw [gf] };
     simp only [heq_eqRec_iff_heq, heq_eq_eq]
 
 lemma Multiset.bigsum.comm {ι ι' : Type}
-    (A : ι → Multiset α) (σ : ι → ι') (σ' : ι' → ι) :
-    (∀ i', σ (σ' i') = i') → (∀ i, σ' (σ i) = i) →
-    bigsum A = bigsum (A ∘ σ') := fun σσ' σ'σ => by
+    (A : ι → Multiset α) (f : ι → ι') (g : ι' → ι) :
+    (∀ i', f (g i') = i') → (∀ i, g (f i) = i) →
+    bigsum A = bigsum (A ∘ g) := fun fg gf => by
   apply Quotient.sound; apply Premultiset.bigsum.comm <;> assumption
 
 /-! ### `bigsum` is associative -/
