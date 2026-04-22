@@ -99,7 +99,7 @@ lemma Premultiset.sum.proper_r (A B B' : Premultiset α) :
 
 /-- Sum of two multisets -/
 def Multiset.sum.{u} {α} : Multiset.{u} α → Multiset.{u} α → Multiset α :=
-  .lift₂ (fun A B => ⟦ A + B ⟧) <| by
+  .lift₂ (⟦ · + · ⟧) <| by
     intros; apply Quotient.sound; apply Premultiset.sum.proper <;> assumption
 
 instance Multiset.Add : Add (Multiset.{u} α) where
@@ -266,7 +266,7 @@ lemma Premultiset.map.proper (A B : Premultiset α) :
 
 /-- `Functor` for `Multiset` -/
 instance Multiset.Functor : Functor Multiset.{u} where
-  map f := .lift (fun A => ⟦ f <$> A ⟧) <| by
+  map f := .lift (⟦ f <$> · ⟧) <| by
     intros; apply Quotient.sound; apply Premultiset.map.proper; assumption
 
 /-- Functor laws for `Multiset` -/
@@ -315,7 +315,7 @@ lemma Premultiset.prod.proper (A A' : Premultiset α) (B B' : Premultiset β) :
 
 /-- Product of two multisets -/
 def Multiset.prod {α β} : Multiset α → Multiset β → Multiset (α × β) :=
-  .lift₂ (fun A B => ⟦ A * B ⟧) <| by
+  .lift₂ (⟦ · * · ⟧) <| by
     intros; apply Quotient.sound; apply Premultiset.prod.proper <;> assumption
 
 instance Multiset.HMul : HMul (Multiset α) (Multiset β) (Multiset (α × β)) where
@@ -354,18 +354,18 @@ lemma Multiset.prod.comm (A : Multiset α) (B : Multiset β) :
 /-! ### `*` is unital -/
 
 lemma Premultiset.prod.id_r (A : Premultiset α) (b : β) :
-    A * Premultiset.singl b ≈ (fun a => (a, b)) <$> A := by
+    A * Premultiset.singl b ≈ (·, b) <$> A := by
   exists fun (i, _) => i, fun i => (i, ());
   and_intros; { intros; trivial }; all_goals
     rintro ⟨_, _⟩; rfl
 
 lemma Multiset.prod.id_r (A : Multiset α) (b : β) :
-    A * singl b = (fun a => (a, b)) <$> A := by
+    A * singl b = (·, b) <$> A := by
   cases A using Quotient.ind; apply Quotient.sound;
   apply Premultiset.prod.id_r
 
 lemma Multiset.prod.id_l (a : α) (B : Multiset β) :
-    singl a * B = (fun b => (a, b)) <$> B := by
+    singl a * B = (a, ·) <$> B := by
   rw [prod.comm, prod.id_r, ←comp_map]; rfl
 
 /-! ### `*` is associative -/
