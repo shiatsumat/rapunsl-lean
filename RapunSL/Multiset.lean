@@ -116,6 +116,14 @@ def Premultiset.singl (a : α) : Premultiset α := .mk Unit (fun _ => a)
 /-- Singleton multiset -/
 def Multiset.singl (a : α) : Multiset α := ⟦ .singl a ⟧
 
+/-! ## `<$>` over `singl` -/
+
+lemma Premultiset.singl.map (f : α → β) (a : α) :
+    f <$> singl a = singl (f a) := rfl
+
+lemma Multiset.singl.map (f : α → β) (a : α) :
+    f <$> singl a = singl (f a) := rfl
+
 /-! ## Binary sum -/
 
 /-- Sum of two premultisets -/
