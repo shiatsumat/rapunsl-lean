@@ -179,7 +179,7 @@ noncomputable def Multiset.bigsum.{u} {ι : Type}
   ⟦ Premultiset.bigsum (fun i => (A i).out) ⟧
 
 lemma Multiset.bigsum.proper (A A' : ι → Multiset α) :
-    (∀ i, A i = A' i) → Multiset.bigsum A = Multiset.bigsum A' := by
+    (∀ i, A i = A' i) → bigsum A = bigsum A' := by
   intro AA'; apply Quotient.sound;
   apply Premultiset.bigsum.proper; intro _; rw [AA']
 
@@ -201,7 +201,7 @@ lemma Premultiset.bigsum.comm {ι ι' : Type}
 lemma Multiset.bigsum.comm {ι ι' : Type}
     (A : ι → Multiset α) (σ : ι → ι') (σ' : ι' → ι) :
     (∀ i', σ (σ' i') = i') → (∀ i, σ' (σ i) = i) →
-    Multiset.bigsum A = Multiset.bigsum (A ∘ σ') := fun σσ' σ'σ => by
+    bigsum A = bigsum (A ∘ σ') := fun σσ' σ'σ => by
   apply Quotient.sound; apply Premultiset.bigsum.comm <;> assumption
 
 /-! ### `bigsum` is associative -/
@@ -215,8 +215,7 @@ lemma Premultiset.bigsum.assoc {ι : Type} {ι' : ι → Type}
 
 lemma Multiset.bigsum.assoc {ι : Type} {ι' : ι → Type}
     (A : ∀ ι, ι' ι → Multiset α) :
-    Multiset.bigsum (fun i => Multiset.bigsum (A i)) =
-      Multiset.bigsum (ι := Σ ι, ι' ι) (fun ⟨i, j⟩ => A i j) := by
+    bigsum (fun i => bigsum (A i)) = bigsum (ι := Σ ι, ι' ι) (fun ⟨i, j⟩ => A i j) := by
   apply Quotient.sound; trans;
   { apply Premultiset.bigsum.proper; intros; apply Quotient.mk_out };
   apply Premultiset.bigsum.assoc
@@ -228,7 +227,7 @@ lemma Premultiset.empty_bigsum :
   exists nofun, nofun; and_intros <;> nofun
 
 lemma Multiset.empty_bigsum :
-    ∅ = Multiset.bigsum (ι := Empty) (α := α) nofun := by
+    ∅ = bigsum (ι := Empty) (α := α) nofun := by
   apply Quotient.sound; apply Premultiset.empty_bigsum
 
 /-! ### `+` as `bigsum` -/
@@ -243,7 +242,7 @@ lemma Premultiset.sum_bigsum (A B : Premultiset α) :
     rintro (_ | _) <;> rfl
 
 lemma Multiset.sum_bigsum (A B : Multiset α) :
-    A + B = Multiset.bigsum (fun b : Bool => if b then A else B) := by
+    A + B = bigsum (fun b : Bool => if b then A else B) := by
   rw (occs := [1]) [←Quotient.out_eq A, ←Quotient.out_eq B];
   apply Quotient.sound; apply Premultiset.sum_bigsum <;> rfl
 
@@ -339,11 +338,11 @@ lemma Multiset.prod_map
 
 lemma Multiset.prod_map_l (f : α → α') (A : Multiset α) (B : Multiset β) :
     f <$> A * B = Prod.map f id <$> (A * B) := by
-  rw [←Multiset.prod_map, id_map]
+  rw [←prod_map, id_map]
 
 lemma Multiset.prod_map_r (g : β → β') (A : Multiset α) (B : Multiset β) :
     A * g <$> B = Prod.map id g <$> (A * B) := by
-  rw [←Multiset.prod_map, id_map]
+  rw [←prod_map, id_map]
 
 /-! ### `*` is commutative -/
 
@@ -366,13 +365,13 @@ lemma Premultiset.prod.id_r (A : Premultiset α) (b : β) :
     rintro ⟨_, _⟩; rfl
 
 lemma Multiset.prod.id_r (A : Multiset α) (b : β) :
-    A * Multiset.singl b = (fun a => (a, b)) <$> A := by
+    A * singl b = (fun a => (a, b)) <$> A := by
   cases A using Quotient.ind; apply Quotient.sound;
   apply Premultiset.prod.id_r
 
 lemma Multiset.prod.id_l (a : α) (B : Multiset β) :
-    Multiset.singl a * B = (fun b => (a, b)) <$> B := by
-  rw [Multiset.prod.comm, Multiset.prod.id_r, ←comp_map]; rfl
+    singl a * B = (fun b => (a, b)) <$> B := by
+  rw [prod.comm, prod.id_r, ←comp_map]; rfl
 
 /-! ### `*` is associative -/
 
@@ -389,7 +388,7 @@ lemma Multiset.prod.assoc_l (A : Multiset α) (B : Multiset β) (C : Multiset γ
 
 lemma Multiset.prod.assoc_r (A : Multiset α) (B : Multiset β) (C : Multiset γ) :
     A * (B * C) = (fun ((a, b), c) => (a, b, c)) <$> ((A * B) * C) := by
-  rw [Multiset.prod.assoc_l, ←comp_map]; rw (occs := [1]) [←id_map (_ * _)]; rfl
+  rw [prod.assoc_l, ←comp_map]; rw (occs := [1]) [←id_map (_ * _)]; rfl
 
 /-! ### `*` distributes over `+` -/
 
@@ -407,6 +406,5 @@ lemma Multiset.prod_sum_distrib_l (A : Multiset α) (B C : Multiset β) :
 
 lemma Multiset.prod_sum_distrib_r (A B : Multiset α) (C : Multiset β) :
     (A + B) * C = A * C + B * C := by
-  rw [Multiset.prod.comm, Multiset.prod_sum_distrib_l,
-      Multiset.prod.comm C A, Multiset.prod.comm C B, Multiset.map_sum,
+  rw [prod.comm, prod_sum_distrib_l, prod.comm C A, prod.comm C B, map_sum,
       ←comp_map, ←comp_map, Prod.swap_swap_eq, id_map, id_map]
