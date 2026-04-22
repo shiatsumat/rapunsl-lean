@@ -9,7 +9,7 @@ public import Mathlib.Data.Setoid.Basic
 /-! ## Premultiset -/
 
 /-- Premultiset -/
-structure Premultiset.{u} (α : Type u) : Type (max u 1) where mk ::
+structure Premultiset.{u} (α : Type u) : Type (max 1 u) where mk ::
   dom : Type
   elem : dom → α
 
@@ -38,7 +38,7 @@ instance Premultiset.Setoid.{u} α : Setoid (Premultiset α) :=
 /-! ## Multiset -/
 
 /-- Multiset -/
-def Multiset.{u} (α : Type u) : Type (max u 1) :=
+def Multiset.{u} (α : Type u) : Type (max 1 u) :=
   Quotient (Premultiset.Setoid.{u} α)
 
 /-! ## Empty multiset -/
