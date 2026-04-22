@@ -376,16 +376,20 @@ lemma Multiset.prod.id_l (a : α) (B : Multiset β) :
 
 /-! ### `*` is associative -/
 
-lemma Premultiset.prod.assoc
+lemma Premultiset.prod.assoc_l
     (A : Premultiset α) (B : Premultiset β) (C : Premultiset γ) :
     (A * B) * C ≈ (fun (a, b, c) => (⟨a, b⟩, c)) <$> (A * (B * C)) := by
   exists fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩;
   and_intros <;> intro ⟨_, _⟩ <;> rfl
 
-lemma Multiset.prod.assoc (A : Multiset α) (B : Multiset β) (C : Multiset γ) :
+lemma Multiset.prod.assoc_l (A : Multiset α) (B : Multiset β) (C : Multiset γ) :
     (A * B) * C = (fun (a, b, c) => ((a, b), c)) <$> (A * (B * C)) := by
   cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
-  apply Quotient.sound; apply Premultiset.prod.assoc
+  apply Quotient.sound; apply Premultiset.prod.assoc_l
+
+lemma Multiset.prod.assoc_r (A : Multiset α) (B : Multiset β) (C : Multiset γ) :
+    A * (B * C) = (fun ((a, b), c) => (a, b, c)) <$> ((A * B) * C) := by
+  rw [Multiset.prod.assoc_l, ←comp_map]; rw (occs := [1]) [←id_map (_ * _)]; rfl
 
 /-! ### `*` distributes over `+` -/
 
