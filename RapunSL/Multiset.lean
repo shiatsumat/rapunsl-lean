@@ -427,8 +427,7 @@ lemma Multiset.prod.comm (A : Multiset α) (B : Multiset β) :
 lemma Premultiset.prod.id_r (A : Premultiset α) (b : β) :
     A * pure (f:=Premultiset) b ≈ (·, b) <$> A := by
   exists fun (i, _) => i, fun i => (i, ());
-  and_intros; { intros; trivial }; all_goals
-    rintro ⟨_, _⟩; rfl
+  and_intros <;> intro _; { trivial }; all_goals rfl
 
 lemma Multiset.prod.id_r (A : Multiset α) (b : β) :
     A * pure (f:=Multiset) b = (·, b) <$> A := by
