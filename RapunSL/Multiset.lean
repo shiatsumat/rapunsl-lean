@@ -551,7 +551,7 @@ lemma Multiset.join_join (A : Multiset (Multiset (Multiset α))) :
     { intro i; rewrite [←Quotient.out_eq (F i), Quotient.lift_mk];
       symm; unfold Multiset.bigsum; apply Quotient.mk_out }; }
   exists fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩;
-  and_intros; iterate 3 { rintro _; rfl }
+  and_intros; iterate 3 { intro _; rfl }
 
 /-! ## Monad -/
 
