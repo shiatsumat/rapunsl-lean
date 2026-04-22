@@ -30,10 +30,11 @@ lemma Ifam.equiv.elem_eq_symm {A B : Ifam α}
 lemma Ifam.equiv.is_equiv :
     Equivalence (α:=Ifam.{u} α) Ifam.equiv where
   refl _ := by exists id, id; and_intros <;> intros <;> rfl
-  symm := fun ⟨f, g, fg, _, AB⟩ => by
-    exists g, f; and_intros <;> try assumption;
+  symm := by
+    rintro _ _ ⟨f, g, fg, _, AB⟩; exists g, f; and_intros <;> try assumption;
     intros; rw [AB, fg]
-  trans := fun ⟨f, g, fg, gf, AB⟩ ⟨h, k, hk, kh, BC⟩ => by
+  trans := by
+    rintro _ _ _ ⟨f, g, fg, gf, AB⟩ ⟨h, k, hk, kh, BC⟩;
     exists h ∘ f, g ∘ k; simp only [Function.comp_apply];
     and_intros <;> intro _;
     { rw [fg, hk] }; { rw [kh, gf] }; rw [←BC, ←AB]
@@ -288,7 +289,8 @@ lemma Mset.bigsum.map (f : α → β) (A : ι → Mset α) :
 lemma Ifam.bigsum.comm {ι ι' : Type}
     (A : ι → Ifam α) (f : ι → ι') (g : ι' → ι) :
     (∀ j, f (g j) = j) → (∀ i, g (f i) = i) →
-    bigsum A ≈ bigsum (A ∘ g) := fun fg gf => by
+    bigsum A ≈ bigsum (A ∘ g) := by
+  intro fg gf;
   exists fun ⟨i, k⟩ => ⟨f i, congrArg (fun i => (A i).dom) (gf i).symm ▸ k⟩,
          fun ⟨j, k⟩ => ⟨g j, k⟩;
   simp only [dom, Function.comp_apply];
@@ -301,8 +303,8 @@ lemma Ifam.bigsum.comm {ι ι' : Type}
 lemma Mset.bigsum.comm {ι ι' : Type}
     (A : ι → Mset α) (f : ι → ι') (g : ι' → ι) :
     (∀ i', f (g i') = i') → (∀ i, g (f i) = i) →
-    bigsum A = bigsum (A ∘ g) := fun fg gf => by
-  apply Quotient.sound; apply Ifam.bigsum.comm <;> assumption
+    bigsum A = bigsum (A ∘ g) := by
+  intro fg gf; apply Quotient.sound; apply Ifam.bigsum.comm <;> assumption
 
 /-! ### `bigsum` is associative -/
 
