@@ -47,11 +47,11 @@ def Multiset.{u} (α : Type u) : Type (max u 1) :=
 instance Premultiset.empty : EmptyCollection (Premultiset α) where
   emptyCollection := .mk Empty nofun
 
-/-- Empty Multiset -/
+/-- Empty multiset -/
 instance Multiset.empty : EmptyCollection (Multiset α) where
   emptyCollection := ⟦ ∅ ⟧
 
-/-! ## Singleton multiset -/
+/-! ## Singleton -/
 
 /-- Singleton premultiset -/
 def Premultiset.singl (a : α) : Premultiset α := .mk Unit (fun _ => a)
@@ -59,7 +59,7 @@ def Premultiset.singl (a : α) : Premultiset α := .mk Unit (fun _ => a)
 /-- Singleton multiset -/
 def Multiset.singl (a : α) : Multiset α := ⟦ .singl a ⟧
 
-/-! ## Binary multiset sum -/
+/-! ## Binary sum -/
 
 /-- Sum of two premultisets -/
 def Premultiset.sum {α} (A B : Premultiset α) : Premultiset α :=
@@ -153,7 +153,7 @@ instance Multiset.sum.Associative :
     cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
     apply Quotient.sound; apply Premultiset.sum.assoc
 
-/-! ## Big sum of multisets -/
+/-! ## Big sum -/
 
 /-- Big sum of premultisets -/
 def Premultiset.bigsum {ι : Type} (A : ι → Premultiset α) : Premultiset α :=
@@ -286,7 +286,7 @@ lemma Multiset.map_sum (f : α → β) (A B : Multiset α) :
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Quotient.sound; apply Premultiset.map_sum
 
-/-! ## Binary multiset product -/
+/-! ## Binary product -/
 
 /-- Product of two premultisets -/
 def Premultiset.prod {α β} (A : Premultiset α) (B : Premultiset β)
