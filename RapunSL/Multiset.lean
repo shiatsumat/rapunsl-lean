@@ -403,3 +403,28 @@ lemma Multiset.prod.sum.distrib_r (A B : Multiset α) (C : Multiset β) :
     (A + B) * C = A * C + B * C := by
   rw [prod.comm, prod.sum.distrib_l, prod.comm C A, prod.comm C B, sum.map,
       ←comp_map, ←comp_map, Prod.swap_swap_eq, id_map, id_map]
+
+/-! ## Applicative -/
+
+/-- `Applicative` for `Multiset` -/
+instance Multiset.Applicative : Applicative Multiset.{u} where
+  pure := .singl
+  seq F A := (fun (f, a) => f a) <$> (F * A ())
+
+lemma Multiset.pure.unfold {α} :
+    pure = Multiset.singl (α:=α) := rfl
+
+lemma Multiset.seq.unfold (F : Multiset (α → β)) A :
+    F <*> A = (fun (f, a) => f a) <$> (F * A) := rfl
+
+/-- Applicative laws for `Multiset` -/
+instance Multiset.LawfulApplicative : LawfulApplicative Multiset.{u} where
+  seqLeft_eq _ _ := rfl
+  seqRight_eq _ _ := rfl
+  map_pure _ _ := rfl
+  seq_pure _ _ := by
+    rw [seq.unfold, pure.unfold, prod.id_r, ←comp_map]; rfl
+  pure_seq _ _ := by
+    rw [seq.unfold, pure.unfold, prod.id_l, ←comp_map]; rfl
+  seq_assoc _ _ _ := by
+    simp only [seq.unfold, prod.map_l, prod.map_r, ←comp_map, prod.assoc_l]; rfl
