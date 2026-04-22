@@ -246,6 +246,20 @@ noncomputable def Multiset.bigsum.{u} {ι : Type}
   (A : ι → Multiset.{u} α) : Multiset.{u} α :=
   ⟦ Premultiset.bigsum (fun i => (A i).out) ⟧
 
+/-! ### `<$>` over `bigsum` -/
+
+lemma Premultiset.bigsum.map (f : α → β) (A : ι → Premultiset α) :
+    f <$> bigsum A ≈ bigsum (fun i => f <$> A i) := by
+  exists fun ⟨i, j⟩ => ⟨i, j⟩, fun ⟨i, j⟩ => ⟨i, j⟩;
+  and_intros <;> intro ⟨i, j⟩ <;> rfl
+
+lemma Multiset.bigsum.map (f : α → β) (A : ι → Multiset α) :
+    f <$> bigsum A = bigsum (fun i => f <$> A i) := by
+  apply Quotient.sound; trans; { apply Premultiset.bigsum.map };
+  apply Premultiset.bigsum.proper; intro i; simp only;
+  cases A i using Quotient.ind; trans; swap; { symm; apply Quotient.mk_out };
+  apply Premultiset.map.proper; apply Quotient.mk_out
+
 /-! ### `bigsum` is commutative -/
 
 lemma Premultiset.bigsum.comm {ι ι' : Type}
