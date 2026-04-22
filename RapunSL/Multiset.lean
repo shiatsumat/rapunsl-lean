@@ -43,9 +43,16 @@ def Multiset.{u} (α : Type u) : Type (max 1 u) :=
 
 /-! ## Functor -/
 
+/-- `map` for `Premultiset` -/
+def Premultiset.map {α β : Type u} (f : α → β) (A : Premultiset α) : Premultiset β :=
+  .mk A.dom (fun i => f (A.elem i))
+
 /-- `Functor` for `Premultiset` -/
 instance Premultiset.Functor : Functor Premultiset.{u} where
-  map f A := .mk A.dom (fun i => f (A.elem i))
+  map := Premultiset.map
+
+lemma Premultiset.map.unfold {α β : Type u} (f : α → β) (A : Premultiset α) :
+  f <$> A = Premultiset.map f A := rfl
 
 /-- Functor laws for `Premultiset` -/
 instance Premultiset.LawfulFunctor : LawfulFunctor Premultiset.{u} where
@@ -64,10 +71,17 @@ lemma Premultiset.map.proper (A B : Premultiset α) :
   rintro ⟨g, h, _, _, AB⟩; exists g, h; and_intros; iterate 2 { assumption };
   simp only [dom, elem]; intro _; rw [AB]
 
+/-- `map` for `Multiset` -/
+def Multiset.map {α β : Type u} (f : α → β) : Multiset α → Multiset β :=
+  .lift (⟦ f <$> · ⟧) <| by
+    intros; apply Quotient.sound; apply Premultiset.map.proper; assumption
+
 /-- `Functor` for `Multiset` -/
 instance Multiset.Functor : Functor Multiset.{u} where
-  map f := .lift (⟦ f <$> · ⟧) <| by
-    intros; apply Quotient.sound; apply Premultiset.map.proper; assumption
+  map := Multiset.map
+
+lemma Multiset.map.unfold {α β : Type u} (f : α → β) (A : Multiset α) :
+  f <$> A = Multiset.map f A := rfl
 
 /-- Functor laws for `Multiset` -/
 instance Multiset.LawfulFunctor : LawfulFunctor Multiset.{u} where
