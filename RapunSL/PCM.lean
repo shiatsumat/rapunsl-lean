@@ -12,8 +12,8 @@ public import Mathlib.Algebra.Group.Defs
 class CommMonoid' (α : Type u) extends CommSemigroup α, One α where
   mul_one : ∀ a, a * one = a
 
-/-- `CommMonoid'` induces `MulOneClass`, which gives `CommMonoid` -/
-instance CommMonoid'.MulOneClass (α : Type u) [CommMonoid' α] : MulOneClass α where
+/-- `CommMonoid'` induces `CommMonoid` -/
+instance CommMonoid'.CommMonoid (α : Type u) [CommMonoid' α] : CommMonoid α where
   mul_one := mul_one
   one_mul _ := by rw [mul_comm]; apply mul_one
 
