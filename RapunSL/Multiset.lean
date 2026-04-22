@@ -572,7 +572,7 @@ instance Multiset.LawfulMonad : LawfulMonad Multiset where
     rw [bind.unfold, pure.map, join_pure]
   bind_pure_comp _ _ := by
     rw [bind.unfold, ←Function.comp_def, comp_map, join_pure_map]
-  bind_map _ _ := by rw [bind.unfold, join_map_seq]
+  bind_map _ _ := by apply join_map_seq
   bind_assoc A F G := by
     have eq : (F · >>= G) = join ∘ (G <$> F ·) := rfl;
     rw [bind.unfold, bind.unfold, bind.unfold, eq];
