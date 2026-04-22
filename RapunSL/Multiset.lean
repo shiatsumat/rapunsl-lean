@@ -151,7 +151,7 @@ instance Multiset.Add : Add (Multiset.{u} α) where
 lemma Multiset.sum.unfold (A B : Multiset α) :
   A + B = Multiset.sum A B := rfl
 
-/-! ### `map` over `+` -/
+/-! ### `<$>` over `+` -/
 
 lemma Premultiset.sum.map (f : α → β) (A B : Premultiset α) :
     f <$> (A + B) ≈ f <$> A + f <$> B := by
@@ -333,19 +333,19 @@ instance Multiset.HMul : HMul (Multiset α) (Multiset β) (Multiset (α × β)) 
 lemma Multiset.prod.unfold {A : Multiset α} {B : Multiset β} :
     A * B = Multiset.prod A B := rfl
 
-/-! ### `*` over `map` -/
+/-! ### `*` over `<$>` -/
 
 lemma Multiset.prod.map
     (f : α → α') (g : β → β') (A : Multiset α) (B : Multiset β) :
-    f <$> A * g <$> B = Prod.map f g <$> (A * B) := by
+    (f <$> A) * (g <$> B) = Prod.map f g <$> (A * B) := by
   cases A using Quotient.ind; cases B using Quotient.ind; rfl
 
 lemma Multiset.prod.map_l (f : α → α') (A : Multiset α) (B : Multiset β) :
-    f <$> A * B = Prod.map f id <$> (A * B) := by
+    (f <$> A) * B = Prod.map f id <$> (A * B) := by
   rw [←prod.map, id_map]
 
 lemma Multiset.prod.map_r (g : β → β') (A : Multiset α) (B : Multiset β) :
-    A * g <$> B = Prod.map id g <$> (A * B) := by
+    A * (g <$> B) = Prod.map id g <$> (A * B) := by
   rw [←prod.map, id_map]
 
 /-! ### `*` is commutative -/
