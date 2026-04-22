@@ -41,6 +41,40 @@ instance Premultiset.Setoid.{u} α : Setoid (Premultiset α) :=
 def Multiset.{u} (α : Type u) : Type (max 1 u) :=
   Quotient (Premultiset.Setoid.{u} α)
 
+/-! ## Functor -/
+
+/-- `Functor` for `Premultiset` -/
+instance Premultiset.Functor : Functor Premultiset.{u} where
+  map f A := .mk A.dom (fun i => f (A.elem i))
+
+/-- Functor laws for `Premultiset` -/
+instance Premultiset.LawfulFunctor : LawfulFunctor Premultiset.{u} where
+  id_map _ := rfl
+  comp_map _ _ _ := rfl
+  map_const := rfl
+
+@[simp] lemma Premultiset.map.dom (f : α → β) (A : Premultiset α) :
+  (f <$> A).dom = A.dom := rfl
+
+@[simp] lemma Premultiset.map.elem (f : α → β) (A : Premultiset α) (i : A.dom) :
+  (f <$> A).elem i = f (A.elem i) := rfl
+
+lemma Premultiset.map.proper (A B : Premultiset α) :
+    A ≈ B → f <$> A ≈ f <$> B := by
+  rintro ⟨g, h, _, _, AB⟩; exists g, h; and_intros; iterate 2 { assumption };
+  simp only [dom, elem]; intro _; rw [AB]
+
+/-- `Functor` for `Multiset` -/
+instance Multiset.Functor : Functor Multiset.{u} where
+  map f := .lift (⟦ f <$> · ⟧) <| by
+    intros; apply Quotient.sound; apply Premultiset.map.proper; assumption
+
+/-- Functor laws for `Multiset` -/
+instance Multiset.LawfulFunctor : LawfulFunctor Multiset.{u} where
+  id_map A := by cases A using Quotient.ind; rfl
+  comp_map _ _ A := by cases A using Quotient.ind; rfl
+  map_const := rfl
+
 /-! ## Empty multiset -/
 
 /-- Empty premultiset -/
@@ -116,6 +150,17 @@ instance Multiset.Add : Add (Multiset.{u} α) where
 
 lemma Multiset.sum.unfold (A B : Multiset α) :
   A + B = Multiset.sum A B := rfl
+
+/-! ### `map` over `+` -/
+
+lemma Premultiset.sum.map (f : α → β) (A B : Premultiset α) :
+    f <$> (A + B) ≈ f <$> A + f <$> B := by
+  exists id, id; and_intros; all_goals { rintro (_ | _) <;> rfl }
+
+lemma Multiset.sum.map (f : α → β) (A B : Multiset α) :
+    f <$> (A + B) = f <$> A + f <$> B := by
+  cases A using Quotient.ind; cases B using Quotient.ind;
+  apply Quotient.sound; apply Premultiset.sum.map
 
 /-! ### `+` is commutative -/
 
@@ -249,51 +294,6 @@ lemma Multiset.sum_bigsum (A B : Multiset α) :
     A + B = bigsum (fun b : Bool => if b then A else B) := by
   rw (occs := [1]) [←Quotient.out_eq A, ←Quotient.out_eq B];
   apply Quotient.sound; apply Premultiset.sum_bigsum <;> rfl
-
-/-! ## Functor -/
-
-/-- `Functor` for `Premultiset` -/
-instance Premultiset.Functor : Functor Premultiset.{u} where
-  map f A := .mk A.dom (fun i => f (A.elem i))
-
-/-- Functor laws for `Premultiset` -/
-instance Premultiset.LawfulFunctor : LawfulFunctor Premultiset.{u} where
-  id_map _ := rfl
-  comp_map _ _ _ := rfl
-  map_const := rfl
-
-@[simp] lemma Premultiset.map.dom (f : α → β) (A : Premultiset α) :
-  (f <$> A).dom = A.dom := rfl
-
-@[simp] lemma Premultiset.map.elem (f : α → β) (A : Premultiset α) (i : A.dom) :
-  (f <$> A).elem i = f (A.elem i) := rfl
-
-lemma Premultiset.map.proper (A B : Premultiset α) :
-    A ≈ B → f <$> A ≈ f <$> B := by
-  rintro ⟨g, h, _, _, AB⟩; exists g, h; and_intros; iterate 2 { assumption };
-  simp only [dom, elem]; intro _; rw [AB]
-
-/-- `Functor` for `Multiset` -/
-instance Multiset.Functor : Functor Multiset.{u} where
-  map f := .lift (⟦ f <$> · ⟧) <| by
-    intros; apply Quotient.sound; apply Premultiset.map.proper; assumption
-
-/-- Functor laws for `Multiset` -/
-instance Multiset.LawfulFunctor : LawfulFunctor Multiset.{u} where
-  id_map A := by cases A using Quotient.ind; rfl
-  comp_map _ _ A := by cases A using Quotient.ind; rfl
-  map_const := rfl
-
-/-! ### `map` over `+` -/
-
-lemma Premultiset.sum.map (f : α → β) (A B : Premultiset α) :
-    f <$> (A + B) ≈ f <$> A + f <$> B := by
-  exists id, id; and_intros; all_goals { rintro (_ | _) <;> rfl }
-
-lemma Multiset.sum.map (f : α → β) (A B : Multiset α) :
-    f <$> (A + B) = f <$> A + f <$> B := by
-  cases A using Quotient.ind; cases B using Quotient.ind;
-  apply Quotient.sound; apply Premultiset.sum.map
 
 /-! ## Binary product -/
 
