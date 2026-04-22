@@ -160,7 +160,7 @@ def Premultiset.bigsum {ι : Type} (A : ι → Premultiset α) : Premultiset α 
   .mk (Σ i, (A i).dom) (fun ⟨i, j⟩ => (A i).elem j)
 
 lemma Premultiset.bigsum.proper (A A' : ι → Premultiset α) :
-    (∀ i, A i ≈ A' i) → Premultiset.bigsum A ≈ Premultiset.bigsum A' := by
+    (∀ i, A i ≈ A' i) → bigsum A ≈ bigsum A' := by
   intro AA'; have ⟨f, AA'⟩ := Classical.skolem.mp AA';
   have ⟨g, AA'⟩ := Classical.skolem.mp AA';
   exists fun ⟨i, j⟩ => ⟨i, f i j⟩, fun ⟨i, j⟩ => ⟨i, g i j⟩;
@@ -168,10 +168,10 @@ lemma Premultiset.bigsum.proper (A A' : ι → Premultiset α) :
   { rw [gf] }; { rw [fg] }; { apply AA' }
 
 @[simp] lemma Premultiset.bigsum.dom (A : ι → Premultiset α) :
-    (Premultiset.bigsum (α := α) (ι := ι) A).dom = Σ i, (A i).dom := rfl
+    (bigsum (α := α) (ι := ι) A).dom = Σ i, (A i).dom := rfl
 
 @[simp] lemma Premultiset.bigsum.elem (A : ι → Premultiset α) (i j) :
-    (Premultiset.bigsum (α := α) (ι := ι) A).elem ⟨i, j⟩ = (A i).elem j := rfl
+    (bigsum (α := α) (ι := ι) A).elem ⟨i, j⟩ = (A i).elem j := rfl
 
 /-- Big sum of multisets -/
 noncomputable def Multiset.bigsum.{u} {ι : Type}
@@ -183,7 +183,7 @@ noncomputable def Multiset.bigsum.{u} {ι : Type}
 lemma Premultiset.bigsum.comm {ι ι' : Type}
     (A : ι → Premultiset α) (f : ι → ι') (g : ι' → ι) :
     (∀ j, f (g j) = j) → (∀ i, g (f i) = i) →
-    Premultiset.bigsum A ≈ Premultiset.bigsum (A ∘ g) := fun fg gf => by
+    bigsum A ≈ bigsum (A ∘ g) := fun fg gf => by
   exists fun ⟨i, k⟩ => ⟨f i, congrArg (fun i => (A i).dom) (gf i).symm ▸ k⟩,
          fun ⟨j, k⟩ => ⟨g j, k⟩;
   simp only [dom, Function.comp_apply];
@@ -203,8 +203,8 @@ lemma Multiset.bigsum.comm {ι ι' : Type}
 
 lemma Premultiset.bigsum.assoc {ι : Type} {ι' : ι → Type}
     (A : ∀ ι, ι' ι → Premultiset α) :
-    Premultiset.bigsum (fun i => Premultiset.bigsum (A i)) ≈
-      Premultiset.bigsum (ι := Σ ι, ι' ι) (fun ⟨i, j⟩ => A i j) := by
+    bigsum (fun i => bigsum (A i)) ≈
+      bigsum (ι := Σ ι, ι' ι) (fun ⟨i, j⟩ => A i j) := by
   exists fun ⟨i, j, k⟩ => ⟨⟨i, j⟩, k⟩, fun ⟨⟨i, j⟩, k⟩ => ⟨i, j, k⟩;
   and_intros <;> intros <;> rfl
 
@@ -218,7 +218,7 @@ lemma Multiset.bigsum.assoc {ι : Type} {ι' : ι → Type}
 /-! ### `empty` as `bigsum` -/
 
 lemma Premultiset.empty_bigsum :
-    ∅ ≈ Premultiset.bigsum (ι := Empty) A := by
+    ∅ ≈ bigsum (ι := Empty) A := by
   exists nofun, nofun; and_intros <;> nofun
 
 lemma Multiset.empty_bigsum :
@@ -229,7 +229,7 @@ lemma Multiset.empty_bigsum :
 
 lemma Premultiset.sum_bigsum (A B : Premultiset α) :
     F true = A → F false = B →
-    A + B ≈ Premultiset.bigsum F := by
+    A + B ≈ bigsum F := by
   intro rfl rfl;
   exists fun | .inl i => ⟨true, i⟩ | .inr i => ⟨false, i⟩,
          fun | ⟨true, i⟩ => .inl i | ⟨false, i⟩ => .inr i;
@@ -354,7 +354,7 @@ lemma Multiset.prod.comm (A : Multiset α) (B : Multiset β) :
 /-! ### `*` is unital -/
 
 lemma Premultiset.prod.id_r (A : Premultiset α) (b : β) :
-    A * Premultiset.singl b ≈ (·, b) <$> A := by
+    A * singl b ≈ (·, b) <$> A := by
   exists fun (i, _) => i, fun i => (i, ());
   and_intros; { intros; trivial }; all_goals
     rintro ⟨_, _⟩; rfl
@@ -408,11 +408,11 @@ lemma Multiset.prod.sum.distrib_r (A B : Multiset α) (C : Multiset β) :
 
 /-- `Applicative` for `Multiset` -/
 instance Multiset.Applicative : Applicative Multiset.{u} where
-  pure := .singl
+  pure := singl
   seq F A := (fun (f, a) => f a) <$> (F * A ())
 
 lemma Multiset.pure.unfold {α} :
-    pure = Multiset.singl (α:=α) := rfl
+    pure = singl (α:=α) := rfl
 
 lemma Multiset.seq.unfold (F : Multiset (α → β)) A :
     F <*> A = (fun (f, a) => f a) <$> (F * A) := rfl
