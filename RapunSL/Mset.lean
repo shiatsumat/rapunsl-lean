@@ -62,9 +62,9 @@ instance Ifam.Functor : Functor Ifam.{u} where
 
 lemma Ifam.map_unfold : Functor.map = Ifam.map (α:=α) (β:=β) := rfl
 
-lemma Ifam.map.id (A : Ifam α) : map id A = A := by rfl
+lemma Ifam.id_map (A : Ifam α) : map id A = A := by rfl
 
-lemma Ifam.map.comp (f : α → β) (g : β → γ) (A : Ifam α) :
+lemma Ifam.comp_map (f : α → β) (g : β → γ) (A : Ifam α) :
     map (g ∘ f) A = map g (map f A) := by rfl
 
 /-- `LawfulFunctor` for `Ifam` -/
