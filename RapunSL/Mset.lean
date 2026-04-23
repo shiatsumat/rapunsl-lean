@@ -21,13 +21,13 @@ def Ifam.equiv.{u} (A B : Ifam.{u} α) : Prop :=
   (∀ j, f (g j) = j) ∧ (∀ i, g (f i) = i) ∧ ∀ i, A.elem i = B.elem (f i)
 
 /-- Utility for getting the inverse element equality -/
-lemma Ifam.equiv.elem_eq_symm {A B : Ifam α}
+lemma Ifam.equiv_elem_eq_symm {A B : Ifam α}
     {f : A.dom → B.dom} {g : B.dom → A.dom} :
     (∀ j, f (g j) = j) → (∀ i, A.elem i = B.elem (f i)) →
     ∀ j, B.elem j = A.elem (g j) := by
   intro fg AB j; rw [AB, fg]
 
-lemma Ifam.equiv.is_equiv :
+lemma Ifam.equiv_is_equiv :
     Equivalence (α:=Ifam.{u} α) Ifam.equiv where
   refl _ := by exists id, id; and_intros <;> intros <;> rfl
   symm := by
@@ -41,7 +41,7 @@ lemma Ifam.equiv.is_equiv :
 
 /-- Setoid for `Ifam` -/
 instance Ifam.Setoid.{u} α : Setoid (Ifam α) :=
-  Setoid.mk (Ifam.equiv.{u}) Ifam.equiv.is_equiv
+  Setoid.mk (Ifam.equiv.{u}) Ifam.equiv_is_equiv
 
 /-! ## `Mset`: Multiset, possibly infinite -/
 
@@ -59,7 +59,7 @@ def Ifam.map {α β : Type u} (f : α → β) (A : Ifam α) : Ifam β :=
 instance Ifam.Functor : Functor Ifam.{u} where
   map := Ifam.map
 
-lemma Ifam.map.unfold {α β : Type u} (f : α → β) (A : Ifam α) :
+lemma Ifam.map_unfold {α β : Type u} (f : α → β) (A : Ifam α) :
   f <$> A = Ifam.map f A := rfl
 
 /-- Functor laws for `Ifam` -/
@@ -68,27 +68,27 @@ instance Ifam.LawfulFunctor : LawfulFunctor Ifam.{u} where
   comp_map _ _ _ := rfl
   map_const := rfl
 
-@[simp] lemma Ifam.map.dom (f : α → β) (A : Ifam α) :
+@[simp] lemma Ifam.map_dom (f : α → β) (A : Ifam α) :
   (f <$> A).dom = A.dom := rfl
 
-@[simp] lemma Ifam.map.elem (f : α → β) (A : Ifam α) (i : A.dom) :
+@[simp] lemma Ifam.map_elem (f : α → β) (A : Ifam α) (i : A.dom) :
   (f <$> A).elem i = f (A.elem i) := rfl
 
-lemma Ifam.map.proper (A B : Ifam α) :
+lemma Ifam.map_proper (A B : Ifam α) :
     A ≈ B → f <$> A ≈ f <$> B := by
   rintro ⟨g, h, _, _, AB⟩; exists g, h; and_intros; iterate 2 { assumption };
-  simp only [dom, elem]; intro _; rw [AB]
+  simp only [map_dom, map_elem]; intro _; rw [AB]
 
 /-- `map` for `Mset` -/
 def Mset.map {α β : Type u} (f : α → β) : Mset α → Mset β :=
   .lift (⟦ f <$> · ⟧) <| by
-    intros; apply Quotient.sound; apply Ifam.map.proper; assumption
+    intros; apply Quotient.sound; apply Ifam.map_proper; assumption
 
 /-- `Functor` for `Mset` -/
 instance Mset.Functor : Functor Mset.{u} where
   map := Mset.map
 
-lemma Mset.map.unfold {α β : Type u} (f : α → β) (A : Mset α) :
+lemma Mset.map_unfold {α β : Type u} (f : α → β) (A : Mset α) :
   f <$> A = Mset.map f A := rfl
 
 /-- Functor laws for `Mset` -/
@@ -103,7 +103,7 @@ instance Mset.LawfulFunctor : LawfulFunctor Mset.{u} where
 instance Ifam.empty : EmptyCollection (Ifam α) where
   emptyCollection := .mk Empty nofun
 
-@[simp] lemma Ifam.empty.dom :
+@[simp] lemma Ifam.empty_dom :
     (∅ : Ifam α).dom = Empty := rfl
 
 /-- Empty multiset -/
@@ -116,28 +116,28 @@ instance Mset.empty : EmptyCollection (Mset α) where
 instance Ifam.Pure : Pure Ifam where
   pure a := .mk Unit (fun _ => a)
 
-lemma Ifam.pure.unfold (a : α) :
+lemma Ifam.pure_unfold (a : α) :
     pure (f:=Ifam) a = .mk Unit (fun _ => a) := rfl
 
-@[simp] lemma Ifam.pure.dom (a : α) :
+@[simp] lemma Ifam.pure_dom (a : α) :
     (pure (f:=Ifam) a).dom = Unit := rfl
 
-@[simp] lemma Ifam.pure.elem (a : α) u :
+@[simp] lemma Ifam.pure_elem (a : α) u :
     (pure (f:=Ifam) a).elem u = a := rfl
 
 /-- Singleton multiset -/
 instance Mset.Pure : Pure Mset where
   pure a := ⟦ pure a ⟧
 
-lemma Mset.pure.unfold (a : α) :
+lemma Mset.pure_unfold (a : α) :
     pure (f:=Mset) a = ⟦ .mk Unit (fun _ => a) ⟧ := rfl
 
 /-! ## `<$>` over `pure` -/
 
-lemma Ifam.pure.map (f : α → β) (a : α) :
+lemma Ifam.pure_map (f : α → β) (a : α) :
     f <$> pure (f:=Ifam) a = pure (f a) := rfl
 
-lemma Mset.pure.map (f : α → β) (a : α) :
+lemma Mset.pure_map (f : α → β) (a : α) :
     f <$> pure (f:=Mset) a = pure (f a) := rfl
 
 /-! ## Binary sum -/
@@ -149,19 +149,19 @@ def Ifam.sum {α} (A B : Ifam α) : Ifam α :=
 instance Ifam.Add : Add (Ifam.{u} α) where
   add := Ifam.sum
 
-lemma Ifam.sum.unfold (A B : Ifam α) :
+lemma Ifam.sum_unfold (A B : Ifam α) :
   A + B = Ifam.sum A B := rfl
 
-@[simp] lemma Ifam.sum.dom (A B : Ifam α) :
+@[simp] lemma Ifam.sum_dom (A B : Ifam α) :
   (A + B).dom = (A.dom ⊕ B.dom) := rfl
 
-@[simp] lemma Ifam.sum.elem_inl (A B : Ifam α) {i} :
+@[simp] lemma Ifam.sum_elem_inl (A B : Ifam α) {i} :
   (A + B).elem (.inl i) = A.elem i := rfl
 
-@[simp] lemma Ifam.sum.elem_inr (A B : Ifam α) {i} :
+@[simp] lemma Ifam.sum_elem_inr (A B : Ifam α) {i} :
   (A + B).elem (.inr i) = B.elem i := rfl
 
-lemma Ifam.sum.proper (A A' B B' : Ifam α) :
+lemma Ifam.sum_proper (A A' B B' : Ifam α) :
     A ≈ A' → B ≈ B' → A + B ≈ A' + B' :=
   fun ⟨f, g, gf, fg, AB⟩ ⟨h, k, kh, hk, A'B'⟩ => by
     exists .map f h, .map g k;
@@ -170,65 +170,65 @@ lemma Ifam.sum.proper (A A' B B' : Ifam α) :
     { rw [gf] }; { rw [kh] }; { rw [fg] }; { rw [hk] };
     { apply AB }; { apply A'B' }
 
-lemma Ifam.sum.proper_l (A A' B : Ifam α) :
+lemma Ifam.sum_proper_l (A A' B : Ifam α) :
     A ≈ A' → A + B ≈ A' + B := by
-  intro _; apply Ifam.sum.proper; { assumption }; { rfl }
+  intro _; apply Ifam.sum_proper; { assumption }; { rfl }
 
-lemma Ifam.sum.proper_r (A B B' : Ifam α) :
+lemma Ifam.sum_proper_r (A B B' : Ifam α) :
     B ≈ B' → A + B ≈ A + B' := by
-  intro _; apply Ifam.sum.proper; { rfl }; { assumption }
+  intro _; apply Ifam.sum_proper; { rfl }; { assumption }
 
 /-- Sum of two multisets -/
 def Mset.sum.{u} {α} : Mset.{u} α → Mset.{u} α → Mset α :=
   .lift₂ (⟦ · + · ⟧) <| by
-    intros; apply Quotient.sound; apply Ifam.sum.proper <;> assumption
+    intros; apply Quotient.sound; apply Ifam.sum_proper <;> assumption
 
 instance Mset.Add : Add (Mset.{u} α) where
   add := Mset.sum
 
-lemma Mset.sum.unfold (A B : Mset α) :
+lemma Mset.sum_unfold (A B : Mset α) :
   A + B = Mset.sum A B := rfl
 
 /-! ### `<$>` over `+` -/
 
-lemma Ifam.sum.map (f : α → β) (A B : Ifam α) :
+lemma Ifam.sum_map (f : α → β) (A B : Ifam α) :
     f <$> (A + B) ≈ f <$> A + f <$> B := by
   exists id, id; and_intros; all_goals { rintro (_ | _) <;> rfl }
 
-lemma Mset.sum.map (f : α → β) (A B : Mset α) :
+lemma Mset.sum_map (f : α → β) (A B : Mset α) :
     f <$> (A + B) = f <$> A + f <$> B := by
   cases A using Quotient.ind; cases B using Quotient.ind;
-  apply Quotient.sound; apply Ifam.sum.map
+  apply Quotient.sound; apply Ifam.sum_map
 
 /-! ### `+` is commutative -/
 
-lemma Ifam.sum.comm (A B : Ifam α) : A + B ≈ B + A := by
+lemma Ifam.sum_comm (A B : Ifam α) : A + B ≈ B + A := by
   exists fun | .inl i => .inr i | .inr j => .inl j,
          fun | .inl j => .inr j | .inr i => .inl i;
   and_intros <;> rintro (_ | _) <;> rfl
 
-instance Mset.sum.Commutative :
+instance Mset.sum_Commutative :
     Std.Commutative (HAdd.hAdd (α := Mset α)) where
   comm A B := by
     cases A using Quotient.ind; cases B using Quotient.ind;
-    apply Quotient.sound; apply Ifam.sum.comm
+    apply Quotient.sound; apply Ifam.sum_comm
 
 /-! ### `+` is unital -/
 
-lemma Ifam.sum.id_r {A : Ifam α} : A + ∅ ≈ A := by
+lemma Ifam.sum_id_r {A : Ifam α} : A + ∅ ≈ A := by
   exists fun | .inl i => i | .inr e => (nomatch e), .inl
   and_intros; { intro _; rfl }; all_goals
     rintro (_ | _); { rfl }; { nofun }
 
-instance Mset.sum.LawfulCommIdentity :
+instance Mset.sum_LawfulCommIdentity :
     Std.LawfulCommIdentity (HAdd.hAdd (α := Mset α)) ∅ where
   right_id A := by
     cases A using Quotient.ind; apply Quotient.sound;
-    exact Ifam.sum.id_r
+    exact Ifam.sum_id_r
 
 /-! ### `+` is assoc -/
 
-lemma Ifam.sum.assoc (A B C : Ifam α) : (A + B) + C ≈ A + (B + C) := by
+lemma Ifam.sum_assoc (A B C : Ifam α) : (A + B) + C ≈ A + (B + C) := by
   exists fun | .inl (.inl i) => .inl i | .inl (.inr j) => .inr (.inl j)
              | .inr k => .inr (.inr k),
          fun | .inl i => .inl (.inl i) | .inr (.inl j) => .inl (.inr j)
@@ -236,11 +236,11 @@ lemma Ifam.sum.assoc (A B C : Ifam α) : (A + B) + C ≈ A + (B + C) := by
   and_intros; { rintro (_ | _ | _) <;> rfl }; all_goals
     rintro ((_ | _) | _) <;> rfl
 
-instance Mset.sum.Associative :
+instance Mset.sum_Associative :
     Std.Associative (HAdd.hAdd (α := Mset α)) where
   assoc A B C := by
     cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
-    apply Quotient.sound; apply Ifam.sum.assoc
+    apply Quotient.sound; apply Ifam.sum_assoc
 
 /-! ## Big sum -/
 
@@ -248,7 +248,7 @@ instance Mset.sum.Associative :
 def Ifam.bigsum {ι : Type} (A : ι → Ifam α) : Ifam α :=
   .mk (Σ i, (A i).dom) (fun ⟨i, j⟩ => (A i).elem j)
 
-lemma Ifam.bigsum.proper (A A' : ι → Ifam α) :
+lemma Ifam.bigsum_proper (A A' : ι → Ifam α) :
     (∀ i, A i ≈ A' i) → bigsum A ≈ bigsum A' := by
   intro AA'; have ⟨f, AA'⟩ := Classical.skolem.mp AA';
   have ⟨g, AA'⟩ := Classical.skolem.mp AA';
@@ -256,10 +256,10 @@ lemma Ifam.bigsum.proper (A A' : ι → Ifam α) :
   and_intros <;> intro ⟨i, j⟩ <;> have ⟨gf, fg, AA'⟩ := AA' i <;> simp only;
   { rw [gf] }; { rw [fg] }; { apply AA' }
 
-@[simp] lemma Ifam.bigsum.dom (A : ι → Ifam α) :
+@[simp] lemma Ifam.bigsum_dom (A : ι → Ifam α) :
     (bigsum (α := α) (ι := ι) A).dom = Σ i, (A i).dom := rfl
 
-@[simp] lemma Ifam.bigsum.elem (A : ι → Ifam α) (i j) :
+@[simp] lemma Ifam.bigsum_elem (A : ι → Ifam α) (i j) :
     (bigsum (α := α) (ι := ι) A).elem ⟨i, j⟩ = (A i).elem j := rfl
 
 /-- Big sum of multisets -/
@@ -268,48 +268,48 @@ noncomputable def Mset.bigsum.{u} {ι : Type} (A : ι → Mset.{u} α) : Mset.{u
 
 /-! ### `<$>` over `bigsum` -/
 
-lemma Ifam.bigsum.map (f : α → β) (A : ι → Ifam α) :
+lemma Ifam.bigsum_map (f : α → β) (A : ι → Ifam α) :
     f <$> bigsum A ≈ bigsum (fun i => f <$> A i) := by
   exists fun ⟨i, j⟩ => ⟨i, j⟩, fun ⟨i, j⟩ => ⟨i, j⟩;
   and_intros <;> intro ⟨i, j⟩ <;> rfl
 
-lemma Mset.bigsum.map (f : α → β) (A : ι → Mset α) :
+lemma Mset.bigsum_map (f : α → β) (A : ι → Mset α) :
     f <$> bigsum A = bigsum (fun i => f <$> A i) := by
-  apply Quotient.sound; trans; { apply Ifam.bigsum.map };
-  apply Ifam.bigsum.proper; intro i; simp only;
+  apply Quotient.sound; trans; { apply Ifam.bigsum_map };
+  apply Ifam.bigsum_proper; intro i; simp only;
   cases A i using Quotient.ind; trans; swap; { symm; apply Quotient.mk_out };
-  apply Ifam.map.proper; apply Quotient.mk_out
+  apply Ifam.map_proper; apply Quotient.mk_out
 
 /-! ### `bigsum` is commutative -/
 
-lemma Ifam.bigsum.comm {ι ι' : Type} (A : ι → Ifam α) (f : ι → ι') (g : ι' → ι) :
+lemma Ifam.bigsum_comm {ι ι' : Type} (A : ι → Ifam α) (f : ι → ι') (g : ι' → ι) :
     (∀ j, f (g j) = j) → (∀ i, g (f i) = i) → bigsum A ≈ bigsum (A ∘ g) := by
   intro fg gf;
   exists fun ⟨i, k⟩ => ⟨f i, congrArg (fun i => (A i).dom) (gf i).symm ▸ k⟩,
          fun ⟨j, k⟩ => ⟨g j, k⟩;
-  simp only [dom, Function.comp_apply];
+  simp only [bigsum_dom, Function.comp_apply];
   and_intros <;> intro ⟨_, _⟩;
   · congr; { rw [fg] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
   · congr; { rw [gf] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
   · simp only [bigsum, Function.comp_apply]; congr; { rw [gf] };
     simp only [heq_eqRec_iff_heq, heq_eq_eq]
 
-lemma Mset.bigsum.comm {ι ι' : Type} (A : ι → Mset α) (f : ι → ι') (g : ι' → ι) :
+lemma Mset.bigsum_comm {ι ι' : Type} (A : ι → Mset α) (f : ι → ι') (g : ι' → ι) :
     (∀ i', f (g i') = i') → (∀ i, g (f i) = i) → bigsum A = bigsum (A ∘ g) := by
-  intro fg gf; apply Quotient.sound; apply Ifam.bigsum.comm <;> assumption
+  intro fg gf; apply Quotient.sound; apply Ifam.bigsum_comm <;> assumption
 
 /-! ### `bigsum` is associative -/
 
-lemma Ifam.bigsum.assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Ifam α) :
+lemma Ifam.bigsum_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Ifam α) :
     bigsum (fun i => bigsum (A i)) ≈ bigsum (ι := Σ ι, ι' ι) (fun ⟨i, j⟩ => A i j) := by
   exists fun ⟨i, j, k⟩ => ⟨⟨i, j⟩, k⟩, fun ⟨⟨i, j⟩, k⟩ => ⟨i, j, k⟩;
   and_intros <;> intros <;> rfl
 
-lemma Mset.bigsum.assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Mset α) :
+lemma Mset.bigsum_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Mset α) :
     bigsum (fun i => bigsum (A i)) = bigsum (ι := Σ ι, ι' ι) (fun ⟨i, j⟩ => A i j) := by
   apply Quotient.sound; trans;
-  { apply Ifam.bigsum.proper; intros; apply Quotient.mk_out };
-  apply Ifam.bigsum.assoc
+  { apply Ifam.bigsum_proper; intros; apply Quotient.mk_out };
+  apply Ifam.bigsum_assoc
 
 /-! ### `empty` as `bigsum` -/
 
@@ -352,109 +352,109 @@ def Ifam.prod {α β} (A : Ifam α) (B : Ifam β) : Ifam (α × β) :=
 instance Ifam.HMul : HMul (Ifam α) (Ifam β) (Ifam (α × β)) where
   hMul := Ifam.prod
 
-lemma Ifam.mul.unfold (A : Ifam α) (B : Ifam β) :
+lemma Ifam.mul_unfold (A : Ifam α) (B : Ifam β) :
     A * B = Ifam.prod A B := rfl
 
-@[simp] lemma Ifam.prod.dom (A : Ifam α) (B : Ifam β) :
+@[simp] lemma Ifam.prod_dom (A : Ifam α) (B : Ifam β) :
     (A * B).dom = (A.dom × B.dom) := rfl
 
-@[simp] lemma Ifam.prod.elem (A : Ifam α) (B : Ifam β) i j :
+@[simp] lemma Ifam.prod_elem (A : Ifam α) (B : Ifam β) i j :
   (A * B).elem (i, j) = (A.elem i, B.elem j) := rfl
 
-lemma Ifam.prod.proper (A A' : Ifam α) (B B' : Ifam β) :
+lemma Ifam.prod_proper (A A' : Ifam α) (B B' : Ifam β) :
     A ≈ A' → B ≈ B' → A * B ≈ A' * B' := by
   rintro ⟨f, g, fg, gf, AA'⟩ ⟨h, k, kh, hk, BB'⟩;
   exists fun (i, j) => (f i, h j), fun (i', j') => (g i', k j');
   and_intros <;> intro (_, _) <;> simp only;
-  { rw [fg, kh]; }; { rw [gf, hk] }; { simp only [elem]; rw [AA', BB'] }
+  { rw [fg, kh]; }; { rw [gf, hk] }; { simp only [prod_elem]; rw [AA', BB'] }
 
 /-- Product of two multisets -/
 def Mset.prod {α β} : Mset α → Mset β → Mset (α × β) :=
   .lift₂ (⟦ · * · ⟧) <| by
-    intros; apply Quotient.sound; apply Ifam.prod.proper <;> assumption
+    intros; apply Quotient.sound; apply Ifam.prod_proper <;> assumption
 
 instance Mset.HMul : HMul (Mset α) (Mset β) (Mset (α × β)) where
   hMul := Mset.prod
 
-lemma Mset.prod.unfold {A : Mset α} {B : Mset β} :
+lemma Mset.prod_unfold {A : Mset α} {B : Mset β} :
     A * B = Mset.prod A B := rfl
 
 /-! ### `*` over `<$>` -/
 
-lemma Mset.prod.map
+lemma Mset.prod_map
     (f : α → α') (g : β → β') (A : Mset α) (B : Mset β) :
     (f <$> A) * (g <$> B) = Prod.map f g <$> (A * B) := by
   cases A using Quotient.ind; cases B using Quotient.ind; rfl
 
-lemma Mset.prod.map_l (f : α → α') (A : Mset α) (B : Mset β) :
+lemma Mset.prod_map_l (f : α → α') (A : Mset α) (B : Mset β) :
     (f <$> A) * B = Prod.map f id <$> (A * B) := by
-  rw [←prod.map, id_map]
+  rw [←prod_map, id_map]
 
-lemma Mset.prod.map_r (g : β → β') (A : Mset α) (B : Mset β) :
+lemma Mset.prod_map_r (g : β → β') (A : Mset α) (B : Mset β) :
     A * (g <$> B) = Prod.map id g <$> (A * B) := by
-  rw [←prod.map, id_map]
+  rw [←prod_map, id_map]
 
 /-! ### `*` is commutative -/
 
-lemma Ifam.prod.comm (A : Ifam α) (B : Ifam β) :
+lemma Ifam.prod_comm (A : Ifam α) (B : Ifam β) :
     A * B ≈ Prod.swap <$> (B * A) := by
   exists fun (i, j) => (j, i), fun (j, i) => (i, j);
   and_intros <;> intro (_, _) <;> rfl
 
-lemma Mset.prod.comm (A : Mset α) (B : Mset β) :
+lemma Mset.prod_comm (A : Mset α) (B : Mset β) :
     A * B = Prod.swap <$> (B * A) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
-  apply Quotient.sound; apply Ifam.prod.comm
+  apply Quotient.sound; apply Ifam.prod_comm
 
 /-! ### `*` is unital -/
 
-lemma Ifam.prod.id_r (A : Ifam α) (b : β) :
+lemma Ifam.prod_id_r (A : Ifam α) (b : β) :
     A * pure (f:=Ifam) b ≈ (·, b) <$> A := by
   exists fun (i, _) => i, fun i => (i, ());
   and_intros <;> intro _; { trivial }; all_goals rfl
 
-lemma Mset.prod.id_r (A : Mset α) (b : β) :
+lemma Mset.prod_id_r (A : Mset α) (b : β) :
     A * pure (f:=Mset) b = (·, b) <$> A := by
   cases A using Quotient.ind; apply Quotient.sound;
-  apply Ifam.prod.id_r
+  apply Ifam.prod_id_r
 
-lemma Mset.prod.id_l (a : α) (B : Mset β) :
+lemma Mset.prod_id_l (a : α) (B : Mset β) :
     pure (f:=Mset) a * B = (a, ·) <$> B := by
-  rw [prod.comm, prod.id_r, ←comp_map]; rfl
+  rw [prod_comm, prod_id_r, ←comp_map]; rfl
 
 /-! ### `*` is associative -/
 
-lemma Ifam.prod.assoc_l (A : Ifam α) (B : Ifam β) (C : Ifam γ) :
+lemma Ifam.prod_assoc_l (A : Ifam α) (B : Ifam β) (C : Ifam γ) :
     (A * B) * C ≈ (fun (a, (b, c)) => ((a, b), c)) <$> (A * (B * C)) := by
   exists fun ((i, j), k) => (i, (j, k)), fun (i, (j, k)) => ((i, j), k);
   and_intros <;> intro <;> rfl
 
-lemma Mset.prod.assoc_l (A : Mset α) (B : Mset β) (C : Mset γ) :
+lemma Mset.prod_assoc_l (A : Mset α) (B : Mset β) (C : Mset γ) :
     (A * B) * C = (fun (a, (b, c)) => ((a, b), c)) <$> (A * (B * C)) := by
   cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
-  apply Quotient.sound; apply Ifam.prod.assoc_l
+  apply Quotient.sound; apply Ifam.prod_assoc_l
 
-lemma Mset.prod.assoc_r (A : Mset α) (B : Mset β) (C : Mset γ) :
+lemma Mset.prod_assoc_r (A : Mset α) (B : Mset β) (C : Mset γ) :
     A * (B * C) = (fun ((a, b), c) => (a, b, c)) <$> ((A * B) * C) := by
-  rw [prod.assoc_l, ←comp_map]; rw (occs := [1]) [←id_map (_ * _)]; rfl
+  rw [prod_assoc_l, ←comp_map]; rw (occs := [1]) [←id_map (_ * _)]; rfl
 
 /-! ### `*` distributes over `+` -/
 
-lemma Ifam.prod.sum.distrib_l (A : Ifam α) (B C : Ifam β) :
+lemma Ifam.prod_sum_distrib_l (A : Ifam α) (B C : Ifam β) :
     A * (B + C) ≈ A * B + A * C := by
   exists fun (i, s) => match s with | .inl j => .inl (i, j) | .inr k => .inr (i, k),
          fun | .inl (i, j) => (i, .inl j) | .inr (i, k) => (i, .inr k);
   and_intros; { rintro (_ | _) <;> rfl }; all_goals
     rintro ⟨_, (_ | _)⟩ <;> rfl
 
-lemma Mset.prod.sum.distrib_l (A : Mset α) (B C : Mset β) :
+lemma Mset.prod_sum_distrib_l (A : Mset α) (B C : Mset β) :
     A * (B + C) = A * B + A * C := by
   cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
-  apply Quotient.sound; apply Ifam.prod.sum.distrib_l
+  apply Quotient.sound; apply Ifam.prod_sum_distrib_l
 
-lemma Mset.prod.sum.distrib_r (A B : Mset α) (C : Mset β) :
+lemma Mset.prod_sum_distrib_r (A B : Mset α) (C : Mset β) :
     (A + B) * C = A * C + B * C := by
-  rw [prod.comm, prod.sum.distrib_l, prod.comm C A, prod.comm C B, sum.map,
+  rw [prod_comm, prod_sum_distrib_l, prod_comm C A, prod_comm C B, sum_map,
       ←comp_map, ←comp_map, Prod.swap_swap_eq, id_map, id_map]
 
 /-! ## Applicative -/
@@ -463,7 +463,7 @@ lemma Mset.prod.sum.distrib_r (A B : Mset α) (C : Mset β) :
 instance Mset.Applicative : Applicative Mset.{u} where
   seq F A := (fun (f, a) => f a) <$> (F * A ())
 
-lemma Mset.seq.unfold (F : Mset (α → β)) A :
+lemma Mset.seq_unfold (F : Mset (α → β)) A :
     F <*> A = (fun (f, a) => f a) <$> (F * A) := rfl
 
 /-! `LawfulApplicative` is later derived from `LawfulMonad` -/
@@ -474,13 +474,13 @@ lemma Mset.seq.unfold (F : Mset (α → β)) A :
 noncomputable def Ifam.join {α} (A : Ifam (Mset α)) : Mset α :=
   Mset.bigsum A.elem
 
-lemma Ifam.join.proper (A B : Ifam (Mset α)) :
+lemma Ifam.join_proper (A B : Ifam (Mset α)) :
     A ≈ B → A.join = B.join := by
   rintro ⟨f, g, fg, gf, AB⟩; apply Quotient.sound;
   exists (fun ⟨i, k⟩ => ⟨f i, congrArg (·.out.dom) (AB i) ▸ k⟩),
          (fun ⟨j, k⟩ => ⟨g j,
-           congrArg (·.out.dom) (equiv.elem_eq_symm fg AB j).symm ▸ k⟩);
-  and_intros <;> intro ⟨i, k⟩ <;> simp only [bigsum.dom, bigsum.elem]
+           congrArg (·.out.dom) (equiv_elem_eq_symm fg AB j).symm ▸ k⟩);
+  and_intros <;> intro ⟨i, k⟩ <;> simp only [bigsum_dom, bigsum_elem]
   · congr; { rw [fg] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
   · congr; { rw [gf] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
   · revert k; simp only; generalize AB i = eq; revert eq;
@@ -488,28 +488,28 @@ lemma Ifam.join.proper (A B : Ifam (Mset α)) :
 
 /-- `join` for `Mset` -/
 noncomputable def Mset.join {α} : Mset (Mset α) → Mset α :=
-  .lift (·.join) <| by intros; apply Ifam.join.proper; assumption
+  .lift (·.join) <| by intros; apply Ifam.join_proper; assumption
 
 /-! ### Join laws -/
 
 lemma Mset.map_join (f : α → β) (A : Mset (Mset α)) :
     f <$> join A = join ((f <$> ·) <$> A) := by
   revert A; apply Quotient.ind; rintro ⟨_, F⟩;
-  apply Quotient.sound; trans; { apply Ifam.bigsum.map };
-  apply Ifam.bigsum.proper; simp only [Ifam.map.elem];
+  apply Quotient.sound; trans; { apply Ifam.bigsum_map };
+  apply Ifam.bigsum_proper; simp only [Ifam.map_elem];
   intro i; cases F i using Quotient.ind; trans; swap;
-  { symm; apply Quotient.mk_out }; apply Ifam.map.proper; apply Quotient.mk_out
+  { symm; apply Quotient.mk_out }; apply Ifam.map_proper; apply Quotient.mk_out
 
 lemma Mset.join_map_seq (F : Mset (α → β)) :
     join ((· <$> A) <$> F) = F <*> A := by
   cases F using Quotient.ind; cases A using Quotient.ind;
-  apply Quotient.sound; simp only [Ifam.map.elem]; trans;
-  { apply Ifam.bigsum.proper; { intro _; apply Quotient.mk_out } }
+  apply Quotient.sound; simp only [Ifam.map_elem]; trans;
+  { apply Ifam.bigsum_proper; { intro _; apply Quotient.mk_out } }
   exists fun ⟨i, j⟩ => ⟨i, j⟩, fun ⟨i, j⟩ => ⟨i, j⟩; and_intros <;> { intro _; rfl }
 
 lemma Mset.join_pure (A : Mset α) : join (pure A) = A := by
   cases A using Quotient.ind; apply Quotient.sound;
-  simp only [Ifam.pure.elem]; trans; swap; { apply Quotient.mk_out };
+  simp only [Ifam.pure_elem]; trans; swap; { apply Quotient.mk_out };
   apply Ifam.unary_bigsum
 
 lemma Ifam.bigsum_pure (A : Ifam α) : bigsum (pure <$> A).elem ≈ A := by
@@ -517,16 +517,16 @@ lemma Ifam.bigsum_pure (A : Ifam α) : bigsum (pure <$> A).elem ≈ A := by
 
 lemma Mset.join_pure_map (A : Mset α) : join (pure <$> A) = A := by
   cases A using Quotient.ind; apply Quotient.sound; trans; swap;
-  { apply Ifam.bigsum_pure }; apply Ifam.bigsum.proper;
+  { apply Ifam.bigsum_pure }; apply Ifam.bigsum_proper;
   intro _; apply Quotient.mk_out
 
 lemma Mset.join_join (A : Mset (Mset (Mset α))) :
     join (join A) = join (join <$> A) := by
   revert A; apply Quotient.ind; rintro ⟨_, F⟩; apply Quotient.sound;
   unfold join; unfold Ifam.join;
-  simp only [Ifam.bigsum.dom, Ifam.map.dom, Ifam.map.elem];
+  simp only [Ifam.bigsum_dom, Ifam.map_dom, Ifam.map_elem];
   trans; swap;
-  { apply Ifam.bigsum.proper;
+  { apply Ifam.bigsum_proper;
     { intro i; rewrite [←Quotient.out_eq (F i), Quotient.lift_mk];
       symm; unfold Mset.bigsum; apply Quotient.mk_out }; }
   exists fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩;
@@ -538,19 +538,19 @@ lemma Mset.join_join (A : Mset (Mset (Mset α))) :
 noncomputable instance Mset.Monad : Monad Mset where
   bind A K := join (K <$> A)
 
-lemma Mset.bind.unfold (A : Mset α) (K : α → Mset β) :
+lemma Mset.bind_unfold (A : Mset α) (K : α → Mset β) :
     A >>= K = join (K <$> A) := rfl
 
 /-- Monad laws for `Mset` -/
 instance Mset.LawfulMonad : LawfulMonad Mset where
   seqLeft_eq _ _ := rfl
   seqRight_eq _ _ := rfl
-  pure_seq _ _ := by rw [seq.unfold, prod.id_l, ←comp_map]; rfl
-  pure_bind _ _ := by rw [bind.unfold, pure.map, join_pure]
+  pure_seq _ _ := by rw [seq_unfold, prod_id_l, ←comp_map]; rfl
+  pure_bind _ _ := by rw [bind_unfold, pure_map, join_pure]
   bind_pure_comp _ _ := by
-    rw [bind.unfold, ←Function.comp_def, comp_map, join_pure_map]
+    rw [bind_unfold, ←Function.comp_def, comp_map, join_pure_map]
   bind_map _ _ := by apply join_map_seq
   bind_assoc A F G := by
     have eq : (F · >>= G) = join ∘ (G <$> F ·) := rfl;
-    rw [bind.unfold, bind.unfold, bind.unfold, eq];
+    rw [bind_unfold, bind_unfold, bind_unfold, eq];
     rw [comp_map, ←join_join, map_join, ←comp_map]; rfl
