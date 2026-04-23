@@ -59,8 +59,7 @@ def Ifam.map {α β : Type u} (f : α → β) (A : Ifam α) : Ifam β :=
 instance Ifam.Functor : Functor Ifam.{u} where
   map := Ifam.map
 
-lemma Ifam.map_unfold {α β : Type u} (f : α → β) (A : Ifam α) :
-  f <$> A = Ifam.map f A := rfl
+lemma Ifam.map_unfold : Functor.map = Ifam.map (α:=α) (β:=β) := rfl
 
 /-- Functor laws for `Ifam` -/
 instance Ifam.LawfulFunctor : LawfulFunctor Ifam.{u} where
@@ -88,8 +87,7 @@ def Mset.map {α β : Type u} (f : α → β) : Mset α → Mset β :=
 instance Mset.Functor : Functor Mset.{u} where
   map := Mset.map
 
-lemma Mset.map_unfold {α β : Type u} (f : α → β) (A : Mset α) :
-  f <$> A = Mset.map f A := rfl
+lemma Mset.map_unfold : Functor.map = Mset.map (α:=α) (β:=β) := rfl
 
 /-- Functor laws for `Mset` -/
 instance Mset.LawfulFunctor : LawfulFunctor Mset.{u} where
@@ -149,8 +147,7 @@ def Ifam.sum {α} (A B : Ifam α) : Ifam α :=
 instance Ifam.Add : Add (Ifam.{u} α) where
   add := Ifam.sum
 
-lemma Ifam.sum_unfold (A B : Ifam α) :
-  A + B = Ifam.sum A B := rfl
+lemma Ifam.sum_unfold : HAdd.hAdd = Ifam.sum (α:=α) := rfl
 
 @[simp] lemma Ifam.sum_dom (A B : Ifam α) :
   (A + B).dom = (A.dom ⊕ B.dom) := rfl
@@ -186,8 +183,7 @@ def Mset.sum.{u} {α} : Mset.{u} α → Mset.{u} α → Mset α :=
 instance Mset.Add : Add (Mset.{u} α) where
   add := Mset.sum
 
-lemma Mset.sum_unfold (A B : Mset α) :
-  A + B = Mset.sum A B := rfl
+lemma Mset.sum_unfold : HAdd.hAdd = Mset.sum (α:=α) := rfl
 
 /-! ### `<$>` over `+` -/
 
@@ -351,8 +347,7 @@ def Ifam.prod {α β} (A : Ifam α) (B : Ifam β) : Ifam (α × β) :=
 instance Ifam.HMul : HMul (Ifam α) (Ifam β) (Ifam (α × β)) where
   hMul := Ifam.prod
 
-lemma Ifam.mul_unfold (A : Ifam α) (B : Ifam β) :
-    A * B = Ifam.prod A B := rfl
+lemma Ifam.mul_unfold : HMul.hMul = Ifam.prod (α:=α) (β:=β) := rfl
 
 @[simp] lemma Ifam.prod_dom (A : Ifam α) (B : Ifam β) :
     (A * B).dom = (A.dom × B.dom) := rfl
@@ -375,8 +370,7 @@ def Mset.prod {α β} : Mset α → Mset β → Mset (α × β) :=
 instance Mset.HMul : HMul (Mset α) (Mset β) (Mset (α × β)) where
   hMul := Mset.prod
 
-lemma Mset.prod_unfold (A : Mset α) (B : Mset β) :
-    A * B = Mset.prod A B := rfl
+lemma Mset.prod_unfold : HMul.hMul = Mset.prod (α:=α) (β:=β) := rfl
 
 /-! ### `*` over `<$>` -/
 
