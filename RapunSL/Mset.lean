@@ -215,7 +215,7 @@ instance Mset.sum_Commutative :
 
 /-! ### `+` is unital -/
 
-lemma Ifam.sum_id_r {A : Ifam α} : A + ∅ ≈ A := by
+lemma Ifam.sum_id_r (A : Ifam α) : A + ∅ ≈ A := by
   exists fun | .inl i => i | .inr e => (nomatch e), .inl
   and_intros; { intro _; rfl }; all_goals
     rintro (_ | _); { rfl }; { nofun }
@@ -223,8 +223,7 @@ lemma Ifam.sum_id_r {A : Ifam α} : A + ∅ ≈ A := by
 instance Mset.sum_LawfulCommIdentity :
     Std.LawfulCommIdentity (HAdd.hAdd (α := Mset α)) ∅ where
   right_id A := by
-    cases A using Quotient.ind; apply Quotient.sound;
-    exact Ifam.sum_id_r
+    cases A using Quotient.ind; apply Quotient.sound; apply Ifam.sum_id_r
 
 /-! ### `+` is assoc -/
 
@@ -376,7 +375,7 @@ def Mset.prod {α β} : Mset α → Mset β → Mset (α × β) :=
 instance Mset.HMul : HMul (Mset α) (Mset β) (Mset (α × β)) where
   hMul := Mset.prod
 
-lemma Mset.prod_unfold {A : Mset α} {B : Mset β} :
+lemma Mset.prod_unfold (A : Mset α) (B : Mset β) :
     A * B = Mset.prod A B := rfl
 
 /-! ### `*` over `<$>` -/
