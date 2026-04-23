@@ -1,6 +1,7 @@
 module
 
 public import Mathlib.Data.Setoid.Basic
+public import Mathlib.Control.Applicative
 
 @[expose] public section
 
@@ -580,3 +581,11 @@ instance Mset.LawfulMonad : LawfulMonad Mset.{u} where
   bind_pure_comp := bind_pure_comp
   bind_map := bind_map
   bind_assoc := bind_assoc
+
+lemma Mset.comm_seq_prod (A : Mset α) (B : Mset β) :
+    seq (map Prod.mk A) B = seq (map (fun b a => (a, b)) B) A := by
+    unfold seq; rw [prod_map_l, prod_map_l, ←comp_map, ←comp_map, prod_comm, ←comp_map]; rfl
+
+/-- Commutative applicative laws for `Mset` -/
+instance Mset.CommApplicative : CommApplicative Mset.{u} where
+  commutative_prod := comm_seq_prod
