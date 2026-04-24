@@ -29,7 +29,7 @@ lemma Ifam.equiv_elem_eq_symm {A B : Ifam α}
   intro fg AB j; rw [AB, fg]
 
 lemma Ifam.equiv_is_equiv :
-    Equivalence (α:=Ifam.{u} α) Ifam.equiv where
+    Equivalence (α := Ifam.{u} α) Ifam.equiv where
   refl _ := by exists id, id; and_intros <;> intros <;> rfl
   symm := by
     rintro _ _ ⟨f, g, fg, _, AB⟩; exists g, f; and_intros <;> try assumption;
@@ -134,20 +134,20 @@ instance Ifam.Pure : Pure Ifam.{u} where
   pure a := .mk Unit (fun _ => a)
 
 lemma Ifam.pure_unfold (a : α) :
-    pure (f:=Ifam) a = .mk Unit (fun _ => a) := rfl
+    pure (f := Ifam) a = .mk Unit (fun _ => a) := rfl
 
 @[simp] lemma Ifam.pure_dom (a : α) :
-    (pure (f:=Ifam) a).dom = Unit := rfl
+    (pure (f := Ifam) a).dom = Unit := rfl
 
 @[simp] lemma Ifam.pure_elem (a : α) u :
-    (pure (f:=Ifam) a).elem u = a := rfl
+    (pure (f := Ifam) a).elem u = a := rfl
 
 /-- Singleton multiset -/
 instance Mset.Pure : Pure Mset.{u} where
   pure a := ⟦ pure a ⟧
 
 lemma Mset.pure_unfold (a : α) :
-    pure (f:=Mset) a = ⟦ .mk Unit (fun _ => a) ⟧ := rfl
+    pure (f := Mset) a = ⟦ .mk Unit (fun _ => a) ⟧ := rfl
 
 /-! ## `map` over `pure` -/
 
@@ -425,17 +425,17 @@ lemma Mset.prod_comm (A : Mset α) (B : Mset β) :
 /-! ### `*` is unital -/
 
 lemma Ifam.prod_id_r (A : Ifam α) (b : β) :
-    A * pure (f:=Ifam) b ≈ (·, b) <$>ᴵ A := by
+    A * pure (f := Ifam) b ≈ (·, b) <$>ᴵ A := by
   exists fun (i, _) => i, fun i => (i, ());
   and_intros <;> intro _; { trivial }; all_goals rfl
 
 lemma Mset.prod_id_r (A : Mset α) (b : β) :
-    A * pure (f:=Mset) b = (·, b) <$>ᴹ A := by
+    A * pure (f := Mset) b = (·, b) <$>ᴹ A := by
   cases A using Quotient.ind; apply Quotient.sound;
   apply Ifam.prod_id_r
 
 lemma Mset.prod_id_l (a : α) (B : Mset β) :
-    pure (f:=Mset) a * B = (a, ·) <$>ᴹ B := by
+    pure (f := Mset) a * B = (a, ·) <$>ᴹ B := by
   rw [prod_comm, prod_id_r, ←comp_map]; rfl
 
 /-! ### `*` is associative -/
