@@ -319,12 +319,12 @@ lemma Mset.bigsum_comm {ι ι' : Type} (A : ι → Mset α) (f : ι → ι') (g 
 /-! ### `bigsum` is associative -/
 
 lemma Ifam.bigsum_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Ifam α) :
-    (∑ᴵ i, bigsum (A i)) ≈ ∑ᴵ (⟨i, j⟩ : Σ ι, ι' ι), A i j := by
+    (∑ᴵ i, bigsum (A i)) ≈ ∑ᴵ (⟨i, j⟩ : Sigma ι'), A i j := by
   exists fun ⟨i, j, k⟩ => ⟨⟨i, j⟩, k⟩, fun ⟨⟨i, j⟩, k⟩ => ⟨i, j, k⟩;
   and_intros <;> intros <;> rfl
 
 lemma Mset.bigsum_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Mset α) :
-    ∑ᴹ i, bigsum (A i) = ∑ᴹ (⟨i, j⟩ : (Σ ι, ι' ι)), A i j := by
+    ∑ᴹ i, bigsum (A i) = ∑ᴹ (⟨i, j⟩ : Sigma ι'), A i j := by
   apply Quotient.sound; trans;
   { apply Ifam.bigsum_proper; intros; apply Quotient.mk_out };
   apply Ifam.bigsum_assoc
