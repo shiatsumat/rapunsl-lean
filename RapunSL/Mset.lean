@@ -32,10 +32,10 @@ protected lemma Ifam.equiv_is_equiv :
     Equivalence (α := Ifam.{u} α) Ifam.equiv where
   refl _ := by exists id, id; and_intros <;> intros <;> rfl
   symm := by
-    rintro _ _ ⟨f, g, fg, _, AB⟩; exists g, f; and_intros <;> try assumption;
+    intro _ _ ⟨f, g, fg, _, AB⟩; exists g, f; and_intros <;> try assumption;
     intros; rw [AB, fg]
   trans := by
-    rintro _ _ _ ⟨f, g, fg, gf, AB⟩ ⟨h, k, hk, kh, BC⟩;
+    intro _ _ _ ⟨f, g, fg, gf, AB⟩ ⟨h, k, hk, kh, BC⟩;
     exists h ∘ f, g ∘ k; simp only [Function.comp_apply];
     and_intros <;> intro _;
     { rw [fg, hk] }; { rw [kh, gf] }; rw [←BC, ←AB]
@@ -84,7 +84,7 @@ protected instance Ifam.LawfulFunctor : LawfulFunctor Ifam.{u} where
 
 protected lemma Ifam.map_proper (A B : Ifam α) :
     A ≈ B → f <$>ᴵ A ≈ f <$>ᴵ B := by
-  rintro ⟨g, h, _, _, AB⟩; exists g, h; and_intros; iterate 2 { assumption };
+  intro ⟨g, h, _, _, AB⟩; exists g, h; and_intros; iterate 2 { assumption };
   simp only [Ifam.map_dom, Ifam.map_elem]; intro _; rw [AB]
 
 /-- Functor map for `Mset`, more universe-polymorphic than `Functor.map` -/
@@ -380,7 +380,7 @@ protected lemma Ifam.mul_unfold : HMul.hMul = Ifam.prod (α:=α) (β:=β) := rfl
 
 protected lemma Ifam.prod_proper (A A' : Ifam α) (B B' : Ifam β) :
     A ≈ A' → B ≈ B' → A * B ≈ A' * B' := by
-  rintro ⟨f, g, fg, gf, AA'⟩ ⟨h, k, kh, hk, BB'⟩;
+  intro ⟨f, g, fg, gf, AA'⟩ ⟨h, k, kh, hk, BB'⟩;
   exists fun (i, j) => (f i, h j), fun (i', j') => (g i', k j');
   and_intros <;> intro (_, _) <;> simp only;
   { rw [fg, kh]; }; { rw [gf, hk] }; { simp only [Ifam.prod_elem]; rw [AA', BB'] }
@@ -498,7 +498,7 @@ protected noncomputable def Ifam.join {α} (A : Ifam (Mset α)) : Mset α :=
 
 protected lemma Ifam.join_proper (A B : Ifam (Mset α)) :
     A ≈ B → A.join = B.join := by
-  rintro ⟨f, g, fg, gf, AB⟩; apply Quotient.sound;
+  intro ⟨f, g, fg, gf, AB⟩; apply Quotient.sound;
   exists (fun ⟨i, k⟩ => ⟨f i, congrArg (·.out.dom) (AB i) ▸ k⟩),
          (fun ⟨j, k⟩ => ⟨g j,
            congrArg (·.out.dom) (Ifam.equiv_elem_eq_symm fg AB j).symm ▸ k⟩);
@@ -516,7 +516,7 @@ protected noncomputable def Mset.join {α} : Mset (Mset α) → Mset α :=
 
 protected lemma Mset.map_join (f : α → β) (A : Mset (Mset α)) :
     f <$>ᴹ Mset.join A = Mset.join (Mset.map f <$>ᴹ A) := by
-  revert A; apply Quotient.ind; rintro ⟨_, F⟩;
+  revert A; apply Quotient.ind; intro ⟨_, F⟩;
   apply Quotient.sound; trans; { apply Ifam.bigsum_map };
   apply Ifam.bigsum_proper; simp only [Ifam.map_elem];
   intro i; cases F i using Quotient.ind; trans; swap;
@@ -544,7 +544,7 @@ protected lemma Mset.join_pure_map (A : Mset α) : Mset.join (pure <$>ᴹ A) = A
 
 protected lemma Mset.join_join (A : Mset (Mset (Mset α))) :
     Mset.join (Mset.join A) = Mset.join (Mset.join <$>ᴹ A) := by
-  revert A; apply Quotient.ind; rintro ⟨_, F⟩; apply Quotient.sound;
+  revert A; apply Quotient.ind; intro ⟨_, F⟩; apply Quotient.sound;
   unfold Mset.join; unfold Ifam.join;
   simp only [Ifam.bigsum_dom, Ifam.map_dom, Ifam.map_elem];
   trans; swap;
