@@ -60,7 +60,7 @@ scoped[Ifam] infixr:100 " <$>ᴵ " => Ifam.map
 open Ifam
 
 /-- `Functor` for `Ifam` -/
-protected instance Ifam.Functor : Functor Ifam.{u} where
+protected instance Ifam.instFunctor : Functor Ifam.{u} where
   map := Ifam.map
 
 protected lemma Ifam.map_unfold : Functor.map = Ifam.map (α:=α) (β:=β) := rfl
@@ -71,7 +71,7 @@ protected lemma Ifam.comp_map (f : α → β) (g : β → γ) (A : Ifam α) :
     (g ∘ f) <$>ᴵ A = g <$>ᴵ (f <$>ᴵ A) := by rfl
 
 /-- `LawfulFunctor` for `Ifam` -/
-protected instance Ifam.LawfulFunctor : LawfulFunctor Ifam.{u} where
+protected instance Ifam.instLawfulFunctor : LawfulFunctor Ifam.{u} where
   id_map _ := rfl
   comp_map _ _ _ := rfl
   map_const := rfl
@@ -96,7 +96,7 @@ scoped[Mset] infixr:100 " <$>ᴹ " => Mset.map
 open Mset
 
 /-- `Functor` for `Mset` -/
-protected instance Mset.Functor : Functor Mset.{u} where
+protected instance Mset.instFunctor : Functor Mset.{u} where
   map := Mset.map
 
 protected lemma Mset.map_unfold : Functor.map = Mset.map (α:=α) (β:=β) := rfl
@@ -109,7 +109,7 @@ protected lemma Mset.comp_map (f : α → β) (g : β → γ) (A : Mset α) :
   cases A using Quotient.ind; rfl
 
 /-- Functor laws for `Mset` -/
-protected instance Mset.LawfulFunctor : LawfulFunctor Mset.{u} where
+protected instance Mset.instLawfulFunctor : LawfulFunctor Mset.{u} where
   id_map := Mset.id_map
   comp_map := Mset.comp_map
   map_const := rfl
@@ -130,7 +130,7 @@ protected instance Mset.empty : EmptyCollection (Mset α) where
 /-! ## Singleton -/
 
 /-- Singleton indexed family -/
-protected instance Ifam.Pure : Pure Ifam.{u} where
+protected instance Ifam.instPure : Pure Ifam.{u} where
   pure a := .mk Unit (fun _ => a)
 
 protected lemma Ifam.pure_unfold (a : α) :
@@ -163,7 +163,7 @@ protected lemma Mset.pure_map (f : α → β) (a : α) :
 protected def Ifam.sum {α} (A B : Ifam α) : Ifam α :=
   .mk (A.dom ⊕ B.dom) (fun s => s.casesOn A.elem B.elem)
 
-protected instance Ifam.Add : Add (Ifam.{u} α) where
+protected instance Ifam.instAdd : Add (Ifam.{u} α) where
   add := Ifam.sum
 
 protected lemma Ifam.sum_unfold : HAdd.hAdd = Ifam.sum (α:=α) := rfl
@@ -199,7 +199,7 @@ protected def Mset.sum.{u} {α} : Mset.{u} α → Mset.{u} α → Mset α :=
   .lift₂ (⟦ · + · ⟧) <| by
     intros; apply Quotient.sound; apply Ifam.sum_proper <;> assumption
 
-protected instance Mset.Add : Add (Mset.{u} α) where
+protected instance Mset.instAdd : Add (Mset.{u} α) where
   add := Mset.sum
 
 protected lemma Mset.sum_unfold : HAdd.hAdd = Mset.sum (α:=α) := rfl
@@ -367,7 +367,7 @@ protected lemma Mset.sum_bigsum (A B : Mset α) :
 protected def Ifam.prod {α β} (A : Ifam α) (B : Ifam β) : Ifam (α × β) :=
   .mk (A.dom × B.dom) (fun (i, j) => (A.elem i, B.elem j))
 
-protected instance Ifam.HMul : HMul (Ifam α) (Ifam β) (Ifam (α × β)) where
+protected instance Ifam.instHMul : HMul (Ifam α) (Ifam β) (Ifam (α × β)) where
   hMul := Ifam.prod
 
 protected lemma Ifam.mul_unfold : HMul.hMul = Ifam.prod (α:=α) (β:=β) := rfl
@@ -390,7 +390,7 @@ protected def Mset.prod {α β} : Mset α → Mset β → Mset (α × β) :=
   .lift₂ (⟦ · * · ⟧) <| by
     intros; apply Quotient.sound; apply Ifam.prod_proper <;> assumption
 
-protected instance Mset.HMul : HMul (Mset α) (Mset β) (Mset (α × β)) where
+protected instance Mset.instHMul : HMul (Mset α) (Mset β) (Mset (α × β)) where
   hMul := Mset.prod
 
 protected lemma Mset.prod_unfold : HMul.hMul = Mset.prod (α:=α) (β:=β) := rfl
@@ -482,7 +482,7 @@ protected def Mset.seq {α β : Type*} (F : Mset (α → β)) (A : Mset α) : Ms
 scoped[Mset] infixl:60 " <*>ᴹ " => Mset.seq
 
 /-- `Applicative` for `Mset` -/
-protected instance Mset.Applicative : Applicative Mset.{u} where
+protected instance Mset.instApplicative : Applicative Mset.{u} where
   seq F A := F <*>ᴹ A ()
 
 protected lemma Mset.seq_unfold (F : Mset (α → β)) (A : Mset α) :
@@ -563,7 +563,7 @@ protected noncomputable def Mset.bind {α β : Type*} (A : Mset α) (K : α → 
 scoped[Mset] infixl:55 " >>=ᴹ " => Mset.bind
 
 /-- `Monad` for `Mset` -/
-noncomputable instance Mset.Monad : Monad Mset.{u} where
+noncomputable instance Mset.instMonad : Monad Mset.{u} where
   bind := Mset.bind
 
 protected lemma Mset.bind_unfold : Bind.bind = Mset.bind (α:=α) (β:=β) := rfl
@@ -587,7 +587,7 @@ protected lemma Mset.bind_assoc (A : Mset α) (F : α → Mset β) (G : β → M
   unfold Mset.bind; rw [Mset.comp_map, ←Mset.join_join, Mset.map_join, ←Mset.comp_map]
 
 /-- Monad laws for `Mset` -/
-protected instance Mset.LawfulMonad : LawfulMonad Mset.{u} where
+protected instance Mset.instLawfulMonad : LawfulMonad Mset.{u} where
   seqLeft_eq _ _ := rfl
   seqRight_eq _ _ := rfl
   pure_seq := Mset.pure_seq
@@ -602,5 +602,5 @@ protected lemma Mset.comm_seq_prod (A : Mset α) (B : Mset β) :
     rw [←Mset.comp_map, ←Mset.comp_map, Mset.prod_comm, ←Mset.comp_map]; rfl
 
 /-- Commutative applicative laws for `Mset` -/
-protected instance Mset.CommApplicative : CommApplicative Mset.{u} where
+protected instance Mset.instCommApplicative : CommApplicative Mset.{u} where
   commutative_prod := Mset.comm_seq_prod
