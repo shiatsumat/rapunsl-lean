@@ -287,14 +287,11 @@ scoped[Mset] notation "∑ᴹ " i " , " A:67 => Mset.bigsum (fun i => A)
 /-! ### `map` over `bigsum` -/
 
 protected lemma Ifam.bigsum_map (f : α → β) (A : ι → Ifam α) :
-    f <$>ᴵ Ifam.bigsum A ≈ ∑ᴵ i, f <$>ᴵ A i := by
-  exists fun ⟨i, j⟩ => ⟨i, j⟩, fun ⟨i, j⟩ => ⟨i, j⟩;
-  and_intros <;> intro ⟨i, j⟩ <;> rfl
+    f <$>ᴵ Ifam.bigsum A = ∑ᴵ i, f <$>ᴵ A i := rfl
 
 protected lemma Mset.bigsum_map (f : α → β) (A : ι → Mset α) :
     f <$>ᴹ Mset.bigsum A = ∑ᴹ i, f <$>ᴹ A i := by
-  apply Quotient.sound; trans; { apply Ifam.bigsum_map };
-  apply Ifam.bigsum_proper; intro i; simp only;
+  apply Quotient.sound; rw [Ifam.bigsum_map]; apply Ifam.bigsum_proper; intro i; simp only;
   cases A i using Quotient.ind; trans; swap; { symm; apply Quotient.mk_out };
   apply Ifam.map_proper; apply Quotient.mk_out
 
@@ -517,9 +514,8 @@ protected noncomputable def Mset.join {α} : Mset (Mset α) → Mset α :=
 protected lemma Mset.map_join (f : α → β) (A : Mset (Mset α)) :
     f <$>ᴹ Mset.join A = Mset.join (Mset.map f <$>ᴹ A) := by
   revert A; apply Quotient.ind; intro ⟨_, F⟩;
-  apply Quotient.sound; trans; { apply Ifam.bigsum_map };
-  apply Ifam.bigsum_proper; simp only [Ifam.map_elem];
-  intro i; cases F i using Quotient.ind; trans; swap;
+  apply Quotient.sound; rw [Ifam.bigsum_map]; apply Ifam.bigsum_proper;
+  simp only [Ifam.map_elem]; intro i; cases F i using Quotient.ind; trans; swap;
   { symm; apply Quotient.mk_out }; apply Ifam.map_proper; apply Quotient.mk_out
 
 protected lemma Mset.join_map_seq (F : Mset (α → β)) :
