@@ -63,7 +63,7 @@ open Ifam
 protected instance Ifam.instFunctor : Functor Ifam.{u} where
   map := Ifam.map
 
-protected lemma Ifam.map_unfold : Functor.map = Ifam.map (α:=α) (β:=β) := rfl
+protected lemma Ifam.map_unfold : Functor.map = Ifam.map (α := α) (β := β) := rfl
 
 protected lemma Ifam.id_map (A : Ifam α) : id <$>ᴵ A = A := by rfl
 
@@ -99,7 +99,7 @@ open Mset
 protected instance Mset.instFunctor : Functor Mset.{u} where
   map := Mset.map
 
-protected lemma Mset.map_unfold : Functor.map = Mset.map (α:=α) (β:=β) := rfl
+protected lemma Mset.map_unfold : Functor.map = Mset.map (α := α) (β := β) := rfl
 
 protected lemma Mset.id_map (A : Mset α) : id <$>ᴹ A = A := by
   cases A using Quotient.ind; rfl
@@ -166,7 +166,7 @@ protected def Ifam.sum {α} (A B : Ifam α) : Ifam α :=
 protected instance Ifam.instAdd : Add (Ifam.{u} α) where
   add := Ifam.sum
 
-protected lemma Ifam.sum_unfold : HAdd.hAdd = Ifam.sum (α:=α) := rfl
+protected lemma Ifam.sum_unfold : HAdd.hAdd = Ifam.sum (α := α) := rfl
 
 @[simp] protected lemma Ifam.sum_dom (A B : Ifam α) :
   (A + B).dom = (A.dom ⊕ B.dom) := rfl
@@ -202,7 +202,7 @@ protected def Mset.sum.{u} {α} : Mset.{u} α → Mset.{u} α → Mset α :=
 protected instance Mset.instAdd : Add (Mset.{u} α) where
   add := Mset.sum
 
-protected lemma Mset.sum_unfold : HAdd.hAdd = Mset.sum (α:=α) := rfl
+protected lemma Mset.sum_unfold : HAdd.hAdd = Mset.sum (α := α) := rfl
 
 /-! ### `map` over `+` -/
 
@@ -367,7 +367,7 @@ protected def Ifam.prod {α β} (A : Ifam α) (B : Ifam β) : Ifam (α × β) :=
 protected instance Ifam.instHMul : HMul (Ifam α) (Ifam β) (Ifam (α × β)) where
   hMul := Ifam.prod
 
-protected lemma Ifam.mul_unfold : HMul.hMul = Ifam.prod (α:=α) (β:=β) := rfl
+protected lemma Ifam.mul_unfold : HMul.hMul = Ifam.prod (α := α) (β := β) := rfl
 
 @[simp] protected lemma Ifam.prod_dom (A : Ifam α) (B : Ifam β) :
     (A * B).dom = (A.dom × B.dom) := rfl
@@ -390,7 +390,7 @@ protected def Mset.prod {α β} : Mset α → Mset β → Mset (α × β) :=
 protected instance Mset.instHMul : HMul (Mset α) (Mset β) (Mset (α × β)) where
   hMul := Mset.prod
 
-protected lemma Mset.prod_unfold : HMul.hMul = Mset.prod (α:=α) (β:=β) := rfl
+protected lemma Mset.prod_unfold : HMul.hMul = Mset.prod (α := α) (β := β) := rfl
 
 /-! ### `*` over `map` -/
 
@@ -562,7 +562,7 @@ scoped[Mset] infixl:55 " >>=ᴹ " => Mset.bind
 noncomputable instance Mset.instMonad : Monad Mset.{u} where
   bind := Mset.bind
 
-protected lemma Mset.bind_unfold : Bind.bind = Mset.bind (α:=α) (β:=β) := rfl
+protected lemma Mset.bind_unfold : Bind.bind = Mset.bind (α := α) (β := β) := rfl
 
 protected lemma Mset.pure_seq (f : α → β) (A : Mset α) :
     pure f <*>ᴹ A = f <$>ᴹ A := by rw [Mset.seq, Mset.prod_id_l, ←Mset.comp_map]; rfl
