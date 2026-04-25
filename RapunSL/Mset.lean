@@ -246,7 +246,7 @@ protected instance Mset.sum_Associative :
 protected def Ifam.bigsum {ι : Type} (A : ι → Ifam α) : Ifam α :=
   .mk (Σ i, (A i).dom) (fun ⟨i, j⟩ => (A i).elem j)
 
-scoped[Ifam] notation "∑ᴵ " i " , " A => Ifam.bigsum (fun i => A)
+scoped[Ifam] notation "∑ᴵ " i ", " A => Ifam.bigsum (fun i => A)
 
 protected lemma Ifam.bigsum_proper (A A' : ι → Ifam α) :
     (∀ i, A i ≈ A' i) → Ifam.bigsum A ≈ Ifam.bigsum A' := by
@@ -263,7 +263,7 @@ protected lemma Ifam.bigsum_proper (A A' : ι → Ifam α) :
 protected noncomputable def Mset.bigsum.{u} {ι : Type} (A : ι → Mset.{u} α) : Mset.{u} α :=
   ⟦ ∑ᴵ i, (A i).out ⟧
 
-scoped[Mset] notation "∑ᴹ " i " , " A:67 => Mset.bigsum (fun i => A)
+scoped[Mset] notation "∑ᴹ " i ", " A:67 => Mset.bigsum (fun i => A)
 
 /-! ### `map` over `bigsum` -/
 
