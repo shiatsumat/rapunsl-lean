@@ -594,8 +594,8 @@ protected instance Mset.instLawfulMonad : LawfulMonad Mset.{u} where
 
 protected lemma Mset.comm_seq_prod (A : Mset α) (B : Mset β) :
     Prod.mk <$>ᴹ A <*>ᴹ B = (fun b a => (a, b)) <$>ᴹ B <*>ᴹ A := by
-    unfold Mset.seq; rw [Mset.prod_map_l, Mset.prod_map_l];
-    rw [←Mset.comp_map, ←Mset.comp_map, Mset.prod_comm, ←Mset.comp_map]; rfl
+  unfold Mset.seq; rw [Mset.prod_map_l, Mset.prod_map_l];
+  rw [←Mset.comp_map, ←Mset.comp_map, Mset.prod_comm, ←Mset.comp_map]; rfl
 
 /-- Commutative applicative laws for `Mset` -/
 protected instance Mset.instCommApplicative : CommApplicative Mset.{u} where
