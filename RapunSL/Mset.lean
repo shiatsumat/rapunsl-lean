@@ -1,5 +1,6 @@
 module
 
+public import Mathlib.Logic.Equiv.Defs
 public import Mathlib.Data.Setoid.Basic
 public import Mathlib.Control.Applicative
 
@@ -18,27 +19,20 @@ structure Ifam.{u} (α : Type u) : Type (max 1 u) where protected mk ::
 
 /-- Equivalence between indexed families -/
 protected def Ifam.equiv.{u} (A B : Ifam.{u} α) : Prop :=
-  ∃ f : A.dom → B.dom, ∃ g : B.dom → A.dom,
-  (∀ j, f (g j) = j) ∧ (∀ i, g (f i) = i) ∧ ∀ i, A.elem i = B.elem (f i)
+  ∃ f : A.dom ≃ B.dom, ∀ i, A.elem i = B.elem (f i)
 
 /-- Utility for getting the inverse element equality -/
-protected lemma Ifam.equiv_elem_eq_symm {A B : Ifam α}
-    {f : A.dom → B.dom} {g : B.dom → A.dom} :
-    (∀ j, f (g j) = j) → (∀ i, A.elem i = B.elem (f i)) →
-    ∀ j, B.elem j = A.elem (g j) := by
-  intro fg AB j; rw [AB, fg]
+protected lemma Ifam.equiv_elem_eq_symm {A B : Ifam α} {f : A.dom ≃ B.dom} :
+    (∀ i, A.elem i = B.elem (f i)) → ∀ j, B.elem j = A.elem (f.symm j) := by
+  intro AB j; rw [AB, Equiv.apply_symm_apply]
 
 protected lemma Ifam.equiv_is_equiv :
     Equivalence (α := Ifam.{u} α) Ifam.equiv where
-  refl _ := by exists id, id; and_intros <;> intros <;> rfl
+  refl _ := by exists Equiv.refl _; intros; rfl
   symm := by
-    intro _ _ ⟨f, g, fg, _, AB⟩; exists g, f; and_intros <;> try assumption;
-    intros; rw [AB, fg]
+    intro _ _ ⟨f, AB⟩; exists f.symm; intro _; rw [AB, Equiv.apply_symm_apply]
   trans := by
-    intro _ _ _ ⟨f, g, fg, gf, AB⟩ ⟨h, k, hk, kh, BC⟩;
-    exists h ∘ f, g ∘ k; simp only [Function.comp_apply];
-    and_intros <;> intro _;
-    { rw [fg, hk] }; { rw [kh, gf] }; rw [←BC, ←AB]
+    intro _ _ _ ⟨f, _⟩ ⟨g, _⟩; exists f.trans g; intro _; simp_all only [Equiv.trans_apply]
 
 /-- Setoid for `Ifam` -/
 protected instance Ifam.Setoid.{u} α : Setoid (Ifam α) :=
@@ -84,8 +78,7 @@ protected instance Ifam.instLawfulFunctor : LawfulFunctor Ifam.{u} where
 
 protected lemma Ifam.map_proper (A B : Ifam α) :
     A ≈ B → f <$>ᴵ A ≈ f <$>ᴵ B := by
-  intro ⟨g, h, _, _, AB⟩; exists g, h; and_intros; iterate 2 { assumption };
-  simp only [Ifam.map_dom, Ifam.map_elem]; intro _; rw [AB]
+  intro ⟨g, AB⟩; exists g; simp only [Ifam.map_elem]; intro _; rw [AB]; rfl
 
 /-- Functor map for `Mset`, more universe-polymorphic than `Functor.map` -/
 protected def Mset.map {α β : Type*} (f : α → β) : Mset α → Mset β :=
@@ -122,6 +115,9 @@ protected instance Ifam.empty : EmptyCollection (Ifam α) where
 
 @[simp] protected lemma Ifam.empty_dom :
     (∅ : Ifam α).dom = Empty := rfl
+
+protected instance Ifam.empty_dom_Empty : IsEmpty (∅ : Ifam α).dom := by
+  apply Empty.instIsEmpty
 
 /-- Empty multiset -/
 protected instance Mset.empty : EmptyCollection (Mset α) where
@@ -179,12 +175,9 @@ protected lemma Ifam.sum_unfold : HAdd.hAdd = Ifam.sum (α := α) := rfl
 
 protected lemma Ifam.sum_proper (A A' B B' : Ifam α) :
     A ≈ A' → B ≈ B' → A + B ≈ A' + B' :=
-  fun ⟨f, g, gf, fg, AB⟩ ⟨h, k, kh, hk, A'B'⟩ => by
-    exists .map f h, .map g k;
-    and_intros <;>
-      (rintro (_ | _) <;> simp only [Sum.map_inl, Sum.map_inr]);
-    { rw [gf] }; { rw [kh] }; { rw [fg] }; { rw [hk] };
-    { apply AB }; { apply A'B' }
+  fun ⟨f, AB⟩ ⟨g, A'B'⟩ => by
+    exists Equiv.sumCongr f g; simp only [Ifam.sum_dom];
+    rintro (_ | _) <;> simp_all only [Ifam.sum_elem_inl, Ifam.sum_elem_inr] <;> rfl
 
 protected lemma Ifam.sum_proper_l (A A' B : Ifam α) :
     A ≈ A' → A + B ≈ A' + B := by
@@ -208,7 +201,7 @@ protected lemma Mset.sum_unfold : HAdd.hAdd = Mset.sum (α := α) := rfl
 
 protected lemma Ifam.sum_map (f : α → β) (A B : Ifam α) :
     f <$>ᴵ (A + B) ≈ f <$>ᴵ A + f <$>ᴵ B := by
-  exists id, id; and_intros; all_goals { rintro (_ | _) <;> rfl }
+  exists Equiv.refl _; rintro (_ | _) <;> rfl
 
 protected lemma Mset.sum_map (f : α → β) (A B : Mset α) :
     f <$>ᴹ (A + B) = f <$>ᴹ A + f <$>ᴹ B := by
@@ -218,9 +211,7 @@ protected lemma Mset.sum_map (f : α → β) (A B : Mset α) :
 /-! ### `+` is commutative -/
 
 protected lemma Ifam.sum_comm (A B : Ifam α) : A + B ≈ B + A := by
-  exists fun | .inl i => .inr i | .inr j => .inl j,
-         fun | .inl j => .inr j | .inr i => .inl i;
-  and_intros <;> rintro (_ | _) <;> rfl
+  exists Equiv.sumComm _ _; rintro (_ | _) <;> rfl
 
 protected instance Mset.sum_Commutative :
     Std.Commutative (HAdd.hAdd (α := Mset α)) where
@@ -231,9 +222,7 @@ protected instance Mset.sum_Commutative :
 /-! ### `+` is unital -/
 
 protected lemma Ifam.sum_id_r (A : Ifam α) : A + ∅ ≈ A := by
-  exists fun | .inl i => i | .inr e => (nomatch e), .inl
-  and_intros; { intro _; rfl }; all_goals
-    rintro (_ | _); { rfl }; { nofun }
+  exists Equiv.sumEmpty _ _; rintro (_ | _); { rfl }; { nofun }
 
 protected instance Mset.sum_LawfulCommIdentity :
     Std.LawfulCommIdentity (HAdd.hAdd (α := Mset α)) ∅ where
@@ -243,12 +232,7 @@ protected instance Mset.sum_LawfulCommIdentity :
 /-! ### `+` is assoc -/
 
 protected lemma Ifam.sum_assoc (A B C : Ifam α) : (A + B) + C ≈ A + (B + C) := by
-  exists fun | .inl (.inl i) => .inl i | .inl (.inr j) => .inr (.inl j)
-             | .inr k => .inr (.inr k),
-         fun | .inl i => .inl (.inl i) | .inr (.inl j) => .inl (.inr j)
-             | .inr (.inr k) => .inr k;
-  and_intros; { rintro (_ | _ | _) <;> rfl }; all_goals
-    rintro ((_ | _) | _) <;> rfl
+  exists Equiv.sumAssoc _ _ _; rintro ((_ | _) | _) <;> rfl
 
 protected instance Mset.sum_Associative :
     Std.Associative (HAdd.hAdd (α := Mset α)) where
@@ -267,10 +251,7 @@ scoped[Ifam] notation "∑ᴵ " i " , " A => Ifam.bigsum (fun i => A)
 protected lemma Ifam.bigsum_proper (A A' : ι → Ifam α) :
     (∀ i, A i ≈ A' i) → Ifam.bigsum A ≈ Ifam.bigsum A' := by
   intro AA'; have ⟨f, AA'⟩ := Classical.skolem.mp AA';
-  have ⟨g, AA'⟩ := Classical.skolem.mp AA';
-  exists fun ⟨i, j⟩ => ⟨i, f i j⟩, fun ⟨i, j⟩ => ⟨i, g i j⟩;
-  and_intros <;> intro ⟨i, j⟩ <;> have ⟨gf, fg, AA'⟩ := AA' i <;> simp only;
-  { rw [gf] }; { rw [fg] }; { apply AA' }
+  exists Equiv.sigmaCongrRight f; intro _; apply AA'
 
 @[simp] protected lemma Ifam.bigsum_dom (A : ι → Ifam α) :
     (Ifam.bigsum (α := α) (ι := ι) A).dom = Σ i, (A i).dom := rfl
@@ -297,28 +278,19 @@ protected lemma Mset.bigsum_map (f : α → β) (A : ι → Mset α) :
 
 /-! ### `bigsum` is commutative -/
 
-protected lemma Ifam.bigsum_comm {ι ι' : Type} (A : ι → Ifam α) (f : ι → ι') (g : ι' → ι) :
-    (∀ j, f (g j) = j) → (∀ i, g (f i) = i) → Ifam.bigsum A ≈ Ifam.bigsum (A ∘ g) := by
-  intro fg gf;
-  exists fun ⟨i, k⟩ => ⟨f i, congrArg (fun i => (A i).dom) (gf i).symm ▸ k⟩,
-         fun ⟨j, k⟩ => ⟨g j, k⟩;
-  simp only [Ifam.bigsum_dom, Function.comp_apply];
-  and_intros <;> intro ⟨_, _⟩;
-  · congr; { rw [fg] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
-  · congr; { rw [gf] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
-  · simp only [Ifam.bigsum, Function.comp_apply]; congr; { rw [gf] };
-    simp only [heq_eqRec_iff_heq, heq_eq_eq]
+protected lemma Ifam.bigsum_comm {ι ι' : Type} (f : ι ≃ ι') (A : ι' → Ifam α) :
+    Ifam.bigsum A ≈ ∑ᴵ i, A (f i) := by
+  symm; exists Equiv.sigmaCongrLeft (β := fun j => (A j).dom) f; intro _; rfl
 
-protected lemma Mset.bigsum_comm {ι ι' : Type} (A : ι → Mset α) (f : ι → ι') (g : ι' → ι) :
-    (∀ i', f (g i') = i') → (∀ i, g (f i) = i) → Mset.bigsum A = Mset.bigsum (A ∘ g) := by
-  intro fg gf; apply Quotient.sound; apply Ifam.bigsum_comm <;> assumption
+protected lemma Mset.bigsum_comm {ι ι' : Type} (f : ι ≃ ι') (A : ι' → Mset α) :
+    Mset.bigsum A = ∑ᴹ i, A (f i) := by
+  apply Quotient.sound; apply Ifam.bigsum_comm
 
 /-! ### `bigsum` is associative -/
 
 protected lemma Ifam.bigsum_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Ifam α) :
     (∑ᴵ i, Ifam.bigsum (A i)) ≈ ∑ᴵ (⟨i, j⟩ : Sigma ι'), A i j := by
-  exists fun ⟨i, j, k⟩ => ⟨⟨i, j⟩, k⟩, fun ⟨⟨i, j⟩, k⟩ => ⟨i, j, k⟩;
-  and_intros <;> intros <;> rfl
+  exists (Equiv.sigmaAssoc _).symm; intro _; rfl
 
 protected lemma Mset.bigsum_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Mset α) :
     ∑ᴹ i, Mset.bigsum (A i) = ∑ᴹ (⟨i, j⟩ : Sigma ι'), A i j := by
@@ -328,8 +300,12 @@ protected lemma Mset.bigsum_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, �
 
 /-! ### `empty` as `bigsum` -/
 
+private instance Ifam.Empty_bigsum_IsEmpty :
+    IsEmpty (Ifam.bigsum (ι := Empty) A).dom where
+  false := nofun
+
 protected lemma Ifam.empty_bigsum : ∅ ≈ Ifam.bigsum (ι := Empty) A := by
-  exists nofun, nofun; and_intros <;> nofun
+  exists Equiv.equivOfIsEmpty _ _; nofun
 
 protected lemma Mset.empty_bigsum : ∅ = Mset.bigsum (ι := Empty) (α := α) nofun := by
   apply Quotient.sound; apply Ifam.empty_bigsum
@@ -337,7 +313,7 @@ protected lemma Mset.empty_bigsum : ∅ = Mset.bigsum (ι := Empty) (α := α) n
 /-! ### Unary `bigsum` -/
 
 protected lemma Ifam.unary_bigsum (A : Ifam α) : (∑ᴵ (_ : Unit), A) ≈ A := by
-  exists fun ⟨_, i⟩ => i, fun i => ⟨(), i⟩; and_intros; iterate 3 { intro _; rfl }
+  exists Equiv.uniqueSigma _; intro _; rfl
 
 protected lemma Mset.unary_bigsum (A : Mset α) : ∑ᴹ (_ : Unit), A = A := by
   cases A using Quotient.ind; apply Quotient.sound;
@@ -348,10 +324,11 @@ protected lemma Mset.unary_bigsum (A : Mset α) : ∑ᴹ (_ : Unit), A = A := by
 protected lemma Ifam.sum_bigsum (A B : Ifam α) :
     F true = A → F false = B → A + B ≈ Ifam.bigsum F := by
   intro rfl rfl;
-  exists fun | .inl i => ⟨true, i⟩ | .inr i => ⟨false, i⟩,
-         fun | ⟨true, i⟩ => .inl i | ⟨false, i⟩ => .inr i;
-  and_intros; { rintro ⟨_ | _, _⟩ <;> rfl }; all_goals
-    rintro (_ | _) <;> rfl
+  exists { toFun := fun | .inl i => ⟨true, i⟩ | .inr i => ⟨false, i⟩,
+           invFun := fun | ⟨true, i⟩ => .inl i | ⟨false, i⟩ => .inr i,
+           left_inv := by rintro (_ | _) <;> rfl,
+           right_inv := by rintro ⟨_ | _, _⟩ <;> rfl };
+  rintro (_ | _) <;> rfl
 
 protected lemma Mset.sum_bigsum (A B : Mset α) :
     A + B = ∑ᴹ (b : Bool), if b then A else B := by
@@ -377,10 +354,9 @@ protected lemma Ifam.mul_unfold : HMul.hMul = Ifam.prod (α := α) (β := β) :=
 
 protected lemma Ifam.prod_proper (A A' : Ifam α) (B B' : Ifam β) :
     A ≈ A' → B ≈ B' → A * B ≈ A' * B' := by
-  intro ⟨f, g, fg, gf, AA'⟩ ⟨h, k, kh, hk, BB'⟩;
-  exists fun (i, j) => (f i, h j), fun (i', j') => (g i', k j');
-  and_intros <;> intro (_, _) <;> simp only;
-  { rw [fg, kh]; }; { rw [gf, hk] }; { simp only [Ifam.prod_elem]; rw [AA', BB'] }
+  intro ⟨f, AA'⟩ ⟨g, BB'⟩;
+  exists Equiv.prodCongr f g; intro (_, _); simp only [Ifam.prod_elem];
+  rw [AA', BB']; rfl
 
 /-- Product of two multisets -/
 protected def Mset.prod {α β} : Mset α → Mset β → Mset (α × β) :=
@@ -411,8 +387,7 @@ protected lemma Mset.prod_map_r (g : β → β') (A : Mset α) (B : Mset β) :
 
 protected lemma Ifam.prod_comm (A : Ifam α) (B : Ifam β) :
     A * B ≈ Prod.swap <$>ᴵ (B * A) := by
-  exists fun (i, j) => (j, i), fun (j, i) => (i, j);
-  and_intros <;> intro (_, _) <;> rfl
+  exists Equiv.prodComm _ _; intro _; rfl
 
 protected lemma Mset.prod_comm (A : Mset α) (B : Mset β) :
     A * B = Prod.swap <$>ᴹ (B * A) := by
@@ -423,8 +398,7 @@ protected lemma Mset.prod_comm (A : Mset α) (B : Mset β) :
 
 protected lemma Ifam.prod_id_r (A : Ifam α) (b : β) :
     A * pure (f := Ifam) b ≈ (·, b) <$>ᴵ A := by
-  exists fun (i, _) => i, fun i => (i, ());
-  and_intros <;> intro _; { trivial }; all_goals rfl
+  exists Equiv.prodPUnit _; intro _; rfl
 
 protected lemma Mset.prod_id_r (A : Mset α) (b : β) :
     A * pure (f := Mset) b = (·, b) <$>ᴹ A := by
@@ -439,8 +413,7 @@ protected lemma Mset.prod_id_l (a : α) (B : Mset β) :
 
 protected lemma Ifam.prod_assoc_l (A : Ifam α) (B : Ifam β) (C : Ifam γ) :
     (A * B) * C ≈ (fun (a, (b, c)) => ((a, b), c)) <$>ᴵ (A * (B * C)) := by
-  exists fun ((i, j), k) => (i, (j, k)), fun (i, (j, k)) => ((i, j), k);
-  and_intros <;> intro <;> rfl
+  exists Equiv.prodAssoc _ _ _; intro _; rfl
 
 protected lemma Mset.prod_assoc_l (A : Mset α) (B : Mset β) (C : Mset γ) :
     (A * B) * C = (fun (a, (b, c)) => ((a, b), c)) <$>ᴹ (A * (B * C)) := by
@@ -455,10 +428,7 @@ protected lemma Mset.prod_assoc_r (A : Mset α) (B : Mset β) (C : Mset γ) :
 
 protected lemma Ifam.prod_sum_distrib_l (A : Ifam α) (B C : Ifam β) :
     A * (B + C) ≈ A * B + A * C := by
-  exists fun (i, s) => match s with | .inl j => .inl (i, j) | .inr k => .inr (i, k),
-         fun | .inl (i, j) => (i, .inl j) | .inr (i, k) => (i, .inr k);
-  and_intros; { rintro (_ | _) <;> rfl }; all_goals
-    rintro ⟨_, (_ | _)⟩ <;> rfl
+  exists Equiv.prodSumDistrib _ _ _; rintro ⟨_, (_ | _)⟩ <;> rfl
 
 protected lemma Mset.prod_sum_distrib_l (A : Mset α) (B C : Mset β) :
     A * (B + C) = A * B + A * C := by
@@ -495,15 +465,16 @@ protected noncomputable def Ifam.join {α} (A : Ifam (Mset α)) : Mset α :=
 
 protected lemma Ifam.join_proper (A B : Ifam (Mset α)) :
     A ≈ B → A.join = B.join := by
-  intro ⟨f, g, fg, gf, AB⟩; apply Quotient.sound;
-  exists (fun ⟨i, k⟩ => ⟨f i, congrArg (·.out.dom) (AB i) ▸ k⟩),
-         (fun ⟨j, k⟩ => ⟨g j,
-           congrArg (·.out.dom) (Ifam.equiv_elem_eq_symm fg AB j).symm ▸ k⟩);
-  and_intros <;> intro ⟨i, k⟩ <;> simp only [Ifam.bigsum_dom, Ifam.bigsum_elem]
-  · congr; { rw [fg] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
-  · congr; { rw [gf] }; simp only [eqRec_heq_iff_heq, heq_eq_eq]
-  · revert k; simp only; generalize AB i = eq; revert eq;
-    generalize A.elem i = Ai; generalize B.elem (f i) = Bj; intro rfl _; rfl
+  intro ⟨f, AB⟩; apply Quotient.sound;
+  let g : (∑ᴵ i, (A.elem i).out).dom ≃ (∑ᴵ i, (B.elem i).out).dom :=
+    { toFun := fun ⟨i, k⟩ => ⟨f i, congrArg (·.out.dom) (AB i) ▸ k⟩,
+      invFun := fun ⟨j, k⟩ => ⟨f.symm j,
+        congrArg (·.out.dom) (Ifam.equiv_elem_eq_symm AB j).symm ▸ k⟩,
+      left_inv := by intro _; grind only [Equiv.symm_apply_apply],
+      right_inv := by intro _; grind only [Equiv.apply_symm_apply] };
+  exists g; rw [←Equiv.toFun_as_coe g]; intro ⟨i, _⟩; revert g;
+  simp only [Ifam.bigsum_elem]; generalize AB i = eq; revert eq;
+  generalize B.elem (f i) = Bj; intro rfl; rfl
 
 /-- `join` for `Mset` -/
 protected noncomputable def Mset.join {α} : Mset (Mset α) → Mset α :=
@@ -523,7 +494,7 @@ protected lemma Mset.join_map_seq (F : Mset (α → β)) :
   cases F using Quotient.ind; cases A using Quotient.ind;
   apply Quotient.sound; simp only [Ifam.map_elem]; trans;
   { apply Ifam.bigsum_proper; { intro _; apply Quotient.mk_out } }
-  exists fun ⟨i, j⟩ => ⟨i, j⟩, fun ⟨i, j⟩ => ⟨i, j⟩; and_intros <;> { intro _; rfl }
+  exists { toFun := fun ⟨i, j⟩ => ⟨i, j⟩, invFun := fun ⟨i, j⟩ => ⟨i, j⟩ }; intro _; rfl
 
 protected lemma Mset.join_pure (A : Mset α) : Mset.join (pure A) = A := by
   cases A using Quotient.ind; apply Quotient.sound;
@@ -531,7 +502,7 @@ protected lemma Mset.join_pure (A : Mset α) : Mset.join (pure A) = A := by
   apply Ifam.unary_bigsum
 
 protected lemma Ifam.bigsum_pure (A : Ifam α) : Ifam.bigsum (pure <$>ᴵ A).elem ≈ A := by
-  exists fun ⟨i, _⟩ => i, fun i => ⟨i, ()⟩; and_intros; iterate 3 { intro _; rfl }
+  exists Equiv.sigmaPUnit _; intro _; rfl
 
 protected lemma Mset.join_pure_map (A : Mset α) : Mset.join (pure <$>ᴹ A) = A := by
   cases A using Quotient.ind; apply Quotient.sound; trans; swap;
@@ -547,8 +518,8 @@ protected lemma Mset.join_join (A : Mset (Mset (Mset α))) :
   { apply Ifam.bigsum_proper;
     { intro i; rewrite [←Quotient.out_eq (F i), Quotient.lift_mk];
       symm; unfold Mset.bigsum; apply Quotient.mk_out }; }
-  exists fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩;
-  and_intros; iterate 3 { intro _; rfl }
+  exists { toFun := fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, invFun := fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩ };
+  intro _; rfl
 
 /-! ## Monad -/
 
