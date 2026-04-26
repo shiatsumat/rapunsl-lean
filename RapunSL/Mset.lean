@@ -548,9 +548,9 @@ protected lemma Mset.bind_pure_comp (f : α → β) (A : Mset α) :
 protected lemma Mset.bind_map (F : Mset (α → β)) (A : Mset α) :
     F >>=ᴹ (· <$>ᴹ A) = F <*>ᴹ A := by apply Mset.join_map_seq
 
-protected lemma Mset.bind_assoc (A : Mset α) (F : α → Mset β) (G : β → Mset γ) :
-    (A >>=ᴹ F) >>=ᴹ G = A >>=ᴹ fun a => F a >>=ᴹ G := by
-  have eq : (fun a => Mset.bind (F a) G) = Mset.join ∘ Mset.map G ∘ F := rfl; rw [eq];
+protected lemma Mset.bind_assoc (A : Mset α) (K : α → Mset β) (L : β → Mset γ) :
+    (A >>=ᴹ K) >>=ᴹ L = A >>=ᴹ fun a => K a >>=ᴹ L := by
+  have eq : (fun a => Mset.bind (K a) L) = Mset.join ∘ Mset.map L ∘ K := rfl; rw [eq];
   unfold Mset.bind; rw [Mset.comp_map, ←Mset.join_join, Mset.map_join, ←Mset.comp_map]
 
 /-- Monad laws for `Mset` -/
