@@ -571,3 +571,94 @@ protected lemma Mset.comm_seq_prod (A : Mset α) (B : Mset β) :
 /-- Commutative applicative laws for `Mset` -/
 protected instance Mset.instCommApplicative : CommApplicative Mset.{u} where
   commutative_prod := Mset.comm_seq_prod
+
+/-! ## Membership -/
+
+protected instance Ifam.instMembership : Membership α (Ifam α) where
+  mem A a := ∃ i, A.elem i = a
+
+protected lemma Ifam.mem_proper' (A B : Ifam α) :
+    A ≈ B → a ∈ A → a ∈ B := by
+  rintro ⟨f, AB⟩ ⟨i, Ai⟩; exists f i; rw [←AB]; assumption
+
+protected lemma Ifam.mem_proper (A B : Ifam α) :
+    A ≈ B → (a ∈ A) = (a ∈ B) := by
+  intro _; apply propext; constructor <;>
+    apply Ifam.mem_proper';{ assumption }; { symm; assumption }
+
+protected instance Mset.instMembership : Membership α (Mset α) where
+  mem A a := A.liftOn (a ∈ ·) <| Ifam.mem_proper
+
+@[simp] protected lemma Mset.mem_out (A : Mset α) a : (a ∈ A.out) = (a ∈ A) := by
+  cases A using Quotient.ind; apply Ifam.mem_proper; apply Quotient.mk_out
+
+@[simp] protected lemma Ifam.mem_map (f : α → β) (A : Ifam α) b :
+    (b ∈ f <$>ᴵ A) = ∃ a ∈ A, f a = b := by
+  apply propext; constructor;
+  · intro ⟨i, eq⟩; subst eq; exists A.elem i; and_intros; { exists i }; { rfl }
+  · intro ⟨a, ⟨i, eq⟩, eq'⟩; subst eq eq'; exists i
+
+@[simp] protected lemma Mset.mem_map (f : α → β) (A : Mset α) b :
+    (b ∈ f <$>ᴹ A) = ∃ a ∈ A, f a = b := by
+  cases A using Quotient.ind; apply Ifam.mem_map
+
+@[simp] protected lemma Ifam.mem_empty (a : α) : (a ∈ (∅ : Ifam α)) = False := by
+  rw [eq_iff_iff, iff_false]; nofun
+
+@[simp] protected lemma Mset.mem_empty (a : α) : (a ∈ (∅ : Mset α)) = False := by
+  apply Ifam.mem_empty
+
+@[simp] protected lemma Ifam.mem_pure (a b : α) : (a ∈ pure (f := Ifam) b) = (a = b) := by
+  apply propext; constructor;
+  { intro ⟨(), eq⟩; rw [←eq]; rfl }; { intro rfl; exists () }
+
+@[simp] protected lemma Mset.mem_pure (a b : α) : (a ∈ pure (f := Mset) b) = (a = b) := by
+  apply Ifam.mem_pure
+
+@[simp] protected lemma Ifam.mem_sum (a : α) (A B : Ifam α) :
+    (a ∈ A + B) = (a ∈ A ∨ a ∈ B) := by
+  apply propext; constructor;
+  · rintro ⟨i | j, rfl⟩; { left; exists i }; { right; exists j }
+  · rintro (⟨i, rfl⟩ | ⟨i, rfl⟩); { exists (.inl i) }; { exists (.inr i) }
+
+@[simp] protected lemma Mset.mem_sum (A B : Mset α) a :
+    (a ∈ A + B) = (a ∈ A ∨ a ∈ B) := by
+  cases A using Quotient.ind; cases B using Quotient.ind;
+  apply Ifam.mem_sum
+
+@[simp] protected lemma Ifam.mem_bigsum {ι : Type} (A : ι → Ifam α) a :
+    (a ∈ ∑ᴵ i, A i) = ∃ i, a ∈ A i := by
+  apply propext; constructor;
+  · rintro ⟨⟨i, j⟩, rfl⟩; exists i; exists j
+  · rintro ⟨i, ⟨j, rfl⟩⟩; exists ⟨i, j⟩
+
+@[simp] protected lemma Mset.mem_bigsum {ι : Type} (A : ι → Mset α) a :
+    (a ∈ ∑ᴹ i, A i) = ∃ i, a ∈ A i := by
+  trans; { apply Ifam.mem_bigsum }; congr; ext1 _; apply Mset.mem_out
+
+@[simp] protected lemma Ifam.mem_prod (A : Ifam α) (B : Ifam β) a b :
+    ((a, b) ∈ A * B) = (a ∈ A ∧ b ∈ B) := by
+  apply propext; constructor;
+  · rintro ⟨⟨i, j⟩, eq⟩; have ⟨rfl, rfl⟩ := Prod.mk_inj.mp eq; and_intros;
+    { exists i }; { exists j }
+  · rintro ⟨⟨i, rfl⟩, ⟨j, rfl⟩⟩; exists (i, j)
+
+@[simp] protected lemma Mset.mem_prod (A : Mset α) (B : Mset β) a b :
+    ((a, b) ∈ A * B) = (a ∈ A ∧ b ∈ B) := by
+  cases A using Quotient.ind; cases B using Quotient.ind;
+  apply Ifam.mem_prod
+
+@[simp] protected lemma Mset.mem_seq (F : Mset (α → β)) (A : Mset α) b :
+    (b ∈ F <*>ᴹ A) = ∃ f ∈ F, ∃ a ∈ A, f a = b := by
+  rw [Mset.seq]; simp only [Mset.mem_map, Prod.exists, Mset.mem_prod]; grind only
+
+@[simp] protected lemma Mset.mem_join (A : Mset (Mset α)) a :
+    (a ∈ Mset.join A) = ∃ B ∈ A, a ∈ B := by
+  revert A; apply Quotient.ind; intro A;
+  rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.mem_bigsum]; apply propext; constructor;
+  · rintro ⟨i, _⟩; exists A.elem i; and_intros; { exists i }; { assumption }
+  · rintro ⟨_, ⟨i, rfl⟩, mem⟩; exists i
+
+@[simp] protected lemma Mset.mem_bind (A : Mset α) (K : α → Mset β) b :
+    (b ∈ A >>=ᴹ K) = ∃ a ∈ A, b ∈ K a := by
+  rw [Mset.bind]; simp only [Mset.mem_map, Mset.mem_join]; grind only
