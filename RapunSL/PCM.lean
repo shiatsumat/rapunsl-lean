@@ -2,6 +2,7 @@ module
 
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Tactic.ScopedNS
+public import RapunSL.Mset
 
 @[expose] public section
 
@@ -120,3 +121,44 @@ protected lemma Pi.pvalid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (�
 
 protected instance Pi.PCMa (ι : Type u) (α : ι → Type u') [∀ i, PCMa (α i)] : PCMa (∀ i, α i) where
   pvalid_mul_l := by intro _ _ val i; apply PCMa.pvalid_mul_l _ _ (val i)
+
+/-! ### Multiset PCM -/
+
+/-- `*` for multisets -/
+protected instance Mset.Mul (α : Type u) [Mul α] : Mul (Mset α) where
+  mul A B := HMul.hMul <$> A <*> B
+
+protected lemma Mset.mul_unfold [Mul α] :
+    (HMul.hMul : Mset α → Mset α → _) = fun A B => HMul.hMul <$> A <*> B := rfl
+
+/-- Multiset PCM -/
+protected instance Mset.PCM (α : Type u) [PCM α] : PCM (Mset α) where
+  one := pure 1
+  mul_one _ := by
+    simp only [Mset.mul_unfold]; rw [seq_pure, ←comp_map];
+    trans; swap; { apply id_map }; congr; grind only [mul_one, id_eq]
+  mul_comm _ _ := by
+    simp only [Mset.mul_unfold]; rw [CommApplicative.commutative_map]; congr;
+    grind only [mul_comm]
+  mul_assoc _ _ _ := by
+    simp only [Mset.mul_unfold, functor_norm]; grind only [mul_assoc]
+  pvalid A := ∀ a ∈ A, ✓ᴾ a
+  pvalid_one := by
+    simp only [Mset.mem_pure, forall_eq]; apply PCM.pvalid_one
+
+protected lemma Mset.one_unfold [PCM α] : (1 : Mset α) = pure 1 := rfl
+
+protected lemma Mset.pvalid_unfold [PCM α] :
+    pvalid (α := Mset α) = fun A => ∀ a ∈ A, ✓ᴾ a := rfl
+
+/-! ### Antitonicity of `✓ᴾ` for `Mset` under inhabitedness -/
+
+protected lemma Mset.pvalid_mul_l [PCMa α] (A B : Mset α) :
+    B.inhab → pvalid (A * B) → pvalid A := by
+  simp only [Mset.mul_unfold, Mset.pvalid_unfold, Mset.mem_seq, Mset.mem_map];
+  simp only [existsAndEq, and_true]; intro ⟨b, _⟩ val _ _;
+  apply PCMa.pvalid_mul_l _ b; apply val; grind only
+
+protected lemma Mset.pvalid_mul_r [PCMa α] (A B : Mset α) :
+    A.inhab → pvalid (A * B) → pvalid B := by
+  rw [mul_comm]; apply Mset.pvalid_mul_l
