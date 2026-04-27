@@ -588,15 +588,21 @@ protected instance Mset.instMembership : Membership α (Mset α) where
 @[simp] protected lemma Mset.mem_out (A : Mset α) a : (a ∈ A.out) = (a ∈ A) := by
   cases A using Quotient.ind; apply Ifam.mem_proper; apply Quotient.mk_out
 
-@[simp] protected lemma Ifam.mem_map (f : α → β) (A : Ifam α) b :
+@[simp] protected lemma Ifam.mem_map' (f : α → β) (A : Ifam α) b :
     (b ∈ f <$>ᴵ A) = ∃ a ∈ A, f a = b := by
   apply propext; constructor;
   · intro ⟨i, eq⟩; subst eq; exists A.elem i; and_intros; { exists i }; { rfl }
   · intro ⟨a, ⟨i, eq⟩, eq'⟩; subst eq eq'; exists i
 
-@[simp] protected lemma Mset.mem_map (f : α → β) (A : Mset α) b :
+@[simp] protected lemma Ifam.mem_map (f : α → β) (A : Ifam α) b :
+    (b ∈ f <$> A) = ∃ a ∈ A, f a = b := by apply Ifam.mem_map'
+
+@[simp] protected lemma Mset.mem_map' (f : α → β) (A : Mset α) b :
     (b ∈ f <$>ᴹ A) = ∃ a ∈ A, f a = b := by
-  cases A using Quotient.ind; apply Ifam.mem_map
+  cases A using Quotient.ind; apply Ifam.mem_map'
+
+@[simp] protected lemma Mset.mem_map (f : α → β) (A : Mset α) b :
+    (b ∈ f <$> A) = ∃ a ∈ A, f a = b := by apply Mset.mem_map'
 
 @[simp] protected lemma Ifam.mem_empty (a : α) : (a ∈ (∅ : Ifam α)) = False := by
   rw [eq_iff_iff, iff_false]; nofun
@@ -644,9 +650,12 @@ protected instance Mset.instMembership : Membership α (Mset α) where
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.mem_prod
 
-@[simp] protected lemma Mset.mem_seq (F : Mset (α → β)) (A : Mset α) b :
+@[simp] protected lemma Mset.mem_seq' (F : Mset (α → β)) (A : Mset α) b :
     (b ∈ F <*>ᴹ A) = ∃ f ∈ F, ∃ a ∈ A, f a = b := by
-  rw [Mset.seq]; simp only [Mset.mem_map, Prod.exists, Mset.mem_prod]; grind only
+  rw [Mset.seq]; simp only [Mset.mem_map', Prod.exists, Mset.mem_prod]; grind only
+
+@[simp] protected lemma Mset.mem_seq (F : Mset (α → β)) (A : Mset α) b :
+    (b ∈ F <*> A) = ∃ f ∈ F, ∃ a ∈ A, f a = b := by apply Mset.mem_seq'
 
 @[simp] protected lemma Mset.mem_join (A : Mset (Mset α)) a :
     (a ∈ Mset.join A) = ∃ B ∈ A, a ∈ B := by
@@ -655,6 +664,9 @@ protected instance Mset.instMembership : Membership α (Mset α) where
   · rintro ⟨i, _⟩; exists A.elem i; and_intros; { exists i }; { assumption }
   · rintro ⟨_, ⟨i, rfl⟩, mem⟩; exists i
 
-@[simp] protected lemma Mset.mem_bind (A : Mset α) (K : α → Mset β) b :
+@[simp] protected lemma Mset.mem_bind' (A : Mset α) (K : α → Mset β) b :
     (b ∈ A >>=ᴹ K) = ∃ a ∈ A, b ∈ K a := by
-  rw [Mset.bind]; simp only [Mset.mem_map, Mset.mem_join]; grind only
+  rw [Mset.bind]; simp only [Mset.mem_map', Mset.mem_join]; grind only
+
+@[simp] protected lemma Mset.mem_bind (A : Mset α) (K : α → Mset β) b :
+    (b ∈ A >>= K) = ∃ a ∈ A, b ∈ K a := by apply Mset.mem_bind'
