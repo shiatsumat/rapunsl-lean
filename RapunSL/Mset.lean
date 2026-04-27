@@ -670,3 +670,46 @@ protected instance Mset.instMembership : Membership α (Mset α) where
 
 @[simp] protected lemma Mset.mem_bind (A : Mset α) (K : α → Mset β) b :
     (b ∈ A >>= K) = ∃ a ∈ A, b ∈ K a := by apply Mset.mem_bind'
+
+/-! ## Inhabitedness -/
+
+/-- Inhabitedness for `Mset` -/
+def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
+
+@[simp] protected lemma Mset.inhab_map (f : α → β) (A : Mset α) :
+    A.inhab = (f <$> A).inhab := by
+  simp only [Mset.inhab, Mset.mem_map]; grind only
+
+@[simp] protected lemma Mset.inhab_empty : (∅ : Mset α).inhab = False := by
+  simp only [Mset.inhab, Mset.mem_empty]; grind only
+
+@[simp] protected lemma Mset.inhab_sum (A B : Mset α) :
+    A.inhab ∨ B.inhab = (A + B).inhab := by
+  simp only [Mset.inhab, Mset.mem_sum]; grind only
+
+@[simp] protected lemma Mset.inhab_bigsum {ι : Type} (A : ι → Mset α) :
+    (∃ i, (A i).inhab) = (∑ᴹ i, A i).inhab := by
+  simp only [Mset.inhab, Mset.mem_bigsum]; grind only
+
+@[simp] protected lemma Mset.inhab_prod (A : Mset α) (B : Mset β) :
+    (A.inhab ∧ B.inhab) = (A ×ᴹ B).inhab := by
+  simp only [Mset.inhab, Mset.mem_prod]; ext1; constructor; swap; { tauto };
+  intro ⟨⟨a, _⟩, ⟨b, _⟩⟩; exists (a, b)
+
+@[simp] protected lemma Mset.inhab_seq' (F : Mset (α → β)) (A : Mset α) :
+    (F.inhab ∧ A.inhab) = (F <*>ᴹ A).inhab := by
+  simp only [Mset.inhab, Mset.mem_seq']; grind only
+
+@[simp] protected lemma Mset.inhab_seq (F : Mset (α → β)) (A : Mset α) :
+    (F.inhab ∧ A.inhab) = (F <*> A).inhab := by apply Mset.inhab_seq'
+
+@[simp] protected lemma Mset.inhab_join (A : Mset (Mset α)) :
+    (A.inhab ∧ ∃ a ∈ A, a.inhab) = A.join.inhab := by
+  simp only [Mset.inhab, Mset.mem_join]; grind only
+
+@[simp] protected lemma Mset.inhab_bind' (A : Mset α) (K : α → Mset β) :
+    (A.inhab ∧ ∃ a ∈ A, (K a).inhab) = (A >>=ᴹ K).inhab := by
+  simp only [Mset.inhab, Mset.mem_bind']; grind only
+
+@[simp] protected lemma Mset.inhab_bind (A : Mset α) (K : α → Mset β) :
+    (A.inhab ∧ ∃ a ∈ A, (K a).inhab) = (A >>= K).inhab := by apply Mset.inhab_bind'
