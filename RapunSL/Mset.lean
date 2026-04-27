@@ -341,102 +341,96 @@ protected lemma Mset.sum_bigsum (A B : Mset α) :
 protected def Ifam.prod {α β} (A : Ifam α) (B : Ifam β) : Ifam (α × β) :=
   .mk (A.dom × B.dom) (fun (i, j) => (A.elem i, B.elem j))
 
-protected instance Ifam.instHMul : HMul (Ifam α) (Ifam β) (Ifam (α × β)) where
-  hMul := Ifam.prod
-
-protected lemma Ifam.mul_unfold : HMul.hMul = Ifam.prod (α := α) (β := β) := rfl
+scoped[Ifam] infixr:69 " ×ᴵ " => Ifam.prod
 
 @[simp] protected lemma Ifam.prod_dom (A : Ifam α) (B : Ifam β) :
-    (A * B).dom = (A.dom × B.dom) := rfl
+    (A ×ᴵ B).dom = (A.dom × B.dom) := rfl
 
 @[simp] protected lemma Ifam.prod_elem (A : Ifam α) (B : Ifam β) i j :
-  (A * B).elem (i, j) = (A.elem i, B.elem j) := rfl
+  (A ×ᴵ B).elem (i, j) = (A.elem i, B.elem j) := rfl
 
 protected lemma Ifam.prod_proper (A A' : Ifam α) (B B' : Ifam β) :
-    A ≈ A' → B ≈ B' → A * B ≈ A' * B' := by
+    A ≈ A' → B ≈ B' → A ×ᴵ B ≈ A' ×ᴵ B' := by
   intro ⟨f, AA'⟩ ⟨g, BB'⟩;
   exists Equiv.prodCongr f g; intro (_, _); simp only [Ifam.prod_elem];
   rw [AA', BB']; rfl
 
 /-- Product of two multisets -/
 protected def Mset.prod {α β} : Mset α → Mset β → Mset (α × β) :=
-  .lift₂ (⟦ · * · ⟧) <| by
+  .lift₂ (⟦ · ×ᴵ · ⟧) <| by
     intros; apply Quotient.sound; apply Ifam.prod_proper <;> assumption
 
-protected instance Mset.instHMul : HMul (Mset α) (Mset β) (Mset (α × β)) where
-  hMul := Mset.prod
+scoped[Mset] infixr:69 " ×ᴹ " => Mset.prod
 
-protected lemma Mset.prod_unfold : HMul.hMul = Mset.prod (α := α) (β := β) := rfl
-
-/-! ### `*` over `map` -/
+/-! ### `×` over `map` -/
 
 protected lemma Mset.prod_map
     (f : α → α') (g : β → β') (A : Mset α) (B : Mset β) :
-    (f <$>ᴹ A) * (g <$>ᴹ B) = Prod.map f g <$>ᴹ (A * B) := by
+    (f <$>ᴹ A) ×ᴹ (g <$>ᴹ B) = Prod.map f g <$>ᴹ (A ×ᴹ B) := by
   cases A using Quotient.ind; cases B using Quotient.ind; rfl
 
 protected lemma Mset.prod_map_l (f : α → α') (A : Mset α) (B : Mset β) :
-    (f <$>ᴹ A) * B = Prod.map f id <$>ᴹ (A * B) := by
+    (f <$>ᴹ A) ×ᴹ B = Prod.map f id <$>ᴹ (A ×ᴹ B) := by
   rw [←Mset.prod_map, Mset.id_map]
 
 protected lemma Mset.prod_map_r (g : β → β') (A : Mset α) (B : Mset β) :
-    A * (g <$>ᴹ B) = Prod.map id g <$>ᴹ (A * B) := by
+    A ×ᴹ (g <$>ᴹ B) = Prod.map id g <$>ᴹ (A ×ᴹ B) := by
   rw [←Mset.prod_map, Mset.id_map]
 
-/-! ### `*` is commutative -/
+/-! ### `×` is commutative -/
 
 protected lemma Ifam.prod_comm (A : Ifam α) (B : Ifam β) :
-    A * B ≈ Prod.swap <$>ᴵ (B * A) := by
+    A ×ᴵ B ≈ Prod.swap <$>ᴵ (B ×ᴵ A) := by
   exists Equiv.prodComm _ _; intro _; rfl
 
 protected lemma Mset.prod_comm (A : Mset α) (B : Mset β) :
-    A * B = Prod.swap <$>ᴹ (B * A) := by
+    A ×ᴹ B = Prod.swap <$>ᴹ (B ×ᴹ A) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Quotient.sound; apply Ifam.prod_comm
 
 /-! ### `*` is unital -/
 
 protected lemma Ifam.prod_id_r (A : Ifam α) (b : β) :
-    A * pure (f := Ifam) b ≈ (·, b) <$>ᴵ A := by
+    A ×ᴵ pure b ≈ (·, b) <$>ᴵ A := by
   exists Equiv.prodPUnit _; intro _; rfl
 
 protected lemma Mset.prod_id_r (A : Mset α) (b : β) :
-    A * pure (f := Mset) b = (·, b) <$>ᴹ A := by
+    A ×ᴹ pure b = (·, b) <$>ᴹ A := by
   cases A using Quotient.ind; apply Quotient.sound;
   apply Ifam.prod_id_r
 
 protected lemma Mset.prod_id_l (a : α) (B : Mset β) :
-    pure (f := Mset) a * B = (a, ·) <$>ᴹ B := by
+    pure a ×ᴹ B = (a, ·) <$>ᴹ B := by
   rw [Mset.prod_comm, Mset.prod_id_r, ←Mset.comp_map]; rfl
 
 /-! ### `*` is associative -/
 
 protected lemma Ifam.prod_assoc_l (A : Ifam α) (B : Ifam β) (C : Ifam γ) :
-    (A * B) * C ≈ (fun (a, (b, c)) => ((a, b), c)) <$>ᴵ (A * (B * C)) := by
+    (A ×ᴵ B) ×ᴵ C ≈ (fun (a, (b, c)) => ((a, b), c)) <$>ᴵ (A ×ᴵ (B ×ᴵ C)) := by
   exists Equiv.prodAssoc _ _ _; intro _; rfl
 
 protected lemma Mset.prod_assoc_l (A : Mset α) (B : Mset β) (C : Mset γ) :
-    (A * B) * C = (fun (a, (b, c)) => ((a, b), c)) <$>ᴹ (A * (B * C)) := by
+    (A ×ᴹ B) ×ᴹ C = (fun (a, (b, c)) => ((a, b), c)) <$>ᴹ (A ×ᴹ (B ×ᴹ C)) := by
   cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
   apply Quotient.sound; apply Ifam.prod_assoc_l
 
 protected lemma Mset.prod_assoc_r (A : Mset α) (B : Mset β) (C : Mset γ) :
-    A * (B * C) = (fun ((a, b), c) => (a, b, c)) <$>ᴹ ((A * B) * C) := by
-  rw [Mset.prod_assoc_l, ←Mset.comp_map]; rw (occs := [1]) [←Mset.id_map (_ * _)]; rfl
+    A ×ᴹ (B ×ᴹ C) = (fun ((a, b), c) => (a, b, c)) <$>ᴹ ((A ×ᴹ B) ×ᴹ C) := by
+  rw [Mset.prod_assoc_l, ←Mset.comp_map]; rw (occs := [1]) [←Mset.id_map (_ ×ᴹ _)]; rfl
 
 /-! ### `*` distributes over `+` -/
 
 protected lemma Ifam.prod_sum_distrib_l (A : Ifam α) (B C : Ifam β) :
-    A * (B + C) ≈ A * B + A * C := by
+    A ×ᴵ (B + C) ≈ A ×ᴵ B + A ×ᴵ C := by
   exists Equiv.prodSumDistrib _ _ _; rintro ⟨_, (_ | _)⟩ <;> rfl
 
 protected lemma Mset.prod_sum_distrib_l (A : Mset α) (B C : Mset β) :
-    A * (B + C) = A * B + A * C := by
+    A ×ᴹ (B + C) = A ×ᴹ B + A ×ᴹ C := by
   cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
   apply Quotient.sound; apply Ifam.prod_sum_distrib_l
 
 protected lemma Mset.prod_sum_distrib_r (A B : Mset α) (C : Mset β) :
-    (A + B) * C = A * C + B * C := by
+    (A + B) ×ᴹ C = A ×ᴹ C + B ×ᴹ C := by
   rw [Mset.prod_comm, Mset.prod_sum_distrib_l, Mset.prod_comm C A, Mset.prod_comm C B,
       Mset.sum_map, ←Mset.comp_map, ←Mset.comp_map, Prod.swap_swap_eq, Mset.id_map, Mset.id_map]
 
@@ -444,7 +438,7 @@ protected lemma Mset.prod_sum_distrib_r (A B : Mset α) (C : Mset β) :
 
 /-- `seq` for `Mset`, more universe-polymorphic than `Seq.seq` -/
 protected def Mset.seq {α β : Type*} (F : Mset (α → β)) (A : Mset α) : Mset β :=
-  (fun (f, a) => f a) <$>ᴹ (F * A)
+  (fun (f, a) => f a) <$>ᴹ (F ×ᴹ A)
 
 scoped[Mset] infixl:60 " <*>ᴹ " => Mset.seq
 
@@ -639,14 +633,14 @@ protected instance Mset.instMembership : Membership α (Mset α) where
   trans; { apply Ifam.mem_bigsum }; congr; ext1 _; apply Mset.mem_out
 
 @[simp] protected lemma Ifam.mem_prod (A : Ifam α) (B : Ifam β) a b :
-    ((a, b) ∈ A * B) = (a ∈ A ∧ b ∈ B) := by
+    ((a, b) ∈ A ×ᴵ B) = (a ∈ A ∧ b ∈ B) := by
   apply propext; constructor;
   · rintro ⟨⟨i, j⟩, eq⟩; have ⟨rfl, rfl⟩ := Prod.mk_inj.mp eq; and_intros;
     { exists i }; { exists j }
   · rintro ⟨⟨i, rfl⟩, ⟨j, rfl⟩⟩; exists (i, j)
 
 @[simp] protected lemma Mset.mem_prod (A : Mset α) (B : Mset β) a b :
-    ((a, b) ∈ A * B) = (a ∈ A ∧ b ∈ B) := by
+    ((a, b) ∈ A ×ᴹ B) = (a ∈ A ∧ b ∈ B) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.mem_prod
 
