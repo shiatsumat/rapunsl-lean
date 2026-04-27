@@ -24,20 +24,20 @@ protected instance CommMonoid'.instCommMonoid (α : Type u) [CommMonoid' α] : C
 /-- PCM, i.e., partial commutative monoid -/
 class PCM (α : Type u) extends CommMonoid' α where
   /-- Validity predicate for partiality -/
-  pvalid : α → Prop
+  valid : α → Prop
   /-- `one` is valid -/
-  pvalid_one : pvalid one
+  valid_one : valid one
 
-scoped[PCM] prefix:50 "✓ᴾ " => PCM.pvalid
+scoped[PCM] prefix:50 "✓ " => PCM.valid
 open PCM
 
 /-- PCM with an antitone validity -/
 class PCMa.{u} (α : Type u) extends PCM α where
   /-- Validity -/
-  pvalid_mul_l : ∀ a b, pvalid (a * b) → pvalid a
+  valid_mul_l : ∀ a b, valid (a * b) → valid a
 
-lemma PCMa.pvalid_mul_r [PCMa α] (a b : α) : pvalid (a * b) → pvalid b := by
-  rw [mul_comm]; apply PCMa.pvalid_mul_l
+lemma PCMa.valid_mul_r [PCMa α] (a b : α) : valid (a * b) → valid b := by
+  rw [mul_comm]; apply PCMa.valid_mul_l
 
 /-! ## PCM constructions -/
 
@@ -59,9 +59,9 @@ protected instance Excl.instPCMa : PCMa (Excl α) where
   mul_comm a b := by cases a <;> cases b <;> rfl
   mul_assoc a b c := by cases a <;> cases b <;> cases c <;> rfl
   mul_one _ := rfl
-  pvalid | Excl.bot => False | _ => True
-  pvalid_one := trivial
-  pvalid_mul_l a b := by cases a <;> cases b <;> grind only
+  valid | Excl.bot => False | _ => True
+  valid_one := trivial
+  valid_mul_l a b := by cases a <;> cases b <;> grind only
 
 protected lemma Excl.one_unfold : (1 : Excl α) = Excl.unit := rfl
 
@@ -69,8 +69,8 @@ protected lemma Excl.mul_unfold :
     (HMul.hMul : Excl α → Excl α → _) =
       fun | a, Excl.unit => a | Excl.unit, b => b | _, _ => Excl.bot := rfl
 
-protected lemma Excl.pvalid_unfold :
-    pvalid (α := Excl α) = fun | Excl.bot => False | _ => True := rfl
+protected lemma Excl.valid_unfold :
+    valid (α := Excl α) = fun | Excl.bot => False | _ => True := rfl
 
 /-! ### Product PCM -/
 
@@ -81,21 +81,21 @@ protected instance Prod.instPCM (α : Type u) (β : Type u') [PCM α] [PCM β] :
   mul_one _ := by ext1 <;> apply mul_one
   mul_comm _ _ := by ext1 <;> apply mul_comm
   mul_assoc _ _ _ := by ext1 <;> apply mul_assoc
-  pvalid | (a, b) => ✓ᴾ a ∧ ✓ᴾ b
-  pvalid_one := by and_intros <;> apply PCM.pvalid_one
+  valid | (a, b) => ✓ a ∧ ✓ b
+  valid_one := by and_intros <;> apply PCM.valid_one
 
 protected lemma Prod.one_unfold [PCM α] [PCM β] : (1 : α × β) = (1, 1) := rfl
 
 protected lemma Prod.mul_unfold [PCM α] [PCM β] :
     (HMul.hMul : α × β → α × β → _) = fun | (a, b), (a', b') => (a * a', b * b') := rfl
 
-protected lemma Prod.pvalid_unfold [PCM α] [PCM β] :
-    pvalid (α := α × β) = fun | (a, b) => ✓ᴾ a ∧ ✓ᴾ b := rfl
+protected lemma Prod.valid_unfold [PCM α] [PCM β] :
+    valid (α := α × β) = fun | (a, b) => ✓ a ∧ ✓ b := rfl
 
 protected instance Prod.instPCMa (α : Type u) (β : Type u') [PCMa α] [PCMa β] : PCMa (α × β) where
-  pvalid_mul_l := by
+  valid_mul_l := by
     intro _ _ ⟨val, val'⟩; and_intros;
-    { apply PCMa.pvalid_mul_l _ _ val }; { apply PCMa.pvalid_mul_l _ _ val' }
+    { apply PCMa.valid_mul_l _ _ val }; { apply PCMa.valid_mul_l _ _ val' }
 
 /-! ### Pi PCM -/
 
@@ -107,8 +107,8 @@ protected instance Pi.instPCM (ι : Type u) (α : ι → Type u') [∀ i, PCM (�
   mul_one _ := by funext; apply mul_one
   mul_comm _ _ := by funext; apply mul_comm
   mul_assoc _ _ _ := by funext; apply mul_assoc
-  pvalid f := ∀ i, ✓ᴾ f i
-  pvalid_one := by intro i; apply PCM.pvalid_one
+  valid f := ∀ i, ✓ f i
+  valid_one := by intro i; apply PCM.valid_one
 
 protected lemma Pi.one_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     (1 : ∀ i, α i) = fun _ => 1 := rfl
@@ -117,12 +117,12 @@ protected lemma Pi.mul_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i
     (HMul.hMul : (∀ i, α i) → (∀ i, α i) → (∀ i, α i)) =
       fun f g i => f i * g i := by rfl
 
-protected lemma Pi.pvalid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
-    pvalid (α := ∀ i, α i) = fun f => ∀ i, ✓ᴾ f i := rfl
+protected lemma Pi.valid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
+    valid (α := ∀ i, α i) = fun f => ∀ i, ✓ f i := rfl
 
 protected instance Pi.instPCMa (ι : Type u) (α : ι → Type u') [∀ i, PCMa (α i)] :
     PCMa (∀ i, α i) where
-  pvalid_mul_l := by intro _ _ val i; apply PCMa.pvalid_mul_l _ _ (val i)
+  valid_mul_l := by intro _ _ val i; apply PCMa.valid_mul_l _ _ (val i)
 
 /-! ### Multiset PCM -/
 
@@ -144,23 +144,23 @@ protected instance Mset.instPCM (α : Type u) [PCM α] : PCM (Mset α) where
     grind only [mul_comm]
   mul_assoc _ _ _ := by
     simp only [Mset.mul_unfold, functor_norm]; grind only [mul_assoc]
-  pvalid A := ∀ a ∈ A, ✓ᴾ a
-  pvalid_one := by
-    simp only [Mset.mem_pure, forall_eq]; apply PCM.pvalid_one
+  valid A := ∀ a ∈ A, ✓ a
+  valid_one := by
+    simp only [Mset.mem_pure, forall_eq]; apply PCM.valid_one
 
 protected lemma Mset.one_unfold [PCM α] : (1 : Mset α) = pure 1 := rfl
 
-protected lemma Mset.pvalid_unfold [PCM α] :
-    pvalid (α := Mset α) = fun A => ∀ a ∈ A, ✓ᴾ a := rfl
+protected lemma Mset.valid_unfold [PCM α] :
+    valid (α := Mset α) = fun A => ∀ a ∈ A, ✓ a := rfl
 
-/-! ### Antitonicity of `✓ᴾ` for `Mset` under inhabitedness -/
+/-! ### Antitonicity of `✓` for `Mset` under inhabitedness -/
 
-protected lemma Mset.pvalid_mul_l [PCMa α] (A B : Mset α) :
-    B.inhab → pvalid (A * B) → pvalid A := by
-  simp only [Mset.mul_unfold, Mset.pvalid_unfold, Mset.mem_seq, Mset.mem_map];
+protected lemma Mset.valid_mul_l [PCMa α] (A B : Mset α) :
+    B.inhab → valid (A * B) → valid A := by
+  simp only [Mset.mul_unfold, Mset.valid_unfold, Mset.mem_seq, Mset.mem_map];
   simp only [existsAndEq, and_true]; intro ⟨b, _⟩ val _ _;
-  apply PCMa.pvalid_mul_l _ b; apply val; grind only
+  apply PCMa.valid_mul_l _ b; apply val; grind only
 
-protected lemma Mset.pvalid_mul_r [PCMa α] (A B : Mset α) :
-    A.inhab → pvalid (A * B) → pvalid B := by
-  rw [mul_comm]; apply Mset.pvalid_mul_l
+protected lemma Mset.valid_mul_r [PCMa α] (A B : Mset α) :
+    A.inhab → valid (A * B) → valid B := by
+  rw [mul_comm]; apply Mset.valid_mul_l
