@@ -638,15 +638,15 @@ protected instance Mset.instMembership : Membership α (Mset α) where
     (a ∈ ∑ᴹ i, A i) = ∃ i, a ∈ A i := by
   trans; { apply Ifam.mem_bigsum }; congr; funext _; apply Mset.mem_out
 
-@[simp] protected lemma Ifam.mem_prod (A : Ifam α) (B : Ifam β) a b :
-    ((a, b) ∈ A ×ᴵ B) = (a ∈ A ∧ b ∈ B) := by
-  apply propext; constructor;
+@[simp] protected lemma Ifam.mem_prod (A : Ifam α) (B : Ifam β) p :
+    (p ∈ A ×ᴵ B) = (p.1 ∈ A ∧ p.2 ∈ B) := by
+  cases p; apply propext; constructor;
   · rintro ⟨⟨i, j⟩, eq⟩; have ⟨rfl, rfl⟩ := Prod.mk_inj.mp eq; and_intros;
     { exists i }; { exists j }
   · rintro ⟨⟨i, rfl⟩, ⟨j, rfl⟩⟩; exists (i, j)
 
-@[simp] protected lemma Mset.mem_prod (A : Mset α) (B : Mset β) a b :
-    ((a, b) ∈ A ×ᴹ B) = (a ∈ A ∧ b ∈ B) := by
+@[simp] protected lemma Mset.mem_prod (A : Mset α) (B : Mset β) p :
+    (p ∈ A ×ᴹ B) = (p.1 ∈ A ∧ p.2 ∈ B) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.mem_prod
 
