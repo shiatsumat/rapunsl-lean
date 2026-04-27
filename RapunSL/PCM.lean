@@ -46,14 +46,11 @@ inductive Excl (α : Type u) where
 /-- Exclusive PCM -/
 protected instance Excl.PCM : PCM (Excl α) where
   one := Excl.unit
-  mul | a, Excl.unit => a
-      | Excl.unit, b => b
-      | _, _ => Excl.bot
+  mul | a, Excl.unit => a | Excl.unit, b => b | _, _ => Excl.bot
   mul_comm a b := by cases a <;> cases b <;> rfl
   mul_assoc a b c := by cases a <;> cases b <;> cases c <;> rfl
   mul_one _ := rfl
-  pvalid | Excl.excl _ | Excl.unit => True
-         | Excl.bot => False
+  pvalid | Excl.bot => False | _ => True
   pvalid_one := trivial
 
 /-! ### Product PCM -/
