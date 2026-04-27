@@ -1,6 +1,7 @@
 module
 
 public import Mathlib.Algebra.Group.Defs
+public import Mathlib.Tactic.ScopedNS
 
 @[expose] public section
 
@@ -10,12 +11,12 @@ public import Mathlib.Algebra.Group.Defs
 
 /-- Utility version of `CommMonoid`, where only `mul_one` is required -/
 class CommMonoid' (α : Type u) extends CommSemigroup α, One α where
-  mul_one : ∀ a, a * one = a
+  protected mul_one : ∀ a, a * one = a
 
 /-- `CommMonoid'` induces `CommMonoid` -/
-instance CommMonoid'.CommMonoid (α : Type u) [CommMonoid' α] : CommMonoid α where
-  mul_one := mul_one
-  one_mul _ := by rw [mul_comm]; apply mul_one
+protected instance CommMonoid'.CommMonoid (α : Type u) [CommMonoid' α] : CommMonoid α where
+  mul_one := CommMonoid'.mul_one
+  one_mul _ := by rw [mul_comm]; apply CommMonoid'.mul_one
 
 /-! ## PCM, i.e., partial commutative monoid -/
 
@@ -26,7 +27,8 @@ class PCM.{u} (α : Type u) extends CommMonoid' α where
   /-- `one` is valid -/
   valid_one : valid one
 
-prefix:50 "✓ " => PCM.valid
+scoped[PCM] prefix:50 "✓ᴾ " => PCM.valid
+open PCM
 
 /-! ## PCM constructions -/
 
@@ -42,7 +44,7 @@ inductive Excl (α : Type u) where
     bot : Excl α
 
 /-- Exclusive PCM -/
-instance Excl.PCM : PCM (Excl α) where
+protected instance Excl.PCM : PCM (Excl α) where
   one := Excl.unit
   mul | a, Excl.unit => a
       | Excl.unit, b => b
@@ -57,13 +59,13 @@ instance Excl.PCM : PCM (Excl α) where
 /-! ### Product PCM -/
 
 /-- Product PCM -/
-instance Prod.PCM (α β : Type u) [PCM α] [PCM β] : PCM (α × β) where
+protected instance Prod.PCM (α β : Type u) [PCM α] [PCM β] : PCM (α × β) where
   one := (1, 1)
   mul | (a, b), (a', b') => (a * a', b * b')
   mul_one _ := by ext1 <;> apply mul_one
   mul_comm _ _ := by ext1 <;> apply mul_comm
   mul_assoc _ _ _ := by ext1 <;> apply mul_assoc
-  valid | (a, b) => ✓ a ∧ ✓ b
+  valid | (a, b) => ✓ᴾ a ∧ ✓ᴾ b
   valid_one := by and_intros <;> apply PCM.valid_one
 
 /-! ### Pi PCM -/
@@ -75,5 +77,5 @@ instance piPCM (ι : Type u) (α : ι → Type u') [∀ i, PCM (α i)] : PCM (�
   mul_one _ := by funext; apply mul_one
   mul_comm _ _ := by funext; apply mul_comm
   mul_assoc _ _ _ := by funext; apply mul_assoc
-  valid f := ∀ i, ✓ f i
+  valid f := ∀ i, ✓ᴾ f i
   valid_one := by intro i; apply PCM.valid_one
