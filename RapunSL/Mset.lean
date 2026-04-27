@@ -574,6 +574,7 @@ protected instance Mset.instCommApplicative : CommApplicative Mset.{u} where
 
 /-! ## Membership -/
 
+/-- Membership for `Ifam` -/
 protected instance Ifam.instMembership : Membership α (Ifam α) where
   mem A a := ∃ i, A.elem i = a
 
@@ -586,6 +587,7 @@ protected lemma Ifam.mem_proper (A B : Ifam α) :
   intro _; apply propext; constructor <;>
     apply Ifam.mem_proper';{ assumption }; { symm; assumption }
 
+/-- Membership for `Mset` -/
 protected instance Mset.instMembership : Membership α (Mset α) where
   mem A a := A.liftOn (a ∈ ·) <| Ifam.mem_proper
 
