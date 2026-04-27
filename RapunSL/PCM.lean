@@ -20,15 +20,17 @@ protected instance CommMonoid'.CommMonoid (α : Type u) [CommMonoid' α] : CommM
 
 /-! ## PCM, i.e., partial commutative monoid -/
 
-/-- PCM, where the partiality is formulated by a validity predicate -/
-class PCM.{u} (α : Type u) extends CommMonoid' α where
-  /-- Validity -/
-  valid : α → Prop
-  /-- `one` is valid -/
-  valid_one : valid one
+/-- Partiality by a validity predicate -/
+class Pvalid (α : Type u) where
+  pvalid : α → Prop
 
-scoped[PCM] prefix:50 "✓ᴾ " => PCM.valid
-open PCM
+scoped[Pvalid] prefix:50 "✓ᴾ " => Pvalid.pvalid
+open Pvalid
+
+/-- PCM, i.e., partial commutative monoid -/
+class PCM.{u} (α : Type u) extends CommMonoid' α, Pvalid α where
+  /-- `one` is valid -/
+  pvalid_one : pvalid one
 
 /-! ## PCM constructions -/
 
@@ -52,9 +54,9 @@ protected instance Excl.PCM : PCM (Excl α) where
   mul_comm a b := by cases a <;> cases b <;> rfl
   mul_assoc a b c := by cases a <;> cases b <;> cases c <;> rfl
   mul_one _ := rfl
-  valid | Excl.excl _ | Excl.unit => True
-        | Excl.bot => False
-  valid_one := trivial
+  pvalid | Excl.excl _ | Excl.unit => True
+         | Excl.bot => False
+  pvalid_one := trivial
 
 /-! ### Product PCM -/
 
@@ -65,8 +67,8 @@ protected instance Prod.PCM (α β : Type u) [PCM α] [PCM β] : PCM (α × β) 
   mul_one _ := by ext1 <;> apply mul_one
   mul_comm _ _ := by ext1 <;> apply mul_comm
   mul_assoc _ _ _ := by ext1 <;> apply mul_assoc
-  valid | (a, b) => ✓ᴾ a ∧ ✓ᴾ b
-  valid_one := by and_intros <;> apply PCM.valid_one
+  pvalid | (a, b) => ✓ᴾ a ∧ ✓ᴾ b
+  pvalid_one := by and_intros <;> apply PCM.pvalid_one
 
 /-! ### Pi PCM -/
 
@@ -77,5 +79,5 @@ protected instance Pi.PCM (ι : Type u) (α : ι → Type u') [∀ i, PCM (α i)
   mul_one _ := by funext; apply mul_one
   mul_comm _ _ := by funext; apply mul_comm
   mul_assoc _ _ _ := by funext; apply mul_assoc
-  valid f := ∀ i, ✓ᴾ f i
-  valid_one := by intro i; apply PCM.valid_one
+  pvalid f := ∀ i, ✓ᴾ f i
+  pvalid_one := by intro i; apply PCM.pvalid_one
