@@ -30,6 +30,14 @@ class PCM (α : Type u) extends CommMonoid' α where
 scoped[PCM] prefix:50 "✓ᴾ " => PCM.pvalid
 open PCM
 
+/-- PCM with an antitone validity -/
+class PCMa.{u} (α : Type u) extends PCM α where
+  /-- Validity -/
+  pvalid_mul_l : ∀ a b, pvalid (a * b) → pvalid a
+
+lemma PCMa.pvalid_mul_r [PCMa α] (a b : α) : pvalid (a * b) → pvalid b := by
+  rw [mul_comm]; apply PCMa.pvalid_mul_l
+
 /-! ## PCM constructions -/
 
 /-! ### Exclusive PCM -/
@@ -44,7 +52,7 @@ inductive Excl (α : Type u) where
     bot : Excl α
 
 /-- Exclusive PCM -/
-protected instance Excl.PCM : PCM (Excl α) where
+protected instance Excl.PCMa : PCMa (Excl α) where
   one := Excl.unit
   mul | a, Excl.unit => a | Excl.unit, b => b | _, _ => Excl.bot
   mul_comm a b := by cases a <;> cases b <;> rfl
@@ -52,6 +60,7 @@ protected instance Excl.PCM : PCM (Excl α) where
   mul_one _ := rfl
   pvalid | Excl.bot => False | _ => True
   pvalid_one := trivial
+  pvalid_mul_l a b := by cases a <;> cases b <;> grind only
 
 protected lemma Excl.one_unfold : (1 : Excl α) = Excl.unit := rfl
 
@@ -82,6 +91,11 @@ protected lemma Prod.mul_unfold [PCM α] [PCM β] :
 protected lemma Prod.pvalid_unfold [PCM α] [PCM β] :
     pvalid (α := α × β) = fun | (a, b) => ✓ᴾ a ∧ ✓ᴾ b := rfl
 
+protected instance Prod.PCMa (α : Type u) (β : Type u') [PCMa α] [PCMa β] : PCMa (α × β) where
+  pvalid_mul_l := by
+    intro _ _ ⟨val, val'⟩; and_intros;
+    { apply PCMa.pvalid_mul_l _ _ val }; { apply PCMa.pvalid_mul_l _ _ val' }
+
 /-! ### Pi PCM -/
 
 /-- Pi PCM -/
@@ -103,3 +117,6 @@ protected lemma Pi.mul_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i
 
 protected lemma Pi.pvalid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     pvalid (α := ∀ i, α i) = fun f => ∀ i, ✓ᴾ f i := rfl
+
+protected instance Pi.PCMa (ι : Type u) (α : ι → Type u') [∀ i, PCMa (α i)] : PCMa (∀ i, α i) where
+  pvalid_mul_l := by intro _ _ val i; apply PCMa.pvalid_mul_l _ _ (val i)
