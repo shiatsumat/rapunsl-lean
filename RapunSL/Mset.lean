@@ -630,7 +630,7 @@ protected instance Mset.instMembership : Membership α (Mset α) where
 
 @[simp] protected lemma Mset.mem_bigsum {ι : Type} (A : ι → Mset α) a :
     (a ∈ ∑ᴹ i, A i) = ∃ i, a ∈ A i := by
-  trans; { apply Ifam.mem_bigsum }; congr; ext1 _; apply Mset.mem_out
+  trans; { apply Ifam.mem_bigsum }; congr; funext _; apply Mset.mem_out
 
 @[simp] protected lemma Ifam.mem_prod (A : Ifam α) (B : Ifam β) a b :
     ((a, b) ∈ A ×ᴵ B) = (a ∈ A ∧ b ∈ B) := by
