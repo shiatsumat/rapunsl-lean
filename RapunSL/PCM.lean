@@ -21,7 +21,7 @@ protected instance CommMonoid'.CommMonoid (α : Type u) [CommMonoid' α] : CommM
 /-! ## PCM, i.e., partial commutative monoid -/
 
 /-- PCM, i.e., partial commutative monoid -/
-class PCM.{u} (α : Type u) extends CommMonoid' α where
+class PCM (α : Type u) extends CommMonoid' α where
   /-- Validity predicate for partiality -/
   pvalid : α → Prop
   /-- `one` is valid -/
