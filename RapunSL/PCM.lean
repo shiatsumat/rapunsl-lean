@@ -56,7 +56,7 @@ protected instance Excl.PCM : PCM (Excl α) where
 /-! ### Product PCM -/
 
 /-- Product PCM -/
-protected instance Prod.PCM (α β : Type u) [PCM α] [PCM β] : PCM (α × β) where
+protected instance Prod.PCM (α : Type u) (β : Type u') [PCM α] [PCM β] : PCM (α × β) where
   one := (1, 1)
   mul | (a, b), (a', b') => (a * a', b * b')
   mul_one _ := by ext1 <;> apply mul_one
