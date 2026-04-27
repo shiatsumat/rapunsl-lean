@@ -20,17 +20,15 @@ protected instance CommMonoid'.CommMonoid (α : Type u) [CommMonoid' α] : CommM
 
 /-! ## PCM, i.e., partial commutative monoid -/
 
-/-- Partiality by a validity predicate -/
-class Pvalid (α : Type u) where
-  pvalid : α → Prop
-
-scoped[Pvalid] prefix:50 "✓ᴾ " => Pvalid.pvalid
-open Pvalid
-
 /-- PCM, i.e., partial commutative monoid -/
-class PCM.{u} (α : Type u) extends CommMonoid' α, Pvalid α where
+class PCM.{u} (α : Type u) extends CommMonoid' α where
+  /-- Validity predicate for partiality -/
+  pvalid : α → Prop
   /-- `one` is valid -/
   pvalid_one : pvalid one
+
+scoped[PCM] prefix:50 "✓ᴾ " => PCM.pvalid
+open PCM
 
 /-! ## PCM constructions -/
 
