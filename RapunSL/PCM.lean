@@ -1,7 +1,6 @@
 module
 
 public import Mathlib.Algebra.Group.Defs
-public import Mathlib.Tactic.ScopedNS
 public import RapunSL.Mset
 
 @[expose] public section
