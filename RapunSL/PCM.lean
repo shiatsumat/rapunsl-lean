@@ -71,7 +71,7 @@ protected instance Prod.PCM (α β : Type u) [PCM α] [PCM β] : PCM (α × β) 
 /-! ### Pi PCM -/
 
 /-- Pi PCM -/
-instance piPCM (ι : Type u) (α : ι → Type u') [∀ i, PCM (α i)] : PCM (∀ i, α i) where
+protected instance Pi.PCM (ι : Type u) (α : ι → Type u') [∀ i, PCM (α i)] : PCM (∀ i, α i) where
   one i := 1
   mul f g i := f i * g i
   mul_one _ := by funext; apply mul_one
