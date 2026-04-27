@@ -15,7 +15,7 @@ class CommMonoid' (α : Type u) extends CommSemigroup α, One α where
   protected mul_one : ∀ a, a * one = a
 
 /-- `CommMonoid'` induces `CommMonoid` -/
-protected instance CommMonoid'.CommMonoid (α : Type u) [CommMonoid' α] : CommMonoid α where
+protected instance CommMonoid'.instCommMonoid (α : Type u) [CommMonoid' α] : CommMonoid α where
   mul_one := CommMonoid'.mul_one
   one_mul _ := by rw [mul_comm]; apply CommMonoid'.mul_one
 
@@ -53,7 +53,7 @@ inductive Excl (α : Type u) where
     bot : Excl α
 
 /-- Exclusive PCM -/
-protected instance Excl.PCMa : PCMa (Excl α) where
+protected instance Excl.instPCMa : PCMa (Excl α) where
   one := Excl.unit
   mul | a, Excl.unit => a | Excl.unit, b => b | _, _ => Excl.bot
   mul_comm a b := by cases a <;> cases b <;> rfl
@@ -75,7 +75,7 @@ protected lemma Excl.pvalid_unfold :
 /-! ### Product PCM -/
 
 /-- Product PCM -/
-protected instance Prod.PCM (α : Type u) (β : Type u') [PCM α] [PCM β] : PCM (α × β) where
+protected instance Prod.instPCM (α : Type u) (β : Type u') [PCM α] [PCM β] : PCM (α × β) where
   one := (1, 1)
   mul | (a, b), (a', b') => (a * a', b * b')
   mul_one _ := by ext1 <;> apply mul_one
@@ -92,7 +92,7 @@ protected lemma Prod.mul_unfold [PCM α] [PCM β] :
 protected lemma Prod.pvalid_unfold [PCM α] [PCM β] :
     pvalid (α := α × β) = fun | (a, b) => ✓ᴾ a ∧ ✓ᴾ b := rfl
 
-protected instance Prod.PCMa (α : Type u) (β : Type u') [PCMa α] [PCMa β] : PCMa (α × β) where
+protected instance Prod.instPCMa (α : Type u) (β : Type u') [PCMa α] [PCMa β] : PCMa (α × β) where
   pvalid_mul_l := by
     intro _ _ ⟨val, val'⟩; and_intros;
     { apply PCMa.pvalid_mul_l _ _ val }; { apply PCMa.pvalid_mul_l _ _ val' }
@@ -100,7 +100,8 @@ protected instance Prod.PCMa (α : Type u) (β : Type u') [PCMa α] [PCMa β] : 
 /-! ### Pi PCM -/
 
 /-- Pi PCM -/
-protected instance Pi.PCM (ι : Type u) (α : ι → Type u') [∀ i, PCM (α i)] : PCM (∀ i, α i) where
+protected instance Pi.instPCM (ι : Type u) (α : ι → Type u') [∀ i, PCM (α i)] :
+    PCM (∀ i, α i) where
   one i := 1
   mul f g i := f i * g i
   mul_one _ := by funext; apply mul_one
@@ -119,7 +120,8 @@ protected lemma Pi.mul_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i
 protected lemma Pi.pvalid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     pvalid (α := ∀ i, α i) = fun f => ∀ i, ✓ᴾ f i := rfl
 
-protected instance Pi.PCMa (ι : Type u) (α : ι → Type u') [∀ i, PCMa (α i)] : PCMa (∀ i, α i) where
+protected instance Pi.instPCMa (ι : Type u) (α : ι → Type u') [∀ i, PCMa (α i)] :
+    PCMa (∀ i, α i) where
   pvalid_mul_l := by intro _ _ val i; apply PCMa.pvalid_mul_l _ _ (val i)
 
 /-! ### Multiset PCM -/
@@ -132,7 +134,7 @@ protected lemma Mset.mul_unfold [Mul α] :
     (HMul.hMul : Mset α → Mset α → _) = fun A B => HMul.hMul <$> A <*> B := rfl
 
 /-- Multiset PCM -/
-protected instance Mset.PCM (α : Type u) [PCM α] : PCM (Mset α) where
+protected instance Mset.instPCM (α : Type u) [PCM α] : PCM (Mset α) where
   one := pure 1
   mul_one _ := by
     simp only [Mset.mul_unfold]; rw [seq_pure, ←comp_map];

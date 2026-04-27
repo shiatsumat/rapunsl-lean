@@ -35,14 +35,14 @@ protected lemma Ifam.equiv_is_equiv :
     intro _ _ _ ⟨f, _⟩ ⟨g, _⟩; exists f.trans g; intro _; simp_all only [Equiv.trans_apply]
 
 /-- Setoid for `Ifam` -/
-protected instance Ifam.Setoid.{u} α : Setoid (Ifam α) :=
+protected instance Ifam.instSetoid.{u} α : Setoid (Ifam α) :=
   Setoid.mk (Ifam.equiv.{u}) Ifam.equiv_is_equiv
 
 /-! ## `Mset`: Multiset, possibly infinite -/
 
 /-- Multiset, possibly infinite -/
 def Mset.{u} (α : Type u) : Type (max 1 u) :=
-  Quotient (Ifam.Setoid.{u} α)
+  Quotient (Ifam.instSetoid.{u} α)
 
 /-! ## Functor -/
 
@@ -110,7 +110,7 @@ protected instance Mset.instLawfulFunctor : LawfulFunctor Mset.{u} where
 /-! ## Empty multiset -/
 
 /-- Empty indexed family -/
-protected instance Ifam.empty : EmptyCollection (Ifam α) where
+protected instance Ifam.instEmptyCollection : EmptyCollection (Ifam α) where
   emptyCollection := .mk Empty nofun
 
 @[simp] protected lemma Ifam.empty_dom :
@@ -120,7 +120,7 @@ protected instance Ifam.empty_dom_Empty : IsEmpty (∅ : Ifam α).dom := by
   apply Empty.instIsEmpty
 
 /-- Empty multiset -/
-protected instance Mset.empty : EmptyCollection (Mset α) where
+protected instance Mset.instEmptyCollection : EmptyCollection (Mset α) where
   emptyCollection := ⟦ ∅ ⟧
 
 /-! ## Singleton -/
@@ -139,7 +139,7 @@ protected lemma Ifam.pure_unfold (a : α) :
     (pure (f := Ifam) a).elem u = a := rfl
 
 /-- Singleton multiset -/
-protected instance Mset.Pure : Pure Mset.{u} where
+protected instance Mset.instPure : Pure Mset.{u} where
   pure a := ⟦ pure a ⟧
 
 protected lemma Mset.pure_unfold (a : α) :
