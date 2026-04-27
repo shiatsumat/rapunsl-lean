@@ -11,7 +11,7 @@ public import Mathlib.Control.Applicative
 /-! ## `Ifam`: Indexed family -/
 
 /-- Indexed family -/
-structure Ifam.{u} (α : Type u) : Type (max 1 u) where protected mk ::
+structure Ifam.{u} (α : Type u) : Type (max 1 u) where
   protected dom : Type
   protected elem : dom → α
 
