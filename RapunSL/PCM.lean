@@ -60,7 +60,7 @@ protected instance Excl.instPCMa : PCMa (Excl α) where
   mul_one _ := rfl
   valid | Excl.bot => False | _ => True
   valid_one := trivial
-  valid_mul_l a b := by cases a <;> cases b <;> grind only
+  valid_mul_l a b := by cases a <;> cases b <;> tauto
 
 protected lemma Excl.one_unfold : (1 : Excl α) = Excl.unit := rfl
 
@@ -158,7 +158,7 @@ protected lemma Mset.valid_mul_l [PCMa α] (A B : Mset α) :
     B.inhab → valid (A * B) → valid A := by
   simp only [Mset.mul_unfold, Mset.valid_unfold, Mset.mem_seq, Mset.mem_map];
   simp only [existsAndEq, and_true]; intro ⟨b, _⟩ val _ _;
-  apply PCMa.valid_mul_l _ b; apply val; grind only
+  apply PCMa.valid_mul_l _ b; apply val; tauto
 
 protected lemma Mset.valid_mul_r [PCMa α] (A B : Mset α) :
     A.inhab → valid (A * B) → valid B := by
