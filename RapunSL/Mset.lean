@@ -76,14 +76,14 @@ protected instance Ifam.instLawfulFunctor : LawfulFunctor Ifam.{u} where
 @[simp] protected lemma Ifam.map_elem (f : α → β) (A : Ifam α) (i : A.dom) :
   (f <$>ᴵ A).elem i = f (A.elem i) := rfl
 
-protected lemma Ifam.map_proper (A B : Ifam α) :
+@[gcongr] protected lemma Ifam.map_proper (A B : Ifam α) :
     A ≈ B → f <$>ᴵ A ≈ f <$>ᴵ B := by
   intro ⟨g, AB⟩; exists g; simp only [Ifam.map_elem]; intro _; rw [AB]; rfl
 
 /-- Functor map for `Mset`, more universe-polymorphic than `Functor.map` -/
 protected def Mset.map {α β : Type*} (f : α → β) : Mset α → Mset β :=
   .lift (⟦ f <$>ᴵ · ⟧) <| by
-    intros; apply Quotient.sound; apply Ifam.map_proper; assumption
+    intros; apply Quotient.sound; gcongr
 
 scoped[Mset] infixr:100 " <$>ᴹ " => Mset.map
 open Mset
@@ -170,24 +170,16 @@ scoped[Ifam] infixr:60 " ⊕ᴵ " => Ifam.oplus
 @[simp] protected lemma Ifam.oplus_elem_inr (A B : Ifam α) {i} :
   (A ⊕ᴵ B).elem (.inr i) = B.elem i := rfl
 
-protected lemma Ifam.oplus_proper (A A' B B' : Ifam α) :
+@[gcongr] protected lemma Ifam.oplus_proper (A A' B B' : Ifam α) :
     A ≈ A' → B ≈ B' → A ⊕ᴵ B ≈ A' ⊕ᴵ B' :=
   fun ⟨f, AB⟩ ⟨g, A'B'⟩ => by
     exists Equiv.sumCongr f g; simp only [Ifam.oplus_dom];
     rintro (_ | _) <;> simp_all only [Ifam.oplus_elem_inl, Ifam.oplus_elem_inr] <;> rfl
 
-protected lemma Ifam.oplus_proper_l (A A' B : Ifam α) :
-    A ≈ A' → A ⊕ᴵ B ≈ A' ⊕ᴵ B := by
-  intro _; apply Ifam.oplus_proper; { assumption }; { rfl }
-
-protected lemma Ifam.oplus_proper_r (A B B' : Ifam α) :
-    B ≈ B' → A ⊕ᴵ B ≈ A ⊕ᴵ B' := by
-  intro _; apply Ifam.oplus_proper; { rfl }; { assumption }
-
 /-- Sum of two multisets -/
 protected def Mset.oplus.{u} {α} : Mset.{u} α → Mset.{u} α → Mset α :=
   .lift₂ (⟦ · ⊕ᴵ · ⟧) <| by
-    intros; apply Quotient.sound; apply Ifam.oplus_proper <;> assumption
+    intros; apply Quotient.sound; apply Ifam.oplus_proper <;> tauto
 
 scoped[Mset] infixr:60 " ⊕ᴹ " => Mset.oplus
 
@@ -216,7 +208,7 @@ protected instance Mset.oplus_Commutative :
 /-! ### `⊕` is unital -/
 
 protected lemma Ifam.oplus_id_r (A : Ifam α) : A ⊕ᴵ ∅ ≈ A := by
-  exists Equiv.sumEmpty _ _; rintro (_ | _); { rfl }; { nofun }
+  exists Equiv.sumEmpty _ _; rintro (_ | _) <;> tauto
 
 protected instance Mset.oplus_LawfulCommIdentity :
     Std.LawfulCommIdentity (Mset.oplus (α := α)) ∅ where
@@ -242,10 +234,10 @@ protected def Ifam.bigoplus {ι : Type} (A : ι → Ifam α) : Ifam α :=
 
 scoped[Ifam] notation "⨁ᴵ " i ", " A => Ifam.bigoplus (fun i => A)
 
-protected lemma Ifam.bigoplus_proper (A A' : ι → Ifam α) :
+@[gcongr] protected lemma Ifam.bigoplus_proper (A A' : ι → Ifam α) :
     (∀ i, A i ≈ A' i) → Ifam.bigoplus A ≈ Ifam.bigoplus A' := by
   intro AA'; have ⟨f, AA'⟩ := Classical.skolem.mp AA';
-  exists Equiv.sigmaCongrRight f; intro _; apply AA'
+  exists Equiv.sigmaCongrRight f; tauto
 
 @[simp] protected lemma Ifam.bigoplus_dom (A : ι → Ifam α) :
     (Ifam.bigoplus (α := α) (ι := ι) A).dom = Σ i, (A i).dom := rfl
@@ -267,8 +259,7 @@ protected lemma Ifam.bigoplus_map (f : α → β) (A : ι → Ifam α) :
 protected lemma Mset.bigoplus_map (f : α → β) (A : ι → Mset α) :
     f <$>ᴹ Mset.bigoplus A = ⨁ᴹ i, f <$>ᴹ A i := by
   apply Quotient.sound; rw [Ifam.bigoplus_map]; apply Ifam.bigoplus_proper; intro i; simp only;
-  cases A i using Quotient.ind; trans; swap; { symm; apply Quotient.mk_out };
-  apply Ifam.map_proper; apply Quotient.mk_out
+  cases A i using Quotient.ind; grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
 /-! ### `bigoplus` is commutative -/
 
@@ -284,12 +275,12 @@ protected lemma Mset.bigoplus_comm {ι ι' : Type} (f : ι ≃ ι') (A : ι' →
 
 protected lemma Ifam.bigoplus_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Ifam α) :
     (⨁ᴵ i, Ifam.bigoplus (A i)) ≈ ⨁ᴵ (⟨i, j⟩ : Sigma ι'), A i j := by
-  exists (Equiv.sigmaAssoc _).symm; intro _; rfl
+  exists (Equiv.sigmaAssoc _).symm; tauto
 
 protected lemma Mset.bigoplus_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Mset α) :
     ⨁ᴹ i, Mset.bigoplus (A i) = ⨁ᴹ (⟨i, j⟩ : Sigma ι'), A i j := by
   apply Quotient.sound; trans;
-  { apply Ifam.bigoplus_proper; intros; apply Quotient.mk_out };
+  { apply Ifam.bigoplus_proper; { intro _; apply Quotient.mk_out } };
   apply Ifam.bigoplus_assoc
 
 /-! ### `empty` as `bigoplus` -/
@@ -310,8 +301,7 @@ protected lemma Ifam.unary_bigoplus (A : Ifam α) : (⨁ᴵ (_ : Unit), A) ≈ A
   exists Equiv.uniqueSigma _; intro _; rfl
 
 protected lemma Mset.unary_bigoplus (A : Mset α) : ⨁ᴹ (_ : Unit), A = A := by
-  cases A using Quotient.ind; apply Quotient.sound;
-  trans; swap; { apply Quotient.mk_out }; apply Ifam.unary_bigoplus
+  cases A using Quotient.ind; apply Quotient.sound; grw [Ifam.unary_bigoplus, Quotient.mk_out]
 
 /-! ### `⊕` as `bigoplus` -/
 
@@ -343,16 +333,15 @@ scoped[Ifam] infixr:69 " ×ᴵ " => Ifam.prod
 @[simp] protected lemma Ifam.prod_elem (A : Ifam α) (B : Ifam β) i j :
   (A ×ᴵ B).elem (i, j) = (A.elem i, B.elem j) := rfl
 
-protected lemma Ifam.prod_proper (A A' : Ifam α) (B B' : Ifam β) :
+@[gcongr] protected lemma Ifam.prod_proper (A A' : Ifam α) (B B' : Ifam β) :
     A ≈ A' → B ≈ B' → A ×ᴵ B ≈ A' ×ᴵ B' := by
-  intro ⟨f, AA'⟩ ⟨g, BB'⟩;
-  exists Equiv.prodCongr f g; intro (_, _); simp only [Ifam.prod_elem];
-  rw [AA', BB']; rfl
+  intro ⟨f, AA'⟩ ⟨g, BB'⟩; exists Equiv.prodCongr f g; intro (_, _);
+  simp only [Ifam.prod_elem]; rw [AA', BB']; rfl
 
 /-- Product of two multisets -/
 protected def Mset.prod {α β} : Mset α → Mset β → Mset (α × β) :=
   .lift₂ (⟦ · ×ᴵ · ⟧) <| by
-    intros; apply Quotient.sound; apply Ifam.prod_proper <;> assumption
+    intros; apply Quotient.sound; apply Ifam.prod_proper <;> trivial
 
 scoped[Mset] infixr:69 " ×ᴹ " => Mset.prod
 
@@ -375,7 +364,7 @@ protected lemma Mset.prod_map_r (g : β → β') (A : Mset α) (B : Mset β) :
 
 protected lemma Ifam.prod_comm (A : Ifam α) (B : Ifam β) :
     A ×ᴵ B ≈ Prod.swap <$>ᴵ (B ×ᴵ A) := by
-  exists Equiv.prodComm _ _; intro _; rfl
+  exists Equiv.prodComm _ _; tauto
 
 protected lemma Mset.prod_comm (A : Mset α) (B : Mset β) :
     A ×ᴹ B = Prod.swap <$>ᴹ (B ×ᴹ A) := by
@@ -414,19 +403,19 @@ protected lemma Mset.prod_assoc_r (A : Mset α) (B : Mset β) (C : Mset γ) :
 
 /-! ### `*` distributes over `⊕` -/
 
-protected lemma Ifam.prod_sum_distrib_l (A : Ifam α) (B C : Ifam β) :
+protected lemma Ifam.prod_oplus_distrib_l (A : Ifam α) (B C : Ifam β) :
     A ×ᴵ (B ⊕ᴵ C) ≈ A ×ᴵ B ⊕ᴵ A ×ᴵ C := by
   exists Equiv.prodSumDistrib _ _ _; rintro ⟨_, (_ | _)⟩ <;> rfl
 
-protected lemma Mset.prod_sum_distrib_l (A : Mset α) (B C : Mset β) :
+protected lemma Mset.prod_oplus_distrib_l (A : Mset α) (B C : Mset β) :
     A ×ᴹ (B ⊕ᴹ C) = A ×ᴹ B ⊕ᴹ A ×ᴹ C := by
   cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
-  apply Quotient.sound; apply Ifam.prod_sum_distrib_l
+  apply Quotient.sound; apply Ifam.prod_oplus_distrib_l
 
-protected lemma Mset.prod_sum_distrib_r (A B : Mset α) (C : Mset β) :
+protected lemma Mset.prod_oplus_distrib_r (A B : Mset α) (C : Mset β) :
     (A ⊕ᴹ B) ×ᴹ C = A ×ᴹ C ⊕ᴹ B ×ᴹ C := by
-  rw [Mset.prod_comm, Mset.prod_sum_distrib_l, Mset.prod_comm C A, Mset.prod_comm C B,
-      Mset.oplus_map, ←Mset.comp_map, ←Mset.comp_map, Prod.swap_swap_eq, Mset.id_map, Mset.id_map]
+  rw [Mset.prod_comm, Mset.prod_oplus_distrib_l, Mset.prod_comm, Mset.prod_comm C B];
+  simp only [Mset.oplus_map, ←Mset.comp_map, Prod.swap_swap_eq, Mset.id_map]
 
 /-! ## Applicative -/
 
@@ -451,7 +440,7 @@ protected lemma Mset.seq_unfold (F : Mset (α → β)) (A : Mset α) :
 protected noncomputable def Ifam.join {α} (A : Ifam (Mset α)) : Mset α :=
   Mset.bigoplus A.elem
 
-protected lemma Ifam.join_proper (A B : Ifam (Mset α)) :
+@[gcongr] protected lemma Ifam.join_proper (A B : Ifam (Mset α)) :
     A ≈ B → A.join = B.join := by
   intro ⟨f, AB⟩; apply Quotient.sound;
   let g : (⨁ᴵ i, (A.elem i).out).dom ≃ (⨁ᴵ i, (B.elem i).out).dom :=
@@ -466,7 +455,7 @@ protected lemma Ifam.join_proper (A B : Ifam (Mset α)) :
 
 /-- `join` for `Mset` -/
 protected noncomputable def Mset.join {α} : Mset (Mset α) → Mset α :=
-  .lift (·.join) <| by intros; apply Ifam.join_proper; assumption
+  .lift (·.join) <| by intros; apply Ifam.join_proper; trivial
 
 /-! ### Join laws -/
 
@@ -474,8 +463,8 @@ protected lemma Mset.map_join (f : α → β) (A : Mset (Mset α)) :
     f <$>ᴹ Mset.join A = Mset.join (Mset.map f <$>ᴹ A) := by
   revert A; apply Quotient.ind; intro ⟨_, F⟩;
   apply Quotient.sound; rw [Ifam.bigoplus_map]; apply Ifam.bigoplus_proper;
-  simp only [Ifam.map_elem]; intro i; cases F i using Quotient.ind; trans; swap;
-  { symm; apply Quotient.mk_out }; apply Ifam.map_proper; apply Quotient.mk_out
+  simp only [Ifam.map_elem]; intro i; cases F i using Quotient.ind;
+  grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
 protected lemma Mset.join_map_seq (F : Mset (α → β)) :
     Mset.join ((· <$>ᴹ A) <$>ᴹ F) = F <*>ᴹ A := by
@@ -486,16 +475,14 @@ protected lemma Mset.join_map_seq (F : Mset (α → β)) :
 
 protected lemma Mset.join_pure (A : Mset α) : Mset.join (pure A) = A := by
   cases A using Quotient.ind; apply Quotient.sound;
-  simp only [Ifam.pure_elem]; trans; swap; { apply Quotient.mk_out };
-  apply Ifam.unary_bigoplus
+  simp only [Ifam.pure_elem]; grw [Quotient.mk_out]; apply Ifam.unary_bigoplus
 
 protected lemma Ifam.bigoplus_pure (A : Ifam α) : Ifam.bigoplus (pure <$>ᴵ A).elem ≈ A := by
   exists Equiv.sigmaPUnit _; intro _; rfl
 
 protected lemma Mset.join_pure_map (A : Mset α) : Mset.join (pure <$>ᴹ A) = A := by
   cases A using Quotient.ind; apply Quotient.sound; trans; swap;
-  { apply Ifam.bigoplus_pure }; apply Ifam.bigoplus_proper;
-  intro _; apply Quotient.mk_out
+  { apply Ifam.bigoplus_pure }; apply Ifam.bigoplus_proper; intro _; apply Quotient.mk_out
 
 protected lemma Mset.join_join (A : Mset (Mset (Mset α))) :
     Mset.join (Mset.join A) = Mset.join (Mset.join <$>ᴹ A) := by
@@ -568,12 +555,11 @@ protected instance Ifam.instMembership : Membership α (Ifam α) where
 
 protected lemma Ifam.mem_proper' (A B : Ifam α) :
     A ≈ B → a ∈ A → a ∈ B := by
-  rintro ⟨f, AB⟩ ⟨i, Ai⟩; exists f i; rw [←AB]; assumption
+  rintro ⟨f, AB⟩ ⟨i, Ai⟩; exists f i; rw [←AB]; trivial
 
 protected lemma Ifam.mem_proper (A B : Ifam α) :
     A ≈ B → (a ∈ A) = (a ∈ B) := by
-  intro _; apply propext; constructor <;>
-    apply Ifam.mem_proper';{ assumption }; { symm; assumption }
+  intro _; ext1; constructor <;> { apply Ifam.mem_proper'; tauto }
 
 /-- Membership for `Mset` -/
 protected instance Mset.instMembership : Membership α (Mset α) where
@@ -584,7 +570,7 @@ protected instance Mset.instMembership : Membership α (Mset α) where
 
 @[simp] protected lemma Ifam.mem_map' (f : α → β) (A : Ifam α) b :
     (b ∈ f <$>ᴵ A) = ∃ a ∈ A, f a = b := by
-  apply propext; constructor;
+  ext1; constructor;
   · intro ⟨i, eq⟩; subst eq; exists A.elem i; and_intros; { exists i }; { rfl }
   · intro ⟨a, ⟨i, eq⟩, eq'⟩; subst eq eq'; exists i
 
@@ -605,28 +591,26 @@ protected instance Mset.instMembership : Membership α (Mset α) where
   apply Ifam.mem_empty
 
 @[simp] protected lemma Ifam.mem_pure (a b : α) : (a ∈ pure (f := Ifam) b) = (a = b) := by
-  apply propext; constructor;
+  ext1; constructor;
   { intro ⟨(), eq⟩; rw [←eq]; rfl }; { intro rfl; exists () }
 
 @[simp] protected lemma Mset.mem_pure (a b : α) : (a ∈ pure (f := Mset) b) = (a = b) := by
   apply Ifam.mem_pure
 
-@[simp] protected lemma Ifam.mem_sum (a : α) (A B : Ifam α) :
+@[simp] protected lemma Ifam.mem_oplus (a : α) (A B : Ifam α) :
     (a ∈ A ⊕ᴵ B) = (a ∈ A ∨ a ∈ B) := by
-  apply propext; constructor;
+  ext1; constructor;
   · rintro ⟨i | j, rfl⟩; { left; exists i }; { right; exists j }
   · rintro (⟨i, rfl⟩ | ⟨i, rfl⟩); { exists (.inl i) }; { exists (.inr i) }
 
-@[simp] protected lemma Mset.mem_sum (A B : Mset α) a :
+@[simp] protected lemma Mset.mem_oplus (A B : Mset α) a :
     (a ∈ A ⊕ᴹ B) = (a ∈ A ∨ a ∈ B) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
-  apply Ifam.mem_sum
+  apply Ifam.mem_oplus
 
 @[simp] protected lemma Ifam.mem_bigoplus {ι : Type} (A : ι → Ifam α) a :
     (a ∈ ⨁ᴵ i, A i) = ∃ i, a ∈ A i := by
-  apply propext; constructor;
-  · rintro ⟨⟨i, j⟩, rfl⟩; exists i; exists j
-  · rintro ⟨i, ⟨j, rfl⟩⟩; exists ⟨i, j⟩
+  ext1; constructor; { rintro ⟨⟨_, _⟩, rfl⟩; tauto }; { rintro ⟨_, ⟨_, rfl⟩⟩; tauto }
 
 @[simp] protected lemma Mset.mem_bigoplus {ι : Type} (A : ι → Mset α) a :
     (a ∈ ⨁ᴹ i, A i) = ∃ i, a ∈ A i := by
@@ -634,10 +618,9 @@ protected instance Mset.instMembership : Membership α (Mset α) where
 
 @[simp] protected lemma Ifam.mem_prod (A : Ifam α) (B : Ifam β) p :
     (p ∈ A ×ᴵ B) = (p.1 ∈ A ∧ p.2 ∈ B) := by
-  cases p; apply propext; constructor;
-  · rintro ⟨⟨i, j⟩, eq⟩; have ⟨rfl, rfl⟩ := Prod.mk_inj.mp eq; and_intros;
-    { exists i }; { exists j }
-  · rintro ⟨⟨i, rfl⟩, ⟨j, rfl⟩⟩; exists (i, j)
+  cases p; ext1; constructor;
+  · rintro ⟨⟨_, _⟩, eq⟩; have ⟨rfl, rfl⟩ := Prod.mk_inj.mp eq; tauto
+  · rintro ⟨⟨_, rfl⟩, ⟨_, rfl⟩⟩; tauto
 
 @[simp] protected lemma Mset.mem_prod (A : Mset α) (B : Mset β) p :
     (p ∈ A ×ᴹ B) = (p.1 ∈ A ∧ p.2 ∈ B) := by
@@ -654,9 +637,8 @@ protected instance Mset.instMembership : Membership α (Mset α) where
 @[simp] protected lemma Mset.mem_join (A : Mset (Mset α)) a :
     (a ∈ Mset.join A) = ∃ B ∈ A, a ∈ B := by
   revert A; apply Quotient.ind; intro A;
-  rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.mem_bigoplus]; apply propext; constructor;
-  · rintro ⟨i, _⟩; exists A.elem i; and_intros; { exists i }; { assumption }
-  · rintro ⟨_, ⟨i, rfl⟩, mem⟩; exists i
+  rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.mem_bigoplus]; ext1;
+  constructor; { tauto }; intro ⟨_, ⟨_, rfl⟩, _⟩; tauto
 
 @[simp] protected lemma Mset.mem_bind' (A : Mset α) (K : α → Mset β) b :
     (b ∈ A >>=ᴹ K) = ∃ a ∈ A, b ∈ K a := by
@@ -677,9 +659,9 @@ def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
 @[simp] protected lemma Mset.inhab_empty : (∅ : Mset α).inhab = False := by
   simp only [Mset.inhab, Mset.mem_empty]; grind only
 
-@[simp] protected lemma Mset.inhab_sum (A B : Mset α) :
+@[simp] protected lemma Mset.inhab_oplus (A B : Mset α) :
     A.inhab ∨ B.inhab = (A ⊕ᴹ B).inhab := by
-  simp only [Mset.inhab, Mset.mem_sum]; grind only
+  simp only [Mset.inhab, Mset.mem_oplus]; grind only
 
 @[simp] protected lemma Mset.inhab_bigoplus {ι : Type} (A : ι → Mset α) :
     (∃ i, (A i).inhab) = (⨁ᴹ i, A i).inhab := by
