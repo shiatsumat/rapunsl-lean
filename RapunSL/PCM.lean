@@ -155,6 +155,10 @@ protected lemma Mset.valid_unfold [PCM α] :
 protected lemma Mset.valid_empty [PCM α] : ✓ (∅ : Mset α) := by
   simp only [Mset.valid_unfold, Mset.mem_empty]; tauto
 
+protected lemma Mset.valid_pure [PCM α] (a : α) :
+    ✓ a → ✓ (pure a : Mset α) := by
+  simp only [Mset.valid_unfold, Mset.mem_pure, forall_eq]; tauto
+
 /-! ### Antitonicity of `✓` for `Mset` under inhabitedness -/
 
 protected lemma Mset.valid_mul_l [PCMa α] (A B : Mset α) :
