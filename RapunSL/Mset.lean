@@ -297,11 +297,11 @@ protected lemma Mset.empty_bigoplus : ∅ = Mset.bigoplus (ι := Empty) (α := �
 
 /-! ### Unary `bigoplus` -/
 
-protected lemma Ifam.unary_bigoplus (F : Unit → Ifam α) : Ifam.bigoplus F ≈ F () := by
+protected lemma Ifam.unary_bigoplus (A : Unit → Ifam α) : Ifam.bigoplus A ≈ A () := by
   exists Equiv.uniqueSigma _; intro _; rfl
 
-protected lemma Mset.unary_bigoplus (F : Unit → Mset α) : Mset.bigoplus F = F () := by
-  cases eq : F () using Quotient.ind; apply Quotient.sound;
+protected lemma Mset.unary_bigoplus (A : Unit → Mset α) : Mset.bigoplus A = A () := by
+  cases eq : A () using Quotient.ind; apply Quotient.sound;
   grw [Ifam.unary_bigoplus, eq, Quotient.mk_out]
 
 /-! ### `⊕` as `bigoplus` -/
