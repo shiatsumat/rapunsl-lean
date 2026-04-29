@@ -705,7 +705,7 @@ protected instance Mset.instMembership : Membership α (Mset α) where
 /-! ## Inhabitedness -/
 
 /-- Inhabitedness for `Mset` -/
-def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
+protected def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
 
 @[simp] protected lemma Mset.inhab_map (f : α → β) (A : Mset α) :
     (f <$> A).inhab = A.inhab := by
