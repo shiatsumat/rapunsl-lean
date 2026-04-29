@@ -2,6 +2,7 @@ module
 
 public import Mathlib.Algebra.Group.Defs
 public import RapunSL.Mset
+open Mset
 
 @[expose] public section
 
@@ -131,6 +132,40 @@ protected instance Mset.Mul (α : Type u) [Mul α] : Mul (Mset α) where
 
 protected lemma Mset.mul_unfold [Mul α] :
     (HMul.hMul : Mset α → Mset α → _) = fun A B => HMul.hMul <$> A <*> B := rfl
+
+protected lemma Mset.pure_mul [Mul α] (a b : α) :
+    pure (f := Mset) (a * b) = pure a * pure b := by
+  simp only [Mset.mul_unfold, functor_norm]
+
+protected lemma Mset.mul_bigoplus_l [Mul α] A (B : ι → Mset α) :
+    A * (⨁ᴹ i, B i) = ⨁ᴹ i, A * B i := by
+  simp only [Mset.mul_unfold, Mset.seq_bigoplus_l]
+
+protected lemma Mset.mul_bigoplus_r [Mul α] (A : ι → Mset α) B :
+    (⨁ᴹ i, A i) * B = ⨁ᴹ i, A i * B := by
+  simp only [Mset.mul_unfold, Mset.bigoplus_map, Mset.seq_bigoplus_r]
+
+protected lemma Mset.mul_oplus_l [Mul α] (A B C : Mset α) :
+    A * (B ⊕ᴹ C) = A * B ⊕ᴹ A * C := by
+  simp only [Mset.oplus_bigoplus, Mset.mul_bigoplus_l]; grind only
+
+protected lemma Mset.mul_oplus_r [Mul α] (A B C : Mset α) :
+    (A ⊕ᴹ B) * C = A * C ⊕ᴹ B * C := by
+  simp only [Mset.oplus_bigoplus, Mset.mul_bigoplus_r]; grind only
+
+protected lemma Mset.mul_empty_l [Mul α] (A : Mset α) : A * ∅ = ∅ := by
+  simp only [Mset.empty_bigoplus, Mset.mul_bigoplus_l]; congr; ext1 _; tauto
+
+protected lemma Mset.mul_empty_r [Mul α] (A : Mset α) : ∅ * A = ∅ := by
+  simp only [Mset.empty_bigoplus, Mset.mul_bigoplus_r]; congr; ext1 _; tauto
+
+@[simp] protected lemma Mset.mem_mul [Mul α] (A B : Mset α) a :
+    (a ∈ A * B) = ∃ b ∈ A, ∃ c ∈ B, a = b * c := by
+  simp only [Mset.mul_unfold, Mset.mem_seq, Mset.mem_map, existsAndEq]; ext1; tauto
+
+@[simp] protected lemma Mset.inhab_mul [Mul α] (A B : Mset α) :
+    (A * B).inhab = (A.inhab ∧ B.inhab) := by
+  simp only [Mset.inhab, Mset.mem_mul]; grind only
 
 /-- Multiset PCM -/
 protected instance Mset.instPCM (α : Type u) [PCM α] : PCM (Mset α) where
