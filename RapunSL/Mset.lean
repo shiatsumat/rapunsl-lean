@@ -660,6 +660,9 @@ def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
 @[simp] protected lemma Mset.inhab_empty : (∅ : Mset α).inhab = False := by
   simp only [Mset.inhab, Mset.mem_empty]; grind only
 
+@[simp] protected lemma Mset.inhab_pure (a : α) : (pure a : Mset α).inhab = True := by
+  simp only [Mset.inhab, Mset.mem_pure]; grind only
+
 @[simp] protected lemma Mset.inhab_oplus (A B : Mset α) :
     A.inhab ∨ B.inhab = (A ⊕ᴹ B).inhab := by
   simp only [Mset.inhab, Mset.mem_oplus]; grind only
