@@ -436,21 +436,21 @@ protected lemma Mset.prod_assoc_r (A : Mset α) (B : Mset β) (C : Mset γ) :
 
 /-! ### `*` distributes over `⊕` -/
 
-protected lemma Ifam.prod_bigoplus_l (A : Ifam α) (F : ι → Ifam β) :
-    (A ×ᴵ ⨁ᴵ i, F i) ≈ ⨁ᴵ i, A ×ᴵ F i := by
+protected lemma Ifam.prod_bigoplus_l (A : Ifam α) (B : ι → Ifam β) :
+    (A ×ᴵ ⨁ᴵ i, B i) ≈ ⨁ᴵ i, A ×ᴵ B i := by
   exists { toFun := fun ⟨a, ⟨i, b⟩⟩ => ⟨i, (a, b)⟩,
            invFun := fun ⟨i, ⟨a, b⟩⟩ => ⟨a, ⟨i, b⟩⟩,
            left_inv := by tauto, right_inv := by tauto };
   intro _; rfl
 
-protected lemma Mset.prod_bigoplus_l (A : Mset α) (F : ι → Mset β) :
-    A ×ᴹ (⨁ᴹ i, F i) = ⨁ᴹ i, A ×ᴹ F i := by
+protected lemma Mset.prod_bigoplus_l (A : Mset α) (B : ι → Mset β) :
+    A ×ᴹ (⨁ᴹ i, B i) = ⨁ᴹ i, A ×ᴹ B i := by
   cases A using Quotient.ind; apply Quotient.sound; grw [Ifam.prod_bigoplus_l];
-  apply Ifam.bigoplus_proper; intro i; simp only; cases F i using Quotient.ind;
+  apply Ifam.bigoplus_proper; intro i; simp only; cases B i using Quotient.ind;
   grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
-protected lemma Mset.prod_bigoplus_r (F : ι → Mset α) (A : Mset β) :
-    (⨁ᴹ i, F i) ×ᴹ A = ⨁ᴹ i, F i ×ᴹ A := by
+protected lemma Mset.prod_bigoplus_r (A : ι → Mset α) (B : Mset β) :
+    (⨁ᴹ i, A i) ×ᴹ B = ⨁ᴹ i, A i ×ᴹ B := by
   rw [Mset.prod_comm, Mset.prod_bigoplus_l, Mset.bigoplus_map'];
   congr; ext1 _; rw [←Mset.prod_comm]
 
