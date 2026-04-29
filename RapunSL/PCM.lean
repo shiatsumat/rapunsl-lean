@@ -152,6 +152,9 @@ protected lemma Mset.one_unfold [PCM α] : (1 : Mset α) = pure 1 := rfl
 protected lemma Mset.valid_unfold [PCM α] :
     valid (α := Mset α) = fun A => ∀ a ∈ A, ✓ a := rfl
 
+protected lemma Mset.valid_empty [PCM α] : ✓ (∅ : Mset α) := by
+  simp only [Mset.valid_unfold, Mset.mem_empty]; tauto
+
 /-! ### Antitonicity of `✓` for `Mset` under inhabitedness -/
 
 protected lemma Mset.valid_mul_l [PCMa α] (A B : Mset α) :

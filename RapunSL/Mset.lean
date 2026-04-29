@@ -113,6 +113,8 @@ protected instance Mset.instLawfulFunctor : LawfulFunctor Mset.{u} where
 protected instance Ifam.instEmptyCollection : EmptyCollection (Ifam α) where
   emptyCollection := .mk Empty nofun
 
+protected lemma Ifam.empty_unfold : (∅ : Ifam α) = .mk Empty nofun := rfl
+
 @[simp] protected lemma Ifam.empty_dom :
     (∅ : Ifam α).dom = Empty := rfl
 
@@ -122,6 +124,18 @@ protected instance Ifam.empty_dom_Empty : IsEmpty (∅ : Ifam α).dom := by
 /-- Empty multiset -/
 protected instance Mset.instEmptyCollection : EmptyCollection (Mset α) where
   emptyCollection := ⟦ ∅ ⟧
+
+protected lemma Mset.empty_unfold : (∅ : Mset α) = ⟦ ∅ ⟧ := rfl
+
+/-! ### `map` over `∅` -/
+
+protected lemma Ifam.empty_map (f : α → β) :
+    f <$>ᴵ (∅ : Ifam α) = ∅ := by
+  simp only [Ifam.map, Ifam.empty_unfold]; congr; ext1 _; nofun
+
+protected lemma Mset.empty_map (f : α → β) :
+    f <$>ᴹ (∅ : Mset α) = ∅ := by
+  apply (congr_arg (Quotient.mk _)); apply Ifam.empty_map
 
 /-! ## Singleton -/
 
@@ -448,6 +462,12 @@ protected lemma Mset.prod_oplus_r (A B : Mset α) (C : Mset β) :
     (A ⊕ᴹ B) ×ᴹ C = A ×ᴹ C ⊕ᴹ B ×ᴹ C := by
   simp only [Mset.oplus_bigoplus, Mset.prod_bigoplus_r]; grind only
 
+protected lemma Mset.prod_empty_l (A : Mset α) : A ×ᴹ (∅ : Mset β) = ∅ := by
+  simp only [Mset.empty_bigoplus, Mset.prod_bigoplus_l]; congr; ext1 _; trivial
+
+protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ := by
+  simp only [Mset.empty_bigoplus, Mset.prod_bigoplus_r]; congr; ext1 _; trivial
+
 /-! ## Applicative -/
 
 /-- `seq` for `Mset`, more universe-polymorphic than `Seq.seq` -/
@@ -494,6 +514,20 @@ protected lemma Mset.seq'_oplus_r (F G : Mset (α → β)) (A : Mset α) :
 
 protected lemma Mset.seq_oplus_r (F G : Mset (α → β)) (A : Mset α) :
     (F ⊕ᴹ G) <*> A = (F <*> A) ⊕ᴹ (G <*> A) := by apply Mset.seq'_oplus_r
+
+protected lemma Mset.seq'_empty_l (F : Mset (α → β)) :
+    F <*>ᴹ (∅ : Mset α) = ∅ := by
+  simp only [Mset.empty_bigoplus, Mset.seq'_bigoplus_l]; congr; ext1 _; trivial
+
+protected lemma Mset.seq_empty_l (F : Mset (α → β)) :
+    F <*> (∅ : Mset α) = ∅ := by apply Mset.seq'_empty_l
+
+protected lemma Mset.seq'_empty_r (A : Mset α) :
+    (∅ : Mset (α → β)) <*>ᴹ A = ∅ := by
+  simp only [Mset.empty_bigoplus, Mset.seq'_bigoplus_r]; congr; ext1 _; trivial
+
+protected lemma Mset.seq_empty_r (A : Mset α) :
+    (∅ : Mset (α → β)) <*> A = ∅ := by apply Mset.seq'_empty_r
 
 /-! ## Join -/
 
