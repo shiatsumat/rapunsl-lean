@@ -249,7 +249,7 @@ scoped[Ifam] notation "⨁ᴵ " i ", " A => Ifam.bigoplus (fun i => A)
 protected noncomputable def Mset.bigoplus.{u} {ι : Type} (A : ι → Mset.{u} α) : Mset.{u} α :=
   ⟦ ⨁ᴵ i, (A i).out ⟧
 
-scoped[Mset] notation "⨁ᴹ " i ", " A:67 => Mset.bigoplus (fun i => A)
+scoped[Mset] notation "⨁ᴹ " i ", " A => Mset.bigoplus (fun i => A)
 
 /-! ### `map` over `bigoplus` -/
 
@@ -278,7 +278,7 @@ protected lemma Ifam.bigoplus_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι,
   exists (Equiv.sigmaAssoc _).symm; tauto
 
 protected lemma Mset.bigoplus_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Mset α) :
-    ⨁ᴹ i, Mset.bigoplus (A i) = ⨁ᴹ (⟨i, j⟩ : Sigma ι'), A i j := by
+    (⨁ᴹ i, Mset.bigoplus (A i)) = ⨁ᴹ (⟨i, j⟩ : Sigma ι'), A i j := by
   apply Quotient.sound; trans;
   { apply Ifam.bigoplus_proper; { intro _; apply Quotient.mk_out } };
   apply Ifam.bigoplus_assoc
