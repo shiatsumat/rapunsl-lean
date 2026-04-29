@@ -758,3 +758,20 @@ protected def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
 
 @[simp] protected lemma Mset.inhab_bind (A : Mset α) (K : α → Mset β) :
     (A >>= K).inhab = (A.inhab ∧ ∃ a ∈ A, (K a).inhab) := by apply Mset.inhab_bind'
+
+/-! ### Inhabitedness is non-emptiness -/
+
+protected lemma Ifam.no_elem_empty (A : Ifam α) :
+    (∀ a, a ∉ A) → A ≈ ∅ := by
+  intro noA;
+  have noAdom : A.dom → False := by intro i; apply noA (A.elem i); tauto;
+  exists ⟨fun i => (noAdom i).elim, nofun, by tauto, by tauto⟩; tauto
+
+protected lemma Mset.not_inhab_empty (A : Mset α) :
+    (¬ A.inhab) = (A = ∅) := by
+  ext1; constructor; swap; { intro rfl; rw [Mset.inhab_empty]; trivial };
+  cases A using Quotient.ind; intro nin; apply Quotient.sound;
+  apply Ifam.no_elem_empty; intro a _; apply nin; exists a
+
+protected lemma Mset.not_empty_inhab (A : Mset α) :
+    (A ≠ ∅) = A.inhab := by rw [Ne, ←Mset.not_inhab_empty, not_not]
