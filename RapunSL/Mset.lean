@@ -185,14 +185,17 @@ scoped[Mset] infixr:60 " ⊕ᴹ " => Mset.oplus
 
 /-! ### `map` over `⊕` -/
 
-protected lemma Ifam.oplus_map (f : α → β) (A B : Ifam α) :
+protected lemma Ifam.oplus_map' (f : α → β) (A B : Ifam α) :
     f <$>ᴵ (A ⊕ᴵ B) ≈ f <$>ᴵ A ⊕ᴵ f <$>ᴵ B := by
   exists Equiv.refl _; rintro (_ | _) <;> rfl
 
-protected lemma Mset.oplus_map (f : α → β) (A B : Mset α) :
+protected lemma Mset.oplus_map' (f : α → β) (A B : Mset α) :
     f <$>ᴹ (A ⊕ᴹ B) = f <$>ᴹ A ⊕ᴹ f <$>ᴹ B := by
   cases A using Quotient.ind; cases B using Quotient.ind;
-  apply Quotient.sound; apply Ifam.oplus_map
+  apply Quotient.sound; apply Ifam.oplus_map'
+
+protected lemma Mset.oplus_map (f : α → β) (A B : Mset α) :
+    f <$> (A ⊕ᴹ B) = f <$> A ⊕ᴹ f <$> B := by apply Mset.oplus_map'
 
 /-! ### `⊕` is commutative -/
 
@@ -253,13 +256,16 @@ scoped[Mset] notation "⨁ᴹ " i ", " A => Mset.bigoplus (fun i => A)
 
 /-! ### `map` over `bigoplus` -/
 
-protected lemma Ifam.bigoplus_map (f : α → β) (A : ι → Ifam α) :
+protected lemma Ifam.bigoplus_map' (f : α → β) (A : ι → Ifam α) :
     f <$>ᴵ Ifam.bigoplus A = ⨁ᴵ i, f <$>ᴵ A i := rfl
 
-protected lemma Mset.bigoplus_map (f : α → β) (A : ι → Mset α) :
+protected lemma Mset.bigoplus_map' (f : α → β) (A : ι → Mset α) :
     f <$>ᴹ Mset.bigoplus A = ⨁ᴹ i, f <$>ᴹ A i := by
-  apply Quotient.sound; rw [Ifam.bigoplus_map]; apply Ifam.bigoplus_proper; intro i; simp only;
+  apply Quotient.sound; rw [Ifam.bigoplus_map']; apply Ifam.bigoplus_proper; intro i; simp only;
   cases A i using Quotient.ind; grw [Quotient.mk_out]; symm; apply Quotient.mk_out
+
+protected lemma Mset.bigoplus_map (f : α → β) (A : ι → Mset α) :
+    f <$> Mset.bigoplus A = ⨁ᴹ i, f <$> A i := by apply Mset.bigoplus_map'
 
 /-! ### `bigoplus` is commutative -/
 
@@ -348,18 +354,27 @@ scoped[Mset] infixr:69 " ×ᴹ " => Mset.prod
 
 /-! ### `×` over `map` -/
 
-protected lemma Mset.prod_map
+protected lemma Mset.prod_map'
     (f : α → α') (g : β → β') (A : Mset α) (B : Mset β) :
     (f <$>ᴹ A) ×ᴹ (g <$>ᴹ B) = Prod.map f g <$>ᴹ (A ×ᴹ B) := by
   cases A using Quotient.ind; cases B using Quotient.ind; rfl
 
-protected lemma Mset.prod_map_l (f : α → α') (A : Mset α) (B : Mset β) :
+protected lemma Mset.prod_map (f : α → α') (g : β → β') (A : Mset α) (B : Mset β) :
+    (f <$> A) ×ᴹ (g <$> B) = Prod.map f g <$> (A ×ᴹ B) := by apply Mset.prod_map'
+
+protected lemma Mset.prod_map'_l (f : α → α') (A : Mset α) (B : Mset β) :
     (f <$>ᴹ A) ×ᴹ B = Prod.map f id <$>ᴹ (A ×ᴹ B) := by
-  rw [←Mset.prod_map, Mset.id_map]
+  rw [←Mset.prod_map', Mset.id_map]
+
+protected lemma Mset.prod_map_l (f : α → α') (A : Mset α) (B : Mset β) :
+    (f <$> A) ×ᴹ B = Prod.map f id <$> (A ×ᴹ B) := by apply Mset.prod_map'_l
+
+protected lemma Mset.prod_map'_r (g : β → β') (A : Mset α) (B : Mset β) :
+    A ×ᴹ (g <$>ᴹ B) = Prod.map id g <$>ᴹ (A ×ᴹ B) := by
+  rw [←Mset.prod_map', Mset.id_map]
 
 protected lemma Mset.prod_map_r (g : β → β') (A : Mset α) (B : Mset β) :
-    A ×ᴹ (g <$>ᴹ B) = Prod.map id g <$>ᴹ (A ×ᴹ B) := by
-  rw [←Mset.prod_map, Mset.id_map]
+    A ×ᴹ (g <$> B) = Prod.map id g <$> (A ×ᴹ B) := by apply Mset.prod_map'_r
 
 /-! ### `×` is commutative -/
 
@@ -419,7 +434,7 @@ protected lemma Mset.prod_bigoplus_l (A : Mset α) (F : ι → Mset β) :
 
 protected lemma Mset.prod_bigoplus_r (F : ι → Mset α) (A : Mset β) :
     (⨁ᴹ i, F i) ×ᴹ A = ⨁ᴹ i, F i ×ᴹ A := by
-  rw [Mset.prod_comm, Mset.prod_bigoplus_l, Mset.bigoplus_map];
+  rw [Mset.prod_comm, Mset.prod_bigoplus_l, Mset.bigoplus_map'];
   congr; ext1 _; rw [←Mset.prod_comm]
 
 protected lemma Mset.prod_oplus_l (A : Mset α) (B C : Mset β) :
@@ -451,14 +466,14 @@ protected lemma Mset.seq_unfold (F : Mset (α → β)) (A : Mset α) :
 
 protected lemma Mset.seq'_bigoplus_l (F : Mset (α → β)) (A : ι → Mset α) :
     F <*>ᴹ (⨁ᴹ i, A i) = ⨁ᴹ i, F <*>ᴹ A i := by
-  rw [Mset.seq, Mset.prod_bigoplus_l, Mset.bigoplus_map]; rfl
+  rw [Mset.seq, Mset.prod_bigoplus_l, Mset.bigoplus_map']; rfl
 
 protected lemma Mset.seq_bigoplus_l (F : Mset (α → β)) (A : ι → Mset α) :
     F <*> (⨁ᴹ i, A i) = ⨁ᴹ i, F <*> A i := by apply Mset.seq'_bigoplus_l
 
 protected lemma Mset.seq'_bigoplus_r (F : ι → Mset (α → β)) (A : Mset α) :
     (⨁ᴹ i, F i) <*>ᴹ A = ⨁ᴹ i, F i <*>ᴹ A := by
-  rw [Mset.seq, Mset.prod_bigoplus_r, Mset.bigoplus_map]; rfl
+  rw [Mset.seq, Mset.prod_bigoplus_r, Mset.bigoplus_map']; rfl
 
 protected lemma Mset.seq_bigoplus_r (F : ι → Mset (α → β)) (A : Mset α) :
     (⨁ᴹ i, F i) <*> A = ⨁ᴹ i, F i <*> A := by apply Mset.seq'_bigoplus_r
@@ -505,7 +520,7 @@ protected noncomputable def Mset.join {α} : Mset (Mset α) → Mset α :=
 protected lemma Mset.map_join (f : α → β) (A : Mset (Mset α)) :
     f <$>ᴹ Mset.join A = Mset.join (Mset.map f <$>ᴹ A) := by
   revert A; apply Quotient.ind; intro ⟨_, F⟩;
-  apply Quotient.sound; rw [Ifam.bigoplus_map]; apply Ifam.bigoplus_proper;
+  apply Quotient.sound; rw [Ifam.bigoplus_map']; apply Ifam.bigoplus_proper;
   simp only [Ifam.map_elem]; intro i; cases F i using Quotient.ind;
   grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
@@ -583,7 +598,7 @@ protected instance Mset.instLawfulMonad : LawfulMonad Mset.{u} where
 
 protected lemma Mset.commutative_prod (A : Mset α) (B : Mset β) :
     Prod.mk <$>ᴹ A <*>ᴹ B = (fun b a => (a, b)) <$>ᴹ B <*>ᴹ A := by
-  unfold Mset.seq; rw [Mset.prod_map_l, Mset.prod_map_l];
+  unfold Mset.seq; rw [Mset.prod_map'_l, Mset.prod_map'_l];
   rw [←Mset.comp_map, ←Mset.comp_map, Mset.prod_comm, ←Mset.comp_map]; rfl
 
 /-- Commutative applicative laws for `Mset` -/
@@ -616,9 +631,6 @@ protected instance Mset.instMembership : Membership α (Mset α) where
   ext1; constructor;
   · intro ⟨i, eq⟩; subst eq; exists A.elem i; and_intros; { exists i }; { rfl }
   · intro ⟨a, ⟨i, eq⟩, eq'⟩; subst eq eq'; exists i
-
-@[simp] protected lemma Ifam.mem_map (f : α → β) (A : Ifam α) b :
-    (b ∈ f <$> A) = ∃ a ∈ A, f a = b := by apply Ifam.mem_map'
 
 @[simp] protected lemma Mset.mem_map' (f : α → β) (A : Mset α) b :
     (b ∈ f <$>ᴹ A) = ∃ a ∈ A, f a = b := by
