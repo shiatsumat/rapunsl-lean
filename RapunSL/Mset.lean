@@ -404,19 +404,31 @@ protected lemma Mset.prod_assoc_r (A : Mset α) (B : Mset β) (C : Mset γ) :
 
 /-! ### `*` distributes over `⊕` -/
 
-protected lemma Ifam.prod_oplus_distrib_l (A : Ifam α) (B C : Ifam β) :
-    A ×ᴵ (B ⊕ᴵ C) ≈ A ×ᴵ B ⊕ᴵ A ×ᴵ C := by
-  exists Equiv.prodSumDistrib _ _ _; rintro ⟨_, (_ | _)⟩ <;> rfl
+protected lemma Ifam.prod_bigoplus_l (A : Ifam α) (F : ι → Ifam β) :
+    (A ×ᴵ ⨁ᴵ i, F i) ≈ ⨁ᴵ i, A ×ᴵ F i := by
+  exists { toFun := fun ⟨a, ⟨i, b⟩⟩ => ⟨i, (a, b)⟩,
+           invFun := fun ⟨i, ⟨a, b⟩⟩ => ⟨a, ⟨i, b⟩⟩,
+           left_inv := by tauto, right_inv := by tauto };
+  intro _; rfl
 
-protected lemma Mset.prod_oplus_distrib_l (A : Mset α) (B C : Mset β) :
+protected lemma Mset.prod_bigoplus_l (A : Mset α) (F : ι → Mset β) :
+    A ×ᴹ (⨁ᴹ i, F i) = ⨁ᴹ i, A ×ᴹ F i := by
+  cases A using Quotient.ind; apply Quotient.sound; grw [Ifam.prod_bigoplus_l];
+  apply Ifam.bigoplus_proper; intro i; simp only; cases F i using Quotient.ind;
+  grw [Quotient.mk_out]; symm; apply Quotient.mk_out
+
+protected lemma Mset.prod_bigoplus_r (F : ι → Mset α) (A : Mset β) :
+    (⨁ᴹ i, F i) ×ᴹ A = ⨁ᴹ i, F i ×ᴹ A := by
+  rw [Mset.prod_comm, Mset.prod_bigoplus_l, Mset.bigoplus_map];
+  congr; ext1 _; rw [←Mset.prod_comm]
+
+protected lemma Mset.prod_oplus_l (A : Mset α) (B C : Mset β) :
     A ×ᴹ (B ⊕ᴹ C) = A ×ᴹ B ⊕ᴹ A ×ᴹ C := by
-  cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
-  apply Quotient.sound; apply Ifam.prod_oplus_distrib_l
+  simp only [Mset.oplus_bigoplus, Mset.prod_bigoplus_l]; grind only
 
-protected lemma Mset.prod_oplus_distrib_r (A B : Mset α) (C : Mset β) :
+protected lemma Mset.prod_oplus_r (A B : Mset α) (C : Mset β) :
     (A ⊕ᴹ B) ×ᴹ C = A ×ᴹ C ⊕ᴹ B ×ᴹ C := by
-  rw [Mset.prod_comm, Mset.prod_oplus_distrib_l, Mset.prod_comm, Mset.prod_comm C B];
-  simp only [Mset.oplus_map, ←Mset.comp_map, Prod.swap_swap_eq, Mset.id_map]
+  simp only [Mset.oplus_bigoplus, Mset.prod_bigoplus_r]; grind only
 
 /-! ## Applicative -/
 
@@ -434,6 +446,36 @@ protected lemma Mset.seq_unfold (F : Mset (α → β)) (A : Mset α) :
     F <*> A = F <*>ᴹ A := rfl
 
 /-! `LawfulApplicative` is later derived from `LawfulMonad` -/
+
+/-! ### `seq` distributes over `⊕ᴹ` -/
+
+protected lemma Mset.seq'_bigoplus_l (F : Mset (α → β)) (A : ι → Mset α) :
+    F <*>ᴹ (⨁ᴹ i, A i) = ⨁ᴹ i, F <*>ᴹ A i := by
+  rw [Mset.seq, Mset.prod_bigoplus_l, Mset.bigoplus_map]; rfl
+
+protected lemma Mset.seq_bigoplus_l (F : Mset (α → β)) (A : ι → Mset α) :
+    F <*> (⨁ᴹ i, A i) = ⨁ᴹ i, F <*> A i := by apply Mset.seq'_bigoplus_l
+
+protected lemma Mset.seq'_bigoplus_r (F : ι → Mset (α → β)) (A : Mset α) :
+    (⨁ᴹ i, F i) <*>ᴹ A = ⨁ᴹ i, F i <*>ᴹ A := by
+  rw [Mset.seq, Mset.prod_bigoplus_r, Mset.bigoplus_map]; rfl
+
+protected lemma Mset.seq_bigoplus_r (F : ι → Mset (α → β)) (A : Mset α) :
+    (⨁ᴹ i, F i) <*> A = ⨁ᴹ i, F i <*> A := by apply Mset.seq'_bigoplus_r
+
+protected lemma Mset.seq'_oplus_l (F : Mset (α → β)) (A B : Mset α) :
+    F <*>ᴹ (A ⊕ᴹ B) = (F <*>ᴹ A) ⊕ᴹ (F <*>ᴹ B) := by
+  simp only [Mset.oplus_bigoplus, Mset.seq'_bigoplus_l]; grind only
+
+protected lemma Mset.seq_oplus_l (F : Mset (α → β)) (A B : Mset α) :
+    F <*> (A ⊕ᴹ B) = (F <*> A) ⊕ᴹ (F <*> B) := by apply Mset.seq'_oplus_l
+
+protected lemma Mset.seq'_oplus_r (F G : Mset (α → β)) (A : Mset α) :
+    (F ⊕ᴹ G) <*>ᴹ A = (F <*>ᴹ A) ⊕ᴹ (G <*>ᴹ A) := by
+  simp only [Mset.oplus_bigoplus, Mset.seq'_bigoplus_r]; grind only
+
+protected lemma Mset.seq_oplus_r (F G : Mset (α → β)) (A : Mset α) :
+    (F ⊕ᴹ G) <*> A = (F <*> A) ⊕ᴹ (G <*> A) := by apply Mset.seq'_oplus_r
 
 /-! ## Join -/
 
