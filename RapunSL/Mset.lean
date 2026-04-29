@@ -145,7 +145,7 @@ protected instance Mset.instPure : Pure Mset.{u} where
 protected lemma Mset.pure_unfold (a : α) :
     pure (f := Mset) a = ⟦ .mk Unit (fun _ => a) ⟧ := rfl
 
-/-! ## `map` over `pure` -/
+/-! ### `map` over `pure` -/
 
 protected lemma Ifam.pure_map' (f : α → β) (a : α) :
     f <$>ᴵ pure a = pure (f a) := rfl
@@ -569,6 +569,8 @@ scoped[Mset] infixl:55 " >>=ᴹ " => Mset.bind
 noncomputable instance Mset.instMonad : Monad Mset.{u} where
   bind := Mset.bind
 
+/-! ### Monad laws -/
+
 protected lemma Mset.bind_unfold : Bind.bind = Mset.bind (α := α) (β := β) := rfl
 
 protected lemma Mset.pure_seq (f : α → β) (A : Mset α) :
@@ -599,6 +601,8 @@ protected instance Mset.instLawfulMonad : LawfulMonad Mset.{u} where
   bind_map := Mset.bind_map
   bind_assoc := Mset.bind_assoc
 
+/-! ### Commutative applicative -/
+
 protected lemma Mset.commutative_prod (A : Mset α) (B : Mset β) :
     Prod.mk <$>ᴹ A <*>ᴹ B = (fun b a => (a, b)) <$>ᴹ B <*>ᴹ A := by
   unfold Mset.seq; rw [Mset.prod_map'_l, Mset.prod_map'_l];
@@ -625,6 +629,8 @@ protected lemma Ifam.mem_proper (A B : Ifam α) :
 /-- Membership for `Mset` -/
 protected instance Mset.instMembership : Membership α (Mset α) where
   mem A a := A.liftOn (a ∈ ·) <| Ifam.mem_proper
+
+/-! ### Membership lemmas -/
 
 @[simp] protected lemma Mset.mem_out (A : Mset α) a : (a ∈ A.out) = (a ∈ A) := by
   cases A using Quotient.ind; apply Ifam.mem_proper; apply Quotient.mk_out
@@ -709,6 +715,8 @@ protected instance Mset.instMembership : Membership α (Mset α) where
 
 /-- Inhabitedness for `Mset` -/
 protected def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
+
+/-! ### Inhabitedness lemmas -/
 
 @[simp] protected lemma Mset.inhab_map (f : α → β) (A : Mset α) :
     (f <$> A).inhab = A.inhab := by
