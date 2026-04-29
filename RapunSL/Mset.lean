@@ -147,11 +147,14 @@ protected lemma Mset.pure_unfold (a : α) :
 
 /-! ## `map` over `pure` -/
 
-protected lemma Ifam.pure_map (f : α → β) (a : α) :
+protected lemma Ifam.pure_map' (f : α → β) (a : α) :
     f <$>ᴵ pure a = pure (f a) := rfl
 
-protected lemma Mset.pure_map (f : α → β) (a : α) :
+protected lemma Mset.pure_map' (f : α → β) (a : α) :
     f <$>ᴹ pure a = pure (f a) := rfl
+
+protected lemma Mset.pure_map (f : α → β) (a : α) :
+    f <$> pure (f := Mset) a = pure (f a) := by apply Mset.pure_map'
 
 /-! ## Binary sum -/
 
@@ -572,7 +575,7 @@ protected lemma Mset.pure_seq (f : α → β) (A : Mset α) :
     pure f <*>ᴹ A = f <$>ᴹ A := by rw [Mset.seq, Mset.prod_id_l, ←Mset.comp_map]; rfl
 
 protected lemma Mset.pure_bind (a : α) (K : α → Mset β) :
-    pure a >>=ᴹ K = K a := by rw [Mset.bind, Mset.pure_map, Mset.join_pure]
+    pure a >>=ᴹ K = K a := by rw [Mset.bind, Mset.pure_map', Mset.join_pure]
 
 protected lemma Mset.bind_pure_comp (f : α → β) (A : Mset α) :
     A >>=ᴹ (fun a => pure (f a)) = f <$>ᴹ A := by
