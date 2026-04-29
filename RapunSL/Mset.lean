@@ -654,7 +654,7 @@ protected instance Mset.instMembership : Membership α (Mset α) where
 def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
 
 @[simp] protected lemma Mset.inhab_map (f : α → β) (A : Mset α) :
-    A.inhab = (f <$> A).inhab := by
+    (f <$> A).inhab = A.inhab := by
   simp only [Mset.inhab, Mset.mem_map]; grind only
 
 @[simp] protected lemma Mset.inhab_empty : (∅ : Mset α).inhab = False := by
@@ -664,32 +664,32 @@ def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
   simp only [Mset.inhab, Mset.mem_pure]; grind only
 
 @[simp] protected lemma Mset.inhab_oplus (A B : Mset α) :
-    A.inhab ∨ B.inhab = (A ⊕ᴹ B).inhab := by
+    (A ⊕ᴹ B).inhab = A.inhab ∨ B.inhab := by
   simp only [Mset.inhab, Mset.mem_oplus]; grind only
 
 @[simp] protected lemma Mset.inhab_bigoplus {ι : Type} (A : ι → Mset α) :
-    (∃ i, (A i).inhab) = (⨁ᴹ i, A i).inhab := by
+    (⨁ᴹ i, A i).inhab = ∃ i, (A i).inhab := by
   simp only [Mset.inhab, Mset.mem_bigoplus]; grind only
 
 @[simp] protected lemma Mset.inhab_prod (A : Mset α) (B : Mset β) :
-    (A.inhab ∧ B.inhab) = (A ×ᴹ B).inhab := by
-  simp only [Mset.inhab, Mset.mem_prod]; ext1; constructor; swap; { tauto };
+    (A ×ᴹ B).inhab = (A.inhab ∧ B.inhab) := by
+  simp only [Mset.inhab, Mset.mem_prod]; ext1; constructor; { tauto };
   intro ⟨⟨a, _⟩, ⟨b, _⟩⟩; exists (a, b)
 
 @[simp] protected lemma Mset.inhab_seq' (F : Mset (α → β)) (A : Mset α) :
-    (F.inhab ∧ A.inhab) = (F <*>ᴹ A).inhab := by
+    (F <*>ᴹ A).inhab = (F.inhab ∧ A.inhab) := by
   simp only [Mset.inhab, Mset.mem_seq']; grind only
 
 @[simp] protected lemma Mset.inhab_seq (F : Mset (α → β)) (A : Mset α) :
-    (F.inhab ∧ A.inhab) = (F <*> A).inhab := by apply Mset.inhab_seq'
+    (F <*> A).inhab = (F.inhab ∧ A.inhab) := by apply Mset.inhab_seq'
 
 @[simp] protected lemma Mset.inhab_join (A : Mset (Mset α)) :
-    (A.inhab ∧ ∃ a ∈ A, a.inhab) = A.join.inhab := by
+    A.join.inhab = (A.inhab ∧ ∃ a ∈ A, a.inhab) := by
   simp only [Mset.inhab, Mset.mem_join]; grind only
 
 @[simp] protected lemma Mset.inhab_bind' (A : Mset α) (K : α → Mset β) :
-    (A.inhab ∧ ∃ a ∈ A, (K a).inhab) = (A >>=ᴹ K).inhab := by
+    (A >>=ᴹ K).inhab = (A.inhab ∧ ∃ a ∈ A, (K a).inhab) := by
   simp only [Mset.inhab, Mset.mem_bind']; grind only
 
 @[simp] protected lemma Mset.inhab_bind (A : Mset α) (K : α → Mset β) :
-    (A.inhab ∧ ∃ a ∈ A, (K a).inhab) = (A >>= K).inhab := by apply Mset.inhab_bind'
+    (A >>= K).inhab = (A.inhab ∧ ∃ a ∈ A, (K a).inhab) := by apply Mset.inhab_bind'
