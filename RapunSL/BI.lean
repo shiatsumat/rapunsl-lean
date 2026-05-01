@@ -353,7 +353,7 @@ lemma oplus_bigoplus : (P ⊕ᴿ Q) = ⨁ᴿ (b : Bool), if b then P else Q := b
   · intro ⟨A, el, eq⟩; simp only at *; subst eq; exists A true, el true, A false, el false;
     rw [Mset.oplus_bigoplus]; grind only
 
-lemma unary_bigoplus (P : RProp ρ) : (⨁ᴿ (_ : Unit), P) = P := by
+lemma unary_bigoplus : (⨁ᴿ (_ : Unit), P) = P := by
   apply set_ext; intro ⟨A, val⟩; constructor;
   · intro ⟨_, el, eq⟩; simp only at *; subst eq; revert val; rw [Mset.unary_bigoplus];
     intro _; apply el
