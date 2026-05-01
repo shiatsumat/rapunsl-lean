@@ -278,7 +278,7 @@ protected lemma Ifam.bigoplus_map' (f : α → β) (A : ι → Ifam α) :
 
 protected lemma Mset.bigoplus_map' (f : α → β) (A : ι → Mset α) :
     f <$>ᴹ Mset.bigoplus A = ⨁ᴹ i, f <$>ᴹ A i := by
-  apply Quotient.sound; rw [Ifam.bigoplus_map']; apply Ifam.bigoplus_proper; intro i; simp only;
+  apply Quotient.sound; rw [Ifam.bigoplus_map']; gcongr with i; simp only;
   cases A i using Quotient.ind; grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
 protected lemma Mset.bigoplus_map (f : α → β) (A : ι → Mset α) :
@@ -446,7 +446,7 @@ protected lemma Ifam.prod_bigoplus_l (A : Ifam α) (B : ι → Ifam β) :
 protected lemma Mset.prod_bigoplus_l (A : Mset α) (B : ι → Mset β) :
     A ×ᴹ (⨁ᴹ i, B i) = ⨁ᴹ i, A ×ᴹ B i := by
   cases A using Quotient.ind; apply Quotient.sound; grw [Ifam.prod_bigoplus_l];
-  apply Ifam.bigoplus_proper; intro i; simp only; cases B i using Quotient.ind;
+  gcongr with i; simp only; cases B i using Quotient.ind;
   grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
 protected lemma Mset.prod_bigoplus_r (A : ι → Mset α) (B : Mset β) :
