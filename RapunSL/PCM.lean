@@ -12,7 +12,7 @@ open Mset
 
 /-- Utility version of `CommMonoid`, where only `mul_one` is required -/
 class CommMonoid' (α : Type u) extends CommSemigroup α, One α where
-  protected mul_one : ∀ a, a * one = a
+  protected mul_one : ∀ a : α, a * 1 = a
 
 /-- `CommMonoid'` induces `CommMonoid` -/
 protected instance CommMonoid'.instCommMonoid (α : Type u) [CommMonoid' α] : CommMonoid α where
@@ -25,8 +25,8 @@ protected instance CommMonoid'.instCommMonoid (α : Type u) [CommMonoid' α] : C
 class PCM (α : Type u) extends CommMonoid' α where
   /-- Validity predicate for partiality -/
   protected valid : α → Prop
-  /-- `one` is valid -/
-  protected valid_one : valid one
+  /-- `1` is valid -/
+  protected valid_one : valid 1
 
 scoped[PCM] prefix:50 "✓ " => PCM.valid
 open PCM
@@ -168,11 +168,17 @@ protected lemma Mset.mul_empty_r [Mul α] (A : Mset α) : ∅ * A = ∅ := by
     (A * B).inhab = (A.inhab ∧ B.inhab) := by
   simp only [Mset.inhab, Mset.mem_mul]; grind only
 
+/-- `1` for multisets -/
+protected instance Mset.instOne (α : Type u) [One α] : One (Mset α) where
+  one := pure 1
+
+protected lemma Mset.one_unfold [PCM α] : (1 : Mset α) = pure 1 := rfl
+
 /-- Multiset PCM -/
 protected instance Mset.instPCM (α : Type u) [PCM α] : PCM (Mset α) where
   one := pure 1
   mul_one _ := by
-    simp only [Mset.mul_unfold]; rw [seq_pure, ←comp_map];
+    simp only [Mset.mul_unfold, Mset.one_unfold]; rw [seq_pure, ←comp_map];
     trans; swap; { apply id_map }; congr; grind only [mul_one, id_eq]
   mul_comm _ _ := by
     simp only [Mset.mul_unfold]; rw [CommApplicative.commutative_map]; congr;
@@ -181,9 +187,7 @@ protected instance Mset.instPCM (α : Type u) [PCM α] : PCM (Mset α) where
     simp only [Mset.mul_unfold, functor_norm]; grind only [mul_assoc]
   valid A := ∀ a ∈ A, ✓ a
   valid_one := by
-    simp only [Mset.mem_pure, forall_eq]; apply PCM.valid_one
-
-protected lemma Mset.one_unfold [PCM α] : (1 : Mset α) = pure 1 := rfl
+    simp only [Mset.one_unfold, Mset.mem_pure, forall_eq]; apply PCM.valid_one
 
 protected lemma Mset.valid_unfold [PCM α] :
     PCM.valid (α := Mset α) = fun A => ∀ a ∈ A, ✓ a := rfl
