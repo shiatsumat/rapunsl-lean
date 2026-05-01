@@ -14,5 +14,11 @@ name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.30.0-rc2"
 
+[[require]]
+name = "iris"
+git.url = "https://github.com/leanprover-community/iris-lean.git"
+git.subDir = "Iris"
+rev = "48afae08e80d33c2ebe4374b9701c832f8e8f28e"
+
 [[lean_lib]]
 name = "RapunSL"
