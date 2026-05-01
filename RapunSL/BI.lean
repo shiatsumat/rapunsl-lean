@@ -359,12 +359,12 @@ lemma unary_bigoplus (P : RProp ρ) : (⨁ᴿ (_ : Unit), P) = P := by
     intro _; apply el
   · intro _; exists fun _ => ⟨A, val⟩; simp only [Mset.unary_bigoplus]; grind only
 
-lemma bigoplus_mono (P Q : ι → RProp ρ) :
+@[gcongr] lemma bigoplus_mono (P Q : ι → RProp ρ) :
     (∀ i, P i ⊢ Q i) → (⨁ᴿ i, P i) ⊢ ⨁ᴿ i, Q i := by
   intro _ _ ⟨A, _, _⟩; exists A; tauto
 
 @[gcongr] lemma oplus_mono : P ⊢ P' → Q ⊢ Q' → P ⊕ᴿ Q ⊢ P' ⊕ᴿ Q' := by
-  intro _ _; grw [oplus_bigoplus, oplus_bigoplus]; apply bigoplus_mono; grind only
+  intro _ _; grw [oplus_bigoplus, oplus_bigoplus]; gcongr; grind only
 
 private lemma bigoplus_comm_fwd (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ᴿ i, P i) ⊢ ⨁ᴿ j, P (f j) := by
@@ -372,7 +372,7 @@ private lemma bigoplus_comm_fwd (f : ι' ≃ ι) (P : ι → RProp ρ) :
 
 private lemma bigoplus_comm_bwd (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ᴿ j, P (f j)) ⊢ ⨁ᴿ i, P i := by
-  grw [bigoplus_comm_fwd f.symm]; apply bigoplus_mono; intro _; rw [Equiv.apply_symm_apply]
+  grw [bigoplus_comm_fwd f.symm]; gcongr; rw [Equiv.apply_symm_apply]
 
 lemma bigoplus_comm (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ᴿ i, P i) = (⨁ᴿ j, P (f j)) := by
@@ -471,17 +471,16 @@ lemma bigoplus_frame_l (Q : ι → RProp ρ) : P ∗ (⨁ᴿ i, Q i) ⊢ ⨁ᴿ 
   { intros i; exists A, by trivial, B i, by tauto }; { rw [Mset.mul_bigoplus_l] }
 
 lemma bigoplus_frame_r (P : ι → RProp ρ) Q : (⨁ᴿ i, P i) ∗ Q ⊢ ⨁ᴿ i, P i ∗ Q := by
-  grw [sep_comm, bigoplus_frame_l]; apply bigoplus_mono; intro _; rw [sep_comm]
+  grw [sep_comm, bigoplus_frame_l]; gcongr 1; rw [sep_comm]
 
 lemma oplus_frame_l : P ∗ (Q ⊕ᴿ R) ⊢ (P ∗ Q) ⊕ᴿ (P ∗ R) := by
-  grw [oplus_bigoplus, oplus_bigoplus, bigoplus_frame_l]; apply bigoplus_mono;
-  rintro (_ | _) <;> rfl
+  grw [oplus_bigoplus, oplus_bigoplus, bigoplus_frame_l]; gcongr with b; cases b <;> rfl
 
 lemma oplus_frame_r : (P ⊕ᴿ Q) ∗ R ⊢ (P ∗ R) ⊕ᴿ (Q ∗ R) := by
   grw [sep_comm, oplus_frame_l, sep_comm, sep_comm R]
 
 lemma nb_sep_l : P ∗ nb ⊢ nb := by
-  simp only [nb_bigoplus]; grw [bigoplus_frame_l]; apply bigoplus_mono; tauto
+  simp only [nb_bigoplus]; grw [bigoplus_frame_l]; gcongr; tauto
 
 lemma nb_sep_r : nb ∗ P ⊢ nb := by grw [sep_comm, nb_sep_l]
 
@@ -504,13 +503,12 @@ lemma bigoplus_unframe_l P (Q : ι → RProp ρ) [Nonempty ι] [Precise P] :
 lemma bigoplus_unframe_r (P : ι → RProp ρ) Q [Nonempty ι] [Precise Q] :
     (⨁ᴿ i, P i ∗ Q) = ((⨁ᴿ i, P i) ∗ Q) := by
   ext1; swap; { apply bigoplus_frame_r };
-  grw [sep_comm, ←bigoplus_unframe_l _ _]; apply bigoplus_mono; intro _; rw [sep_comm]
+  grw [sep_comm, ←bigoplus_unframe_l _ _]; gcongr 1; rw [sep_comm]
 
 lemma oplus_unframe_l [Precise P] :
     ((P ∗ Q) ⊕ᴿ (P ∗ R)) = (P ∗ (Q ⊕ᴿ R)) := by
   ext1; swap; { apply oplus_frame_l };
-  simp only [oplus_bigoplus]; grw [←bigoplus_unframe_l]; apply bigoplus_mono;
-  rintro (_ | _) <;> rfl
+  simp only [oplus_bigoplus]; grw [←bigoplus_unframe_l]; gcongr with b; cases b <;> rfl
 
 lemma oplus_unframe_r [Precise R] :
     ((P ∗ R) ⊕ᴿ (Q ∗ R)) = ((P ⊕ᴿ Q) ∗ R) := by
