@@ -31,12 +31,13 @@ class PCM (α : Type u) extends CommMonoid' α where
 scoped[PCM] prefix:50 "✓ " => PCM.valid
 open PCM
 
-/-- PCM with an antitone validity -/
+/-- PCM whose validity is antitone w.r.t. `*` -/
 class PCMa.{u} (α : Type u) extends PCM α where
-  /-- Validity -/
-  valid_mul_l : ∀ a b, valid (a * b) → valid a
+  /-- Take the left-hand side of `*` in `✓` -/
+  valid_mul_l : ∀ a b : α, ✓ (a * b) → ✓ a
 
-lemma PCMa.valid_mul_r [PCMa α] (a b : α) : valid (a * b) → valid b := by
+/-- Take the right-hand side of `*` in `✓` -/
+lemma PCMa.valid_mul_r [PCMa α] (a b : α) : ✓ (a * b) → ✓ b := by
   rw [mul_comm]; apply PCMa.valid_mul_l
 
 /-! ## PCM constructions -/
