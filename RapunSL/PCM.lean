@@ -198,11 +198,11 @@ protected lemma Mset.valid_pure [PCM α] (a : α) :
 /-! ### Antitonicity of `✓` for `Mset` under inhabitedness -/
 
 protected lemma Mset.valid_mul_l [PCMa α] (A B : Mset α) :
-    B.inhab → valid (A * B) → valid A := by
+    B.inhab → ✓ (A * B) → ✓ A := by
   simp only [Mset.mul_unfold, Mset.valid_unfold, Mset.mem_seq, Mset.mem_map];
   simp only [existsAndEq, and_true]; intro ⟨b, _⟩ val _ _;
   apply PCMa.valid_mul_l _ b; apply val; tauto
 
 protected lemma Mset.valid_mul_r [PCMa α] (A B : Mset α) :
-    A.inhab → valid (A * B) → valid B := by
+    A.inhab → ✓ (A * B) → ✓ B := by
   rw [mul_comm]; apply Mset.valid_mul_l
