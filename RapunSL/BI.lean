@@ -592,10 +592,9 @@ lemma bigoplus_nonnb (P : ι → RProp ρ) i0 :
   intro _; constructor; intro ⟨_, _⟩ ⟨F, el, eq⟩; simp only at *; subst eq;
   simp only [Mset.inhab_bigoplus]; exists i0; apply (P i0).nonnb; tauto
 
-instance (priority := mid) bigsum_instNonnb (P : ι → RProp ρ) [Nonempty ι]
-    [Nonnb (P (Classical.choice inferInstance))] :
-    Nonnb (⨁ᴿ i, P i) :=
-  by apply bigoplus_nonnb _ (Classical.choice inferInstance); trivial
+instance (priority := mid) bigsum_instNonnb (P : ι → RProp ρ)
+    [Inhabited ι] [Nonnb (P default)] : Nonnb (⨁ᴿ i, P i) :=
+  by apply bigoplus_nonnb; trivial
 
 instance (priority := mid) oplus_instNonnb_l [Nonnb P] : Nonnb (P ⊕ᴿ Q) := by
   rw [oplus_bigoplus]; apply bigoplus_nonnb _ true; trivial
@@ -627,8 +626,7 @@ lemma rexists_inhab a (P : α → RProp ρ) :
   intro ⟨_, _⟩; constructor; tauto
 
 instance (priority := mid) rexists_instInhab (P : α → RProp ρ)
-    [Nonempty α] [Inhab (P (Classical.choice inferInstance))] :
-    Inhab (∃ᴿ x, P x) :=
+    [Inhabited α] [Inhab (P default)] : Inhab (∃ᴿ x, P x) :=
   by apply rexists_inhab; trivial
 
 instance (priority := mid) ror_instInhab_l [Inhab P] : Inhab (P ∨ᴿ Q) := by
