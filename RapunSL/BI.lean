@@ -11,16 +11,14 @@ open PCM Mset
 
 /-! ## Propositions -/
 
-abbrev MsetV ρ [PCMa ρ] := { A : Mset ρ // ✓ A }
-
 /-- RapunSL proposition based on a multiset PCM -/
-def RProp ρ [PCMa ρ] := Set (MsetV ρ)
+def RProp ρ [PCMa ρ] := Set (Mset ρ)
 
 namespace RProp
 variable {ρ : Type u} [PCMa ρ]
 
 protected instance instMembership :
-    Membership (MsetV ρ) (RProp ρ) := Set.instMembership
+    Membership (Mset ρ) (RProp ρ) := Set.instMembership
 
 lemma set_ext (P Q : RProp ρ) : (∀ A, A ∈ P ↔ A ∈ Q) → P = Q := by
   intro _; apply Set.ext; trivial
@@ -96,51 +94,51 @@ scoped notation "∃ᴿ " x ", " P => RProp.rexists (fun x => P)
 /-! ### BI-specific connectives -/
 
 /-- Empty ownership -/
-def emp : RProp ρ := fun A => A.val = pure 1
+def emp : RProp ρ := fun A => A = pure 1
 
-lemma emp_unfold A : (A ∈ emp (ρ := ρ)) = (A.val = 1) := rfl
+lemma emp_unfold A : (A ∈ emp (ρ := ρ)) = (A = 1) := rfl
 
 /-- Separating conjunction -/
 def sep (P Q : RProp ρ) : RProp ρ :=
-  fun A => ∃ B ∈ P, ∃ C ∈ Q, A.val = B.val * (C.val : Mset ρ)
+  fun A => ∃ B ∈ P, ∃ C ∈ Q, A = B * (C : Mset ρ)
 
 scoped infixr:35 " ∗ " => RProp.sep
 
 /-- Magic wand -/
 def wand (P Q : RProp ρ) : RProp ρ :=
-  fun A => ∀ B ∈ P, ∀ val, ⟨B.val * A.val, val⟩ ∈ Q
+  fun A => ∀ B ∈ P, B * A ∈ Q
 
 scoped infixr:27 " -∗ " => RProp.wand
 
 /-! ### Ownership -/
 
 /-- Ownership of an element -/
-def own (r : ρ) : RProp ρ := fun A => A.val = pure r
+def own (r : ρ) : RProp ρ := fun A => A = pure r
 
-lemma own_unfold r A : (A ∈ own (ρ := ρ) r) = (A.val = pure r) := rfl
+lemma own_unfold r A : (A ∈ own (ρ := ρ) r) = (A = pure r) := rfl
 
 /-! ### Multiset connectives -/
 
 /-- No behavior -/
-def nb : RProp ρ := fun A => A.val = ∅
+def nb : RProp ρ := fun A => A = ∅
 
-lemma nb_unfold A : (A ∈ nb (ρ := ρ)) = (A.val = ∅) := rfl
+lemma nb_unfold A : (A ∈ nb (ρ := ρ)) = (A = ∅) := rfl
 
 /-- Multiset sum -/
 def oplus (P Q : RProp ρ) : RProp ρ :=
-  fun A => ∃ B ∈ P, ∃ C ∈ Q, A.val = B.val ⊕ᴹ (C.val : Mset ρ)
+  fun A => ∃ B ∈ P, ∃ C ∈ Q, A = B ⊕ᴹ (C : Mset ρ)
 
 scoped infixr:30 " ⊕ᴿ " => RProp.oplus
 
 /-- Big multiset sum -/
 def bigoplus (P : ι → RProp ρ) : RProp ρ :=
-  fun A => ∃ B : ι → MsetV ρ, (∀ i, B i ∈ P i) ∧ A.val = ⨁ᴹ i, (B i).val
+  fun A => ∃ B : ι → Mset ρ, (∀ i, B i ∈ P i) ∧ A = ⨁ᴹ i, B i
 
 scoped notation "⨁ᴿ " i ", " P => RProp.bigoplus (fun i => P)
 
 /-- Pine, the right adjoint of `⊕ᴿ` -/
 def pine (P Q : RProp ρ) : RProp ρ :=
-  fun A => ∀ B ∈ P, ∀ val, ⟨B.val ⊕ᴹ A.val, val⟩ ∈ Q
+  fun A => ∀ B ∈ P, B ⊕ᴹ A ∈ Q
 
 scoped infixr:27 " -⊕ " => RProp.pine
 
@@ -148,16 +146,16 @@ scoped infixr:27 " -⊕ " => RProp.pine
 
 /-- Preciseness -/
 class Precise (P : RProp ρ) : Prop where
-  precise : ∀ A ∈ P, ∀ B ∈ P, A.val = B.val
+  precise : ∀ A ∈ P, ∀ B ∈ P, A = B
 
-lemma precise (P : RProp ρ) [Precise P] : ∀ A ∈ P, ∀ B ∈ P, A.val = B.val := by
+lemma precise (P : RProp ρ) [Precise P] : ∀ A ∈ P, ∀ B ∈ P, A = B := by
   apply Precise.precise
 
 /-- Multiset inhabitance -/
 class Nonnb (P : RProp ρ) : Prop where
-  nonnb : ∀ A ∈ P, A.val.inhab
+  nonnb : ∀ A ∈ P, A.inhab
 
-lemma nonnb (P : RProp ρ) [Nonnb P] : ∀ A ∈ P, A.val.inhab := by
+lemma nonnb (P : RProp ρ) [Nonnb P] : ∀ A ∈ P, A.inhab := by
   apply Nonnb.nonnb
 
 /-- Inhabitance, or being not `False` -/
@@ -262,34 +260,30 @@ lemma sep_comm : (P ∗ Q) = (Q ∗ P) := by ext1 <;> apply sep_comm'
 
 lemma sep_emp : (P ∗ emp) = P := by
   ext1;
-  · intro ⟨_, val⟩ ⟨_, _, _, eq1, eq⟩; simp only at *; subst eq; revert val;
-    rw [emp_unfold] at eq1; rw [eq1, mul_one]; tauto
-  · intro A _; exists A; and_intros; { trivial }; exists ⟨1, valid_one⟩;
-    simp only [mul_one]; trivial
+  · rintro _ ⟨_, _, _, eq1, rfl⟩; rw [emp_unfold] at eq1; rw [eq1, mul_one]; tauto
+  · intro A _; exists A; and_intros; { trivial }; exists 1; simp only [mul_one]; trivial
 
 lemma emp_sep : (emp ∗ P) = P := by rw [sep_comm, sep_emp]
 
-lemma sep_assoc_l [Nonnb P] : (P ∗ Q) ∗ R ⊢ P ∗ (Q ∗ R) := by
-  intro ⟨_, val⟩ ⟨⟨_, _⟩, ⟨A, _, B, _, eq⟩, C, _, eq'⟩; simp only at *; subst eq eq';
-  have val' : ✓ B.val * C.val := by
-    revert val; rw [mul_assoc]; apply Mset.valid_mul_r; apply P.nonnb; trivial
-  exists A, by trivial, ⟨B.val * C.val, val'⟩; simp only [mul_assoc, and_true];
+lemma sep_assoc_l : (P ∗ Q) ∗ R ⊢ P ∗ (Q ∗ R) := by
+  rintro _ ⟨_, ⟨A, _, B, _, rfl⟩, C, _, rfl⟩;
+  exists A, by trivial, B * C; simp only [mul_assoc, and_true];
   exists B, by trivial, C, by trivial
 
-lemma sep_assoc_r [Nonnb R] : P ∗ (Q ∗ R) ⊢ (P ∗ Q) ∗ R := by
+lemma sep_assoc_r : P ∗ (Q ∗ R) ⊢ (P ∗ Q) ∗ R := by
   grind only [sep_comm, sep_assoc_l]
 
-lemma sep_assoc [Nonnb P] [Nonnb R] : ((P ∗ Q) ∗ R) = (P ∗ (Q ∗ R)) := by
+lemma sep_assoc : ((P ∗ Q) ∗ R) = (P ∗ (Q ∗ R)) := by
   ext1; { apply sep_assoc_l }; { apply sep_assoc_r }
 
 lemma wand_intro_l : P ∗ Q ⊢ R → Q ⊢ P -∗ R := by
-  intro toR A _ B _ _; apply toR; exists B, by trivial, A, by trivial
+  intro toR A _ B _; apply toR; exists B, by trivial, A, by trivial
 
 lemma wand_intro_r : P ∗ Q ⊢ R → P ⊢ Q -∗ R := by
   rw [sep_comm]; apply wand_intro_l
 
 lemma wand_elim_l : P ∗ (P -∗ Q) ⊢ Q := by
-  intro ⟨_, _⟩ ⟨A, _, B, _, eq⟩; simp only at *; subst eq; tauto
+  rintro _ ⟨_, _, _, _, rfl⟩; tauto
 
 lemma wand_elim_r : (P -∗ Q) ∗ P ⊢ Q := by
   rw [sep_comm]; apply wand_elim_l
@@ -322,42 +316,32 @@ lemma sep_rfalse_r : (RFalse ∗ P) = RFalse := by
 
 /-! ### Entailment rules for `own` -/
 
-lemma own_valid : own r ⊢ ⌜✓ r⌝ := by
-  intro ⟨_, val⟩; rw [own_unfold]; intro rfl; apply val; simp only [Mset.mem_pure]
-
 lemma emp_own : emp (ρ := ρ) = own 1 := rfl
 
 lemma own_sep : (own r ∗ own s) = own (r * s) := by
-  apply set_ext; intro ⟨_, val⟩; constructor;
-  · intro ⟨⟨_, _⟩, eq, ⟨_, _⟩, eq', eq''⟩; simp only [own_unfold] at *;
-    subst eq eq' eq''; rw [←Mset.pure_mul]
-  · simp only [own_unfold]; intro rfl;
-    have toval {r s : ρ} : ✓ pure (f := Mset) (r * s) → ✓ pure (f := Mset) r := by
-      intro val _; simp only [Mset.mem_pure]; intro rfl; apply PCMa.valid_mul_l _ s;
-      apply val; simp only [Mset.mem_pure]
-    exists ⟨pure r, toval val⟩, rfl, ⟨pure s, by apply toval; rw [mul_comm]; apply val⟩;
-    simp only; and_intros; { rfl }; { rw [←Mset.pure_mul] }
+  apply set_ext; intro _; constructor;
+  · rintro ⟨_, rfl, _, rfl, rfl⟩; rw [own_unfold, ←Mset.pure_mul]
+  · intro rfl; exists pure r, rfl, pure s; and_intros; { rfl }; { rw [←Mset.pure_mul] }
 
 /-! ### Entailment rules for `nb`, `⊕ᴿ`, `⨁ᴿ` and `-⊕` -/
 
 lemma nb_bigoplus : nb = bigoplus (ρ := ρ) (ι := Empty) nofun := by
-  apply set_ext; intro ⟨_, _⟩; rw [nb_unfold]; simp only; constructor;
+  apply set_ext; intro _; rw [nb_unfold]; constructor;
   · intro rfl; exists nofun; simp only [IsEmpty.forall_iff, true_and];
-    rw [Mset.empty_bigoplus]; congr; ext1; trivial
-  · intro ⟨_, _, eq⟩; simp only at *; subst eq; rw [Mset.empty_bigoplus]; congr; ext1; trivial
+    rw [Mset.empty_bigoplus]; rfl
+  · rintro ⟨_, _, rfl⟩; rw [Mset.empty_bigoplus]; congr; ext1; trivial
 
 lemma oplus_bigoplus : (P ⊕ᴿ Q) = ⨁ᴿ (b : Bool), if b then P else Q := by
-  apply set_ext; intro ⟨_, val⟩; constructor;
-  · intro ⟨A, _, B, _, eq⟩; simp only at *; subst eq; exists fun b => if b then A else B;
-    simp only; constructor; { grind only }; rw [Mset.oplus_bigoplus]; congr; grind only
-  · intro ⟨A, el, eq⟩; simp only at *; subst eq; exists A true, el true, A false, el false;
+  apply set_ext; intro _; constructor;
+  · rintro ⟨A, _, B, _, rfl⟩; exists fun b => if b then A else B;
+    simp only; constructor; { grind only }; rw [Mset.oplus_bigoplus]
+  · rintro ⟨A, el, rfl⟩; exists A true, el true, A false, el false;
     rw [Mset.oplus_bigoplus]; grind only
 
 lemma unary_bigoplus : (⨁ᴿ (_ : Unit), P) = P := by
-  apply set_ext; intro ⟨A, val⟩; constructor;
-  · intro ⟨_, el, eq⟩; simp only at *; subst eq; revert val; rw [Mset.unary_bigoplus];
-    intro _; apply el
-  · intro _; exists fun _ => ⟨A, val⟩; simp only [Mset.unary_bigoplus]; grind only
+  apply set_ext; intro A; constructor;
+  · rintro ⟨_, _, rfl⟩; rw [Mset.unary_bigoplus]; tauto
+  · intro _; exists fun _ => A; simp only [Mset.unary_bigoplus]; tauto
 
 @[gcongr] lemma bigoplus_mono (P Q : ι → RProp ρ) :
     (∀ i, P i ⊢ Q i) → (⨁ᴿ i, P i) ⊢ ⨁ᴿ i, Q i := by
@@ -390,13 +374,11 @@ lemma oplus_comm : (P ⊕ᴿ Q) = (Q ⊕ᴿ P) := by
 lemma bigoplus_assoc {ι' : ι → Type} (P : ∀ i, ι' i → RProp ρ) :
     (⨁ᴿ i, ⨁ᴿ j, P i j) = (⨁ᴿ (⟨i, j⟩ : Sigma ι'), P i j) := by
   ext1;
-  · intro ⟨_, _⟩ ⟨_, el, eq⟩; simp only at *; subst eq; have ⟨A, el⟩ := Classical.skolem.mp el;
+  · intro _ ⟨_, el, eq⟩; simp only at *; subst eq; have ⟨A, el⟩ := Classical.skolem.mp el;
     exists fun ⟨i, j⟩ => A i j; simp only at *; and_intros; { grind only };
-    trans; swap; { apply Mset.bigoplus_assoc (fun i j => (A i j).val) }; grind only
-  · intro ⟨_, val⟩ ⟨A, el, eq⟩; simp only at *; subst eq;
-    have val' : ∀ i, ✓ ⨁ᴹ j, (A ⟨i, j⟩).val := by
-      intro _ _; rw [Mset.mem_bigoplus]; intro ⟨_, _⟩; apply val; rw [Mset.mem_bigoplus]; tauto
-    exists fun i => ⟨⨁ᴹ j, A ⟨i, j⟩, val' i⟩; simp only at *; and_intros; swap;
+    trans; swap; { apply Mset.bigoplus_assoc (fun i j => (A i j)) }; grind only
+  · rintro _ ⟨A, el, rfl⟩; exists fun i => ⨁ᴹ j, A ⟨i, j⟩; simp only at *;
+    and_intros; swap;
     { symm; apply Mset.bigoplus_assoc }; intro i; exists fun j => A ⟨i, j⟩;
     simp only [and_true]; intro _; apply el ⟨_, _⟩
 
@@ -426,13 +408,13 @@ lemma oplus_nb : (P ⊕ᴿ nb) = P := by
 lemma nb_oplus : (nb ⊕ᴿ P) = P := by rw [oplus_comm, oplus_nb]
 
 lemma pine_intro_l : P ⊕ᴿ Q ⊢ R → Q ⊢ P -⊕ R := by
-  intro toR A _ B _ _; apply toR; exists B, by trivial, A, by trivial
+  intro toR A _ B _; apply toR; exists B, by trivial, A, by trivial
 
 lemma pine_intro_r : P ⊕ᴿ Q ⊢ R → P ⊢ Q -⊕ R := by
   rw [oplus_comm]; apply pine_intro_l
 
 lemma pine_elim_l : P ⊕ᴿ (P -⊕ Q) ⊢ Q := by
-  intro ⟨_, _⟩ ⟨A, _, B, _, eq⟩; simp only at *; subst eq; tauto
+  rintro _ ⟨_, _, _, _, rfl⟩; tauto
 
 lemma pine_elim_r : (P -⊕ Q) ⊕ᴿ P ⊢ Q := by
   rw [oplus_comm]; apply pine_elim_l
@@ -463,11 +445,7 @@ lemma oplus_rfalse_r : (RFalse ⊕ᴿ P) = RFalse := by
 /-! ### Rules for interaction with `∗` -/
 
 lemma bigoplus_frame_l (Q : ι → RProp ρ) : P ∗ (⨁ᴿ i, Q i) ⊢ ⨁ᴿ i, P ∗ Q i := by
-  intro ⟨_, val⟩ ⟨A, _, ⟨_, _⟩, ⟨B, _, eq'⟩, eq⟩; simp only at *; subst eq eq';
-  have val' : ∀ i, ✓ A.val * (B i).val := by
-    intro _ _; rw [Mset.mem_mul]; rintro ⟨r, _, s, _, rfl⟩; apply val;
-    simp only [Mset.mem_mul, Mset.mem_bigoplus]; exists r, by trivial, s; tauto
-  exists fun i => ⟨A.val * (B i).val, val' i⟩; simp only; and_intros;
+  rintro _ ⟨A, _, _, ⟨B, _, rfl⟩, rfl⟩; exists fun i => A * B i; simp only; and_intros;
   { intros i; exists A, by trivial, B i, by tauto }; { rw [Mset.mul_bigoplus_l] }
 
 lemma bigoplus_frame_r (P : ι → RProp ρ) Q : (⨁ᴿ i, P i) ∗ Q ⊢ ⨁ᴿ i, P i ∗ Q := by
@@ -484,20 +462,14 @@ lemma nb_sep_l : P ∗ nb ⊢ nb := by
 
 lemma nb_sep_r : nb ∗ P ⊢ nb := by grw [sep_comm, nb_sep_l]
 
-lemma valid_bigoplus_V (A : ι → MsetV ρ) :
-    ✓ ⨁ᴹ i, (A i).val := by
-  intro _; simp only [Mset.mem_bigoplus]; intro ⟨i, _⟩;
-  apply (A i).property; trivial
-
 lemma bigoplus_unframe_l P (Q : ι → RProp ρ) [Nonempty ι] [Precise P] :
     (⨁ᴿ i, P ∗ Q i) = (P ∗ ⨁ᴿ i, Q i) := by
   ext1; swap; { apply bigoplus_frame_l };
-  intro ⟨_, val⟩ ⟨_, el, eq⟩; simp only at *; subst eq;
+  rintro _ ⟨_, el, rfl⟩;
   have ⟨A, el⟩ := Classical.skolem.mp el; have AQ i := (el i).left;
   have ⟨B, el⟩ := Classical.skolem.mp (fun i => (el i).right);
   have i0 : ι := Classical.choice inferInstance;
-  exists A i0, by tauto, ⟨⨁ᴹ i, B i, valid_bigoplus_V B⟩; simp only; and_intros;
-  { exists B, fun i => (el i).left };
+  exists A i0, by tauto, ⨁ᴹ i, B i; and_intros; { exists B, fun i => (el i).left };
   rw [Mset.mul_bigoplus_l]; congr; ext1 i; rw [P.precise _ (AQ i0) _ (AQ i)]; grind only
 
 lemma bigoplus_unframe_r (P : ι → RProp ρ) Q [Nonempty ι] [Precise Q] :
@@ -517,9 +489,8 @@ lemma oplus_unframe_r [Precise R] :
 
 lemma nb_unsep_l [Inhab P] : nb = (P ∗ nb) := by
   ext1; swap; { apply nb_sep_l };
-  intro ⟨_, _⟩; simp only [nb_unfold]; intro rfl;
-  have ⟨A, _⟩ := inhab P; exists A, by trivial, ⟨∅, Mset.valid_empty⟩;
-  exists rfl; simp only [Mset.mul_empty_l]
+  intro _ rfl; have ⟨A, _⟩ := inhab P;
+  exists A, by trivial, ∅, rfl; simp only [Mset.mul_empty_l]
 
 lemma nb_unsep_r [Inhab P] : nb = (nb ∗ P) := by
   rw [sep_comm]; apply nb_unsep_l
@@ -539,13 +510,13 @@ instance emp_instPrecise : Precise (emp (ρ := ρ)) := own_instPrecise _
 
 instance sep_instPrecise [Precise P] [Precise Q] : Precise (P ∗ Q) where
   precise := by
-    intro ⟨_, _⟩ ⟨_, elP, _, elQ, eq⟩ ⟨_, _⟩ ⟨_, elP', _, elQ', eq'⟩; simp only at *;
-    subst eq eq'; rw [P.precise _ elP _ elP', Q.precise _ elQ _ elQ']
+    rintro _ ⟨_, elP, _, elQ, rfl⟩ _ ⟨_, elP', _, elQ', rfl⟩;
+    rw [P.precise _ elP _ elP', Q.precise _ elQ _ elQ']
 
 lemma bigsum_precise (P : ι → RProp ρ) :
     (∀ i, Precise (P i)) → Precise (⨁ᴿ i, P i) := by
-  intro _; constructor; intro ⟨_, _⟩ ⟨F, el, eq⟩ ⟨_, _⟩ ⟨G, el', eq'⟩;
-  simp only at *; subst eq eq'; congr; ext1 i; apply (P i).precise <;> tauto
+  intro _; constructor; rintro _ ⟨F, el, rfl⟩ _ ⟨G, el', rfl⟩; congr; ext1 i;
+  apply (P i).precise <;> tauto
 
 instance bigsum_instPrecise (P : ι → RProp ρ) [∀ i, Precise (P i)] : Precise (⨁ᴿ i, P i) :=
   bigsum_precise P inferInstance
@@ -576,19 +547,19 @@ instance rfalse_instNonnb : Nonnb (RFalse (ρ := ρ)) := by
   constructor; nofun
 
 instance own_instNonnb : Nonnb (own r) := by
-  constructor; intro ⟨_, _⟩; simp only [own_unfold]; intro rfl; simp only [Mset.inhab_pure]
+  constructor; rintro _ rfl; simp only [Mset.inhab_pure]
 
 instance emp_instNonnb : Nonnb (emp (ρ := ρ)) := own_instNonnb _
 
 instance sep_instNonnb [Nonnb P] [Nonnb Q] : Nonnb (P ∗ Q) := by
-  constructor; intro ⟨_, _⟩ ⟨A, _, B, _, eq⟩; simp only at *; subst eq;
+  constructor; rintro _ ⟨A, _, B, _, rfl⟩;
   simp only [Mset.mul_unfold, functor_norm, Mset.inhab_seq, Mset.inhab_map];
   and_intros; { apply P.nonnb; trivial }; { apply Q.nonnb; trivial }
 
 lemma bigoplus_nonnb (P : ι → RProp ρ) i0 :
     Nonnb (P i0) → Nonnb (⨁ᴿ i, P i) := by
-  intro _; constructor; intro ⟨_, _⟩ ⟨F, el, eq⟩; simp only at *; subst eq;
-  simp only [Mset.inhab_bigoplus]; exists i0; apply (P i0).nonnb; tauto
+  intro _; constructor; rintro _ ⟨F, el, rfl⟩; simp only [Mset.inhab_bigoplus];
+  exists i0; apply (P i0).nonnb; tauto
 
 instance (priority := mid) bigsum_instNonnb (P : ι → RProp ρ)
     [Inhabited ι] [Nonnb (P default)] : Nonnb (⨁ᴿ i, P i) :=
@@ -607,17 +578,17 @@ lemma inhab_not_rfalse : Inhab P = (P ≠ RFalse) := by
   intro ne; have _ := Set.nonempty_iff_ne_empty.mpr ne; tauto
 
 lemma inhab_mono [Inhab P] : P ⊢ Q → Inhab Q := by
-  intro _; constructor; have _ := P.inhab; tauto
+  intro _; have _ := P.inhab; tauto
 
 lemma pur_inhab : φ → Inhab (ρ := ρ) ⌜φ⌝ := by
-  intro φ; constructor; exists ⟨1, valid_one⟩
+  intro φ; exists 1
 
 instance rtrue_instInhab : Inhab (RTrue (ρ := ρ)) := pur_inhab trivial
 
-lemma own_inhab : ✓ r → Inhab (own r) := by
-  intro val; constructor; exists ⟨pure r, Mset.valid_pure _ val⟩
+lemma own_inhab : Inhab (own r) := by
+  exists pure r
 
-instance emp_instInhab : Inhab (emp (ρ := ρ)) := own_inhab _ valid_one
+instance emp_instInhab : Inhab (emp (ρ := ρ)) := own_inhab _
 
 lemma rexists_inhab a (P : α → RProp ρ) :
     Inhab (P a) → Inhab (∃ᴿ x, P x) := by
@@ -635,8 +606,7 @@ instance (priority := mid) ror_instInhab_r [Inhab Q] : Inhab (P ∨ᴿ Q) := by
 
 instance bigoplus_instInhab (P : ι → RProp ρ) [∀ i, Inhab (P i)] :
     Inhab (⨁ᴿ i, P i) := by
-  constructor; have ⟨A, _⟩ := Classical.skolem.mp (fun i => (P i).inhab);
-  exists ⟨⨁ᴹ i, (A i).val, valid_bigoplus_V A⟩; exists A
+  have ⟨A, _⟩ := Classical.skolem.mp (fun i => (P i).inhab); exists ⨁ᴹ i, A i, A
 
 lemma bigoplus_inhab (P : ι → RProp ρ) :
     (∀ i, Inhab (P i)) → Inhab (⨁ᴿ i, P i) := by apply bigoplus_instInhab
