@@ -47,31 +47,31 @@ lemma PCMa.valid_mul_r [PCMa α] (a b : α) : ✓ (a * b) → ✓ b := by
 /-- Data type for the exclusive PCM -/
 inductive Excl (α : Type u) where
   | /-- Exclusive element -/
-    excl : α → Excl α
+    protected excl : α → Excl α
   | /-- Unit element -/
-    unit : Excl α
+    protected unit : Excl α
   | /-- Bottom element -/
-    bot : Excl α
+    protected bot : Excl α
 
 /-- Exclusive PCM -/
 protected instance Excl.instPCMa : PCMa (Excl α) where
-  one := Excl.unit
-  mul | a, Excl.unit => a | Excl.unit, b => b | _, _ => Excl.bot
+  one := .unit
+  mul | a, .unit => a | .unit, b => b | _, _ => .bot
   mul_comm a b := by cases a <;> cases b <;> rfl
   mul_assoc a b c := by cases a <;> cases b <;> cases c <;> rfl
   mul_one _ := rfl
-  valid | Excl.bot => False | _ => True
+  valid | .bot => False | _ => True
   valid_one := trivial
   valid_mul_l a b := by cases a <;> cases b <;> tauto
 
-protected lemma Excl.one_unfold : (1 : Excl α) = Excl.unit := rfl
+protected lemma Excl.one_unfold : (1 : Excl α) = .unit := rfl
 
 protected lemma Excl.mul_unfold :
     (HMul.hMul : Excl α → Excl α → _) =
-      fun | a, Excl.unit => a | Excl.unit, b => b | _, _ => Excl.bot := rfl
+      fun | a, .unit => a | .unit, b => b | _, _ => .bot := rfl
 
 protected lemma Excl.valid_unfold :
-    valid (α := Excl α) = fun | Excl.bot => False | _ => True := rfl
+    valid (α := Excl α) = fun | .bot => False | _ => True := rfl
 
 /-! ### Product PCM -/
 
