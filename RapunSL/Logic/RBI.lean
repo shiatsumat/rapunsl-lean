@@ -442,7 +442,7 @@ lemma oplus_rfalse_l : (P ⊕ᴿ RFalse) = RFalse := by
 lemma oplus_rfalse_r : (RFalse ⊕ᴿ P) = RFalse := by
   rw [oplus_comm, oplus_rfalse_l]
 
-/-! ### Rules for interaction with `∗` -/
+/-! ### Entailment rules for interaction of `nb`, `⊕ᴿ` and `⨁ᴿ` with `∗` -/
 
 lemma bigoplus_frame_l (Q : ι → RProp ρ) : P ∗ (⨁ᴿ i, Q i) ⊢ ⨁ᴿ i, P ∗ Q i := by
   rintro _ ⟨A, _, _, ⟨B, _, rfl⟩, rfl⟩; exists fun i => A * B i; simp only; and_intros;
@@ -495,7 +495,7 @@ lemma nb_unsep_l [Inhab P] : nb = (P ∗ nb) := by
 lemma nb_unsep_r [Inhab P] : nb = (nb ∗ P) := by
   rw [sep_comm]; apply nb_unsep_l
 
-/-! ## Entailment rules for `Precise` -/
+/-! ## Rules for `Precise` -/
 
 lemma precise_anti [Precise Q] : P ⊢ Q → Precise P := by
   intro _; constructor; intro _ _ _ _; apply Q.precise <;> tauto
