@@ -1,7 +1,7 @@
 module
 
 public import Mathlib.Algebra.Group.Defs
-public import RapunSL.Mset
+public import RapunSL.Math.Mset
 open Mset
 
 @[expose] public section

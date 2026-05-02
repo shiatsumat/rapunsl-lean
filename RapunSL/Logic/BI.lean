@@ -1,7 +1,7 @@
 module
 
 import Mathlib.Logic.Equiv.Bool
-public import RapunSL.PCM
+public import RapunSL.Math.PCM
 
 @[expose] public section
 

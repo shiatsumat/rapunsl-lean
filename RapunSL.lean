@@ -1,5 +1,4 @@
 module
 
-public import RapunSL.Mset
-public import RapunSL.PCM
-public import RapunSL.BI
+public import RapunSL.Math
+public import RapunSL.Logic
