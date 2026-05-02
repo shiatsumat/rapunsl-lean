@@ -100,7 +100,7 @@ lemma emp_unfold A : (A ∈ emp (ρ := ρ)) = (A = 1) := rfl
 
 /-- Separating conjunction -/
 def sep (P Q : RProp ρ) : RProp ρ :=
-  fun A => ∃ B ∈ P, ∃ C ∈ Q, A = B * (C : Mset ρ)
+  fun A => ∃ B ∈ P, ∃ C ∈ Q, A = B * C
 
 scoped infixr:35 " ∗ " => RProp.sep
 
@@ -126,7 +126,7 @@ lemma nb_unfold A : (A ∈ nb (ρ := ρ)) = (A = ∅) := rfl
 
 /-- Multiset sum -/
 def oplus (P Q : RProp ρ) : RProp ρ :=
-  fun A => ∃ B ∈ P, ∃ C ∈ Q, A = B ⊕ᴹ (C : Mset ρ)
+  fun A => ∃ B ∈ P, ∃ C ∈ Q, A = B ⊕ᴹ C
 
 scoped infixr:30 " ⊕ᴿ " => RProp.oplus
 
