@@ -360,6 +360,13 @@ lemma oplus_false_l : P ⊕ False =ᴿ False := by
 lemma oplus_false_r : False ⊕ P =ᴿ False := by
   rw [oplus_comm, oplus_false_l]
 
+lemma bigoplus_exists {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
+    (⨁ i, ∃ a, P i a) =ᴿ ∃ f : (∀ i, α i), ⨁ i, P i (f i) := by
+  ext1; constructor; swap;
+  { apply exists_elim; intro f; gcongr; apply exists_intro };
+  simp only [exists_simple]; rintro _ ⟨F, el, rfl⟩;
+  have ⟨f, el⟩ := Classical.skolem.mp el; exists f; exists F
+
 /-! ### Entailment rules for interaction of `nb`, `⊕` and `⨁` with `∗` -/
 
 lemma bigoplus_frame_l (Q : ι → RProp ρ) : P ∗ (⨁ i, Q i) ⊢ ⨁ i, P ∗ Q i := by
