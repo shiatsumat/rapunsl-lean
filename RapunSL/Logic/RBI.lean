@@ -455,37 +455,37 @@ instance nb_instPrecise : Precise (nb (ρ := ρ)) where
 
 /-! ### Rules for `Inhab` -/
 
-lemma inhab_not_false : Inhab P = (P ≠ iprop(False)) := by
+lemma Inhab_not_false : Inhab P = (P ≠ iprop(False)) := by
   ext1; constructor; { intro ⟨_, _⟩ rfl; trivial };
   intro ne; suffices P.car.Nonempty by tauto;
   apply Set.nonempty_iff_ne_empty.mpr; cases P; intro rfl; tauto
 
-lemma inhab_mono [Inhab P] : (P ⊢ Q) → Inhab Q := by
+lemma Inhab_mono [Inhab P] : (P ⊢ Q) → Inhab Q := by
   intro _; have _ := inhab P; tauto
 
-lemma pure_inhab : φ → Inhab (ρ := ρ) iprop(⌜φ⌝) := by
+lemma pure_Inhab : φ → Inhab (ρ := ρ) iprop(⌜φ⌝) := by
   intro φ; exists 1
 
-instance true_instInhab : Inhab (ρ := ρ) iprop(True) := pure_inhab trivial
+instance true_instInhab : Inhab (ρ := ρ) iprop(True) := pure_Inhab trivial
 
-lemma own_inhab : Inhab (own r) := by
+lemma own_Inhab : Inhab (own r) := by
   exists pure r
 
-instance emp_instInhab : Inhab (ρ := ρ) emp := own_inhab _
+instance emp_instInhab : Inhab (ρ := ρ) emp := own_Inhab _
 
-lemma exists_inhab a (P : α → RProp ρ) :
+lemma exists_Inhab a (P : α → RProp ρ) :
     Inhab (P a) → Inhab iprop(∃ x, P x) := by
   intro ⟨A, _⟩; constructor; exists A; rw [exists_simple]; exists a
 
 instance (priority := mid) exists_instInhab (P : α → RProp ρ)
     [Inhabited α] [Inhab (P default)] : Inhab iprop(∃ x, P x) :=
-  by apply exists_inhab; trivial
+  by apply exists_Inhab; trivial
 
 instance (priority := mid) or_instInhab_l [Inhab P] : Inhab iprop(P ∨ Q) := by
-  rw [or_exists]; apply exists_inhab true; trivial
+  rw [or_exists]; apply exists_Inhab true; trivial
 
 instance (priority := mid) or_instInhab_r [Inhab Q] : Inhab iprop(P ∨ Q) := by
-  rw [or_exists]; apply exists_inhab false; trivial
+  rw [or_exists]; apply exists_Inhab false; trivial
 
 instance sep_instInhab [Inhab P] [Inhab Q] : Inhab iprop(P ∗ Q) := by
   have ⟨A, _⟩ := inhab P; have ⟨B, _⟩ := inhab Q;
@@ -495,28 +495,28 @@ instance bigoplus_instInhab (P : ι → RProp ρ) [∀ i, Inhab (P i)] :
     Inhab iprop(⨁ i, P i) := by
   have ⟨A, _⟩ := Classical.skolem.mp (fun i => inhab (P i)); exists ⨁ᴹ i, A i, A
 
-lemma bigoplus_inhab (P : ι → RProp ρ) :
+lemma bigoplus_Inhab (P : ι → RProp ρ) :
     (∀ i, Inhab (P i)) → Inhab iprop(⨁ i, P i) := by apply bigoplus_instInhab
 
 instance oplus_instInhab [Inhab P] [Inhab Q] : Inhab iprop(P ⊕ Q) := by
-  rw [oplus_bigoplus]; apply bigoplus_inhab; rintro (_ | _) <;> trivial
+  rw [oplus_bigoplus]; apply bigoplus_Inhab; rintro (_ | _) <;> trivial
 
 instance nb_instInhab : Inhab (nb (ρ := ρ)) := by
-  rw [nb_bigoplus]; apply bigoplus_inhab; nofun
+  rw [nb_bigoplus]; apply bigoplus_Inhab; nofun
 
 /-! ### Rules for `Nonnb` -/
 
-lemma nonnb_anti [Nonnb Q] : (P ⊢ Q) → Nonnb P := by
+lemma Nonnb_anti [Nonnb Q] : (P ⊢ Q) → Nonnb P := by
   intro _; constructor; intro _ _; apply nonnb Q; tauto
 
 instance not_nb_instNonnb : Nonnb (ρ := ρ) iprop(¬ nb) := by
   constructor; intro _ _; rw [←Mset.not_empty_inhab]; tauto
 
-lemma to_not_nb_nonnb : (P ⊢ ¬ nb) → Nonnb P := by
-  apply nonnb_anti
+lemma to_not_nb_Nonnb : (P ⊢ ¬ nb) → Nonnb P := by
+  apply Nonnb_anti
 
-lemma nonnb_not_nb : Nonnb P = (P ⊢ ¬ nb) := by
-  ext1; constructor; swap; { apply to_not_nb_nonnb };
+lemma Nonnb_not_nb : Nonnb P = (P ⊢ ¬ nb) := by
+  ext1; constructor; swap; { apply to_not_nb_Nonnb };
   intro _ _ elP; have inh := nonnb P _ elP; rw [←Mset.not_empty_inhab] at inh; tauto
 
 instance false_instNonnb : Nonnb (ρ := ρ) iprop(False) := by
@@ -532,19 +532,19 @@ instance sep_instNonnb [Nonnb P] [Nonnb Q] : Nonnb iprop(P ∗ Q) := by
   simp only [Mset.mul_unfold, functor_norm, Mset.inhab_seq, Mset.inhab_map];
   and_intros; { apply nonnb P; trivial }; { apply nonnb Q; trivial }
 
-lemma bigoplus_nonnb (P : ι → RProp ρ) i0 :
+lemma bigoplus_Nonnb (P : ι → RProp ρ) i0 :
     Nonnb (P i0) → Nonnb iprop(⨁ i, P i) := by
   intro _; constructor; rintro _ ⟨F, el, rfl⟩; simp only [Mset.inhab_bigoplus];
   exists i0; apply nonnb (P i0); tauto
 
 instance (priority := mid) bigoplus_instNonnb (P : ι → RProp ρ)
     [Inhabited ι] [Nonnb (P default)] : Nonnb iprop(⨁ i, P i) :=
-  by apply bigoplus_nonnb; trivial
+  by apply bigoplus_Nonnb; trivial
 
 instance (priority := mid) oplus_instNonnb_l [Nonnb P] : Nonnb iprop(P ⊕ Q) := by
-  rw [oplus_bigoplus]; apply bigoplus_nonnb _ true; trivial
+  rw [oplus_bigoplus]; apply bigoplus_Nonnb _ true; trivial
 
 instance (priority := mid) oplus_instNonnb_r [Nonnb Q] : Nonnb iprop(P ⊕ Q) := by
-  rw [oplus_bigoplus]; apply bigoplus_nonnb _ false; trivial
+  rw [oplus_bigoplus]; apply bigoplus_Nonnb _ false; trivial
 
 end RBI
