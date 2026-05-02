@@ -1,17 +1,18 @@
 module
 
 public import Batteries.Tactic.Trans
+public import Mathlib.Tactic.Gcongr
 public import Iris.BI
 import Mathlib.Tactic.Lemma
 import Iris.ProofMode
-open Iris
+open Iris BI
 
 @[expose] public section
 
 /-! # Utility for `BI` -/
 
 namespace BI
-variable {PROP} [BI PROP] (P Q R : PROP)
+variable {PROP} [BI PROP] (P Q R S : PROP)
 
 @[refl] lemma entails_refl : P ⊢ P := by
   apply Std.refl
@@ -36,5 +37,36 @@ lemma or_exists : P ∨ Q ⊣⊢ ∃ b : Bool, if b then P else Q := by
 lemma false_exists :
     False ⊣⊢@{PROP} ∃ e : Empty, nomatch e := by
   constructor; { iintro %_; trivial }; { iintro ⟨%_, _⟩; trivial }
+
+/-! ## `gcongr` lemmas -/
+
+@[gcongr] lemma and_mono' : (P ⊢ Q) → (R ⊢ S) → P ∧ R ⊢ Q ∧ S := by
+  apply and_mono
+
+@[gcongr] lemma or_mono' : (P ⊢ Q) → (R ⊢ S) → P ∨ R ⊢ Q ∨ S := by
+  apply or_mono
+
+@[gcongr] lemma imp_mono' : (Q ⊢ P) → (R ⊢ S) → (P → R) ⊢ (Q → S) := by
+  apply imp_mono
+
+@[gcongr] lemma forall_mono' {α : Sort*} (P Q : α → PROP) :
+    (∀ a, P a ⊢ Q a) → (∀ a, P a) ⊢ (∀ a, Q a) := by
+  apply forall_mono
+
+@[gcongr] lemma exists_mono' {α : Sort*} (P Q : α → PROP) :
+    (∀ a, P a ⊢ Q a) → (∃ a, P a) ⊢ (∃ a, Q a) := by
+  apply exists_mono
+
+@[gcongr] lemma sep_mono' : (P ⊢ Q) → (R ⊢ S) → P ∗ R ⊢ Q ∗ S := by
+  apply sep_mono
+
+@[gcongr] lemma wand_mono' : (Q ⊢ P) → (R ⊢ S) → (P -∗ R) ⊢ Q -∗ S := by
+  apply wand_mono
+
+@[gcongr] lemma persistently_mono' : (P ⊢ Q) → <pers> P ⊢ <pers> Q := by
+  apply persistently_mono
+
+@[gcongr] lemma later_mono' : (P ⊢ Q) → ▷ P ⊢ ▷ Q := by
+  apply later_mono
 
 end BI
