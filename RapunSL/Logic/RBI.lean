@@ -293,7 +293,7 @@ lemma wand_adj : (P ∗ Q ⊢ R) = (Q ⊢ P -∗ R) := by
   intro Qto; grw [Qto]; apply wand_elim_l
 
 @[gcongr] lemma wand_mono : P' ⊢ P → Q ⊢ Q' → P -∗ Q ⊢ P' -∗ Q' := by
-  intro P'P QQ'; grw [←wand_adj, P'P, ←QQ', wand_adj];
+  intro P'P QQ'; grw [←wand_adj, P'P, ←QQ', wand_adj]
 
 lemma sep_rexists_l (Q : α → RProp ρ) : (P ∗ (∃ᴿ x, Q x)) = ∃ᴿ x, P ∗ Q x := by
   ext1; swap; { apply rexists_elim; intro a; grw [rexists_intro a Q] };
@@ -537,7 +537,7 @@ instance not_nb_instNonnb : Nonnb (¬ᴿ nb (ρ := ρ)) := by
   constructor; intro _ _; rw [←Mset.not_empty_inhab]; tauto
 
 lemma to_not_nb_nonnb : P ⊢ ¬ᴿ nb → Nonnb P := by
-  apply nonnb_anti;
+  apply nonnb_anti
 
 lemma nonnb_not_nb : Nonnb P = (P ⊢ ¬ᴿ nb) := by
   ext1; constructor; swap; { apply to_not_nb_nonnb };
