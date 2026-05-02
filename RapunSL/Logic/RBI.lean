@@ -428,18 +428,17 @@ lemma nb_unsep_r [Inhab P] : nb =ᴿ nb ∗ P := by
 lemma precise_anti [Precise Q] : (P ⊢ Q) → Precise P := by
   intro _; constructor; intro _ _ _ _; apply precise Q <;> tauto
 
-instance false_instPrecise : Precise (ρ := ρ) iprop(False) where
-  precise := nofun
+instance false_instPrecise : Precise (ρ := ρ) iprop(False) := by
+  constructor; nofun
 
-instance own_instPrecise : Precise (own r) where
-  precise := by intro _; simp only [own_unfold]; grind only
+instance own_instPrecise : Precise (own r) := by
+  constructor; intro _; simp only [own_unfold]; grind only
 
 instance emp_instPrecise : Precise (ρ := ρ) emp := own_instPrecise _
 
-instance sep_instPrecise [Precise P] [Precise Q] : Precise iprop(P ∗ Q) where
-  precise := by
-    rintro _ ⟨_, elP, _, elQ, rfl⟩ _ ⟨_, elP', _, elQ', rfl⟩;
-    rw [precise P _ elP _ elP', precise Q _ elQ _ elQ']
+instance sep_instPrecise [Precise P] [Precise Q] : Precise iprop(P ∗ Q) := by
+  constructor; rintro _ ⟨_, elP, _, elQ, rfl⟩ _ ⟨_, elP', _, elQ', rfl⟩;
+  rw [precise P _ elP _ elP', precise Q _ elQ _ elQ']
 
 lemma bigoplus_precise (P : ι → RProp ρ) :
     (∀ i, Precise (P i)) → Precise iprop(⨁ i, P i) := by
@@ -450,12 +449,11 @@ instance bigoplus_instPrecise (P : ι → RProp ρ) [∀ i, Precise (P i)] :
     Precise iprop(⨁ i, P i) :=
   bigoplus_precise P inferInstance
 
-instance oplus_instPrecise [Precise P] [Precise Q] : Precise iprop(P ⊕ Q) where
-  precise := by
-    rw [oplus_bigoplus]; apply (bigoplus_precise _ _).precise; rintro (_ | _) <;> tauto
+instance oplus_instPrecise [Precise P] [Precise Q] : Precise iprop(P ⊕ Q) := by
+  constructor; rw [oplus_bigoplus]; apply (bigoplus_precise _ _).precise; rintro (_ | _) <;> tauto
 
-instance nb_instPrecise : Precise (nb (ρ := ρ)) where
-  precise := by rw [nb_bigoplus]; apply (bigoplus_precise _ _).precise; nofun
+instance nb_instPrecise : Precise (nb (ρ := ρ)) := by
+  constructor; rw [nb_bigoplus]; apply (bigoplus_precise _ _).precise; nofun
 
 /-! ### Rules for `Inhab` -/
 
