@@ -501,6 +501,9 @@ lemma bigoplus_inhab (P : ι → RProp ρ) :
 instance oplus_instInhab [Inhab P] [Inhab Q] : Inhab iprop(P ⊕ Q) := by
   rw [oplus_bigoplus]; apply bigoplus_inhab; rintro (_ | _) <;> trivial
 
+instance nb_instInhab : Inhab (nb (ρ := ρ)) := by
+  rw [nb_bigoplus]; apply bigoplus_inhab; nofun
+
 /-! ### Rules for `Nonnb` -/
 
 lemma nonnb_anti [Nonnb Q] : (P ⊢ Q) → Nonnb P := by
