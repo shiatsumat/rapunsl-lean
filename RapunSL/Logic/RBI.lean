@@ -150,6 +150,10 @@ lemma choice {β : α → Sort*} (P : ∀ a, β a → RProp ρ) :
   simp only [forall_simple, exists_simple];
   apply set_ext; intro _; apply Classical.skolem
 
+lemma persistently_emp_entails : <pers> P =ᴿ ⌜emp ⊢ P⌝ := by
+  apply set_ext; intro _; constructor; swap; { tauto };
+  intro _ _; rw [emp_unfold]; intro rfl; trivial
+
 /-! ### Utility -/
 
 lemma or_exists : P ∨ Q =ᴿ ∃ b : Bool, if b then P else Q := by
