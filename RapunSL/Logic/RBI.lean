@@ -530,6 +530,10 @@ instance (priority := mid) or_instInhab_l [Inhab P] : Inhab iprop(P ∨ Q) := by
 instance (priority := mid) or_instInhab_r [Inhab Q] : Inhab iprop(P ∨ Q) := by
   rw [or_exists]; apply exists_inhab false; trivial
 
+instance sep_instInhab [Inhab P] [Inhab Q] : Inhab iprop(P ∗ Q) := by
+  have ⟨A, _⟩ := inhab P; have ⟨B, _⟩ := inhab Q;
+  exists A * B; exists A, by trivial, B
+
 instance bigoplus_instInhab (P : ι → RProp ρ) [∀ i, Inhab (P i)] :
     Inhab iprop(⨁ i, P i) := by
   have ⟨A, _⟩ := Classical.skolem.mp (fun i => inhab (P i)); exists ⨁ᴹ i, A i, A
