@@ -345,11 +345,13 @@ lemma pine_adj : (P ⊕ Q ⊢ R) = (Q ⊢ P -⊕ R) := by
   ext1; constructor; { apply pine_intro_l };
   intro Qto; grw [Qto]; apply pine_elim_l
 
-lemma oplus_exists_l (Q : α → RProp ρ) : P ⊕ (∃ a, Q a) =ᴿ ∃ a, P ⊕ Q a := by
+lemma oplus_exists_l (Q : α → RProp ρ) :
+    P ⊕ (∃ a, Q a) =ᴿ ∃ a, P ⊕ Q a := by
   ext1; constructor; swap; { apply exists_elim; intro a; grw [exists_intro (Ψ := Q) a] };
   rw [pine_adj]; apply exists_elim; intro a; rw [←pine_adj]; apply exists_intro a
 
-lemma oplus_exists_r (P : α → RProp ρ) Q : (∃ a, P a) ⊕ Q =ᴿ ∃ a, P a ⊕ Q := by
+lemma oplus_exists_r (P : α → RProp ρ) Q :
+    (∃ a, P a) ⊕ Q =ᴿ ∃ a, P a ⊕ Q := by
   rw [oplus_comm, oplus_exists_l]; congr; ext1 _; rw [oplus_comm]
 
 lemma oplus_or_l : P ⊕ (Q ∨ R) =ᴿ (P ⊕ Q) ∨ (P ⊕ R) := by
@@ -373,11 +375,13 @@ lemma bigoplus_exists {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
 
 /-! ### Rules for interaction of `nb`, `⊕` and `⨁` with `∗` -/
 
-lemma bigoplus_frame_l (Q : ι → RProp ρ) : P ∗ (⨁ i, Q i) ⊢ ⨁ i, P ∗ Q i := by
+lemma bigoplus_frame_l (Q : ι → RProp ρ) :
+    P ∗ (⨁ i, Q i) ⊢ ⨁ i, P ∗ Q i := by
   rintro _ ⟨A, _, _, ⟨B, _, rfl⟩, rfl⟩; exists fun i => A * B i; simp only; and_intros;
   { intros i; exists A, by trivial, B i, by tauto }; { rw [Mset.mul_bigoplus_l] }
 
-lemma bigoplus_frame_r (P : ι → RProp ρ) Q : (⨁ i, P i) ∗ Q ⊢ ⨁ i, P i ∗ Q := by
+lemma bigoplus_frame_r (P : ι → RProp ρ) Q :
+    (⨁ i, P i) ∗ Q ⊢ ⨁ i, P i ∗ Q := by
   grw [sep_comm, bigoplus_frame_l]; gcongr 1; rw [sep_comm]
 
 lemma oplus_frame_l : P ∗ (Q ⊕ R) ⊢ (P ∗ Q) ⊕ (P ∗ R) := by
