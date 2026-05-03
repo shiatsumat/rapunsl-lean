@@ -480,8 +480,8 @@ lemma exists_Inhab a (P : α → RProp ρ) :
   intro ⟨A, _⟩; constructor; exists A; rw [exists_simple]; exists a
 
 instance (priority := mid) exists_instInhab (P : α → RProp ρ)
-    [Inhabited α] [Inhab (P default)] : Inhab iprop(∃ x, P x) :=
-  by apply exists_Inhab; trivial
+    [Inhabited α] [Inhab (P default)] : Inhab iprop(∃ x, P x) := by
+  apply exists_Inhab; trivial
 
 instance (priority := mid) or_instInhab_l [Inhab P] : Inhab iprop(P ∨ Q) := by
   rw [or_exists]; apply exists_Inhab true; trivial
@@ -540,8 +540,8 @@ lemma bigoplus_Nonnb (P : ι → RProp ρ) i0 :
   exists i0; apply nonnb (P i0); tauto
 
 instance (priority := mid) bigoplus_instNonnb (P : ι → RProp ρ)
-    [Inhabited ι] [Nonnb (P default)] : Nonnb iprop(⨁ i, P i) :=
-  by apply bigoplus_Nonnb; trivial
+    [Inhabited ι] [Nonnb (P default)] : Nonnb iprop(⨁ i, P i) := by
+  apply bigoplus_Nonnb; trivial
 
 instance (priority := mid) oplus_instNonnb_l [Nonnb P] : Nonnb iprop(P ⊕ Q) := by
   rw [oplus_bigoplus]; apply bigoplus_Nonnb _ true; trivial
