@@ -236,7 +236,7 @@ class Nonnb (P : RProp ρ) : Prop where
 lemma nonnb (P : RProp ρ) [Nonnb P] : ∀ A ∈ P, A.inhab := by
   apply Nonnb.nonnb
 
-/-! ### Entailment rules for `own` -/
+/-! ### Rules for `own` -/
 
 lemma emp_own : emp = own (ρ := ρ) 1 := rfl
 
@@ -245,7 +245,7 @@ lemma own_sep : own (ρ := ρ) r ∗ own s =ᴿ own (r * s) := by
   · rintro ⟨_, rfl, _, rfl, rfl⟩; rw [own_unfold, ←Mset.pure_mul]
   · intro rfl; exists pure r, rfl, pure s; and_intros; { rfl }; { rw [←Mset.pure_mul] }
 
-/-! ### Entailment rules for `nb`, `⊕`, `⨁` and `-⊕` -/
+/-! ### Rules for `nb`, `⊕`, `⨁` and `-⊕` -/
 
 lemma nb_bigoplus : nb = bigoplus (ρ := ρ) (ι := Empty) nofun := by
   apply set_ext; intro _; rw [nb_unfold]; constructor;
@@ -371,7 +371,7 @@ lemma bigoplus_exists {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
   simp only [exists_simple]; rintro _ ⟨F, el, rfl⟩;
   have ⟨f, el⟩ := Classical.skolem.mp el; exists f; exists F
 
-/-! ### Entailment rules for interaction of `nb`, `⊕` and `⨁` with `∗` -/
+/-! ### Rules for interaction of `nb`, `⊕` and `⨁` with `∗` -/
 
 lemma bigoplus_frame_l (Q : ι → RProp ρ) : P ∗ (⨁ i, Q i) ⊢ ⨁ i, P ∗ Q i := by
   rintro _ ⟨A, _, _, ⟨B, _, rfl⟩, rfl⟩; exists fun i => A * B i; simp only; and_intros;
