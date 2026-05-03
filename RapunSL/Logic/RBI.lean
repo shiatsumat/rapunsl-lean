@@ -506,6 +506,9 @@ instance oplus_instInhab [Inhab P] [Inhab Q] : Inhab iprop(P ⊕ Q) := by
 instance nb_instInhab : Inhab (nb (ρ := ρ)) := by
   rw [nb_bigoplus]; apply bigoplus_Inhab; nofun
 
+lemma persistently_inhab : (emp ⊢ P) → Inhab iprop(<pers> P) := by
+  rw [persistently_emp_entails]; apply pure_Inhab
+
 /-! ### Rules for `Nonnb` -/
 
 lemma Nonnb_anti [Nonnb Q] : (P ⊢ Q) → Nonnb P := by
