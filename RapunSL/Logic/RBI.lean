@@ -165,6 +165,12 @@ lemma false_exists : False =ᴿ@{ρ} ∃ e : Empty, nomatch e := by
 lemma sep_comm : P ∗ Q =ᴿ Q ∗ P := by
   ext1; apply BI.sep_comm
 
+lemma and_comm : P ∧ Q =ᴿ Q ∧ P := by
+  ext1; apply BI.and_comm
+
+lemma and_assoc : (P ∧ Q) ∧ R =ᴿ P ∧ (Q ∧ R) := by
+  ext1; apply BI.and_assoc
+
 /-! ## RapunSL-specific structure -/
 
 /-! ### Ownership -/
@@ -213,7 +219,30 @@ delab_rule RBI.bigoplus
 delab_rule RBI.pine
   | `($_ $P $Q) => do ``(iprop($(←unpackIprop P) -⊕ $(←unpackIprop Q)))
 
-/-! ### Judgments -/
+/-! ### Validity -/
+
+/-- Any valid ownership -/
+def AnyValid : RProp ρ := .mk fun A => ✓ A
+
+/-- Valid ownership -/
+class Valid (P : RProp ρ) : Prop where
+  to_valid : P ⊢ AnyValid
+
+lemma to_valid (P : RProp ρ) [Valid P] : P ⊢ AnyValid := by
+  apply Valid.to_valid
+
+/-- Restriction to valid ownership -/
+def validly (P : RProp ρ) : RProp ρ := iprop(P ∧ AnyValid)
+
+scoped syntax:max "<✓> " term:40 : term
+
+scoped macro_rules
+  | `(iprop(<✓> $P)) => `(RBI.validly iprop($P))
+
+delab_rule RBI.validly
+  | `($_ $P) => do ``(iprop(<✓> $(←unpackIprop P)))
+
+/-! ### More judgments -/
 
 /-- Preciseness -/
 class Precise (P : RProp ρ) : Prop where
@@ -427,6 +456,98 @@ lemma nb_unsep_l [Inhab P] : nb =ᴿ P ∗ nb := by
 lemma nb_unsep_r [Inhab P] : nb =ᴿ nb ∗ P := by
   rw [sep_comm]; apply nb_unsep_l
 
+/-! ### Rules for `Valid` -/
+
+lemma Valid_anti [Valid Q] : (P ⊢ Q) → Valid P := by
+  intro _; constructor; grw [←to_valid Q]; trivial
+
+lemma validly_valid : (P ⊢ <✓> P) → Valid P := by
+  intro Pto; constructor; grw [Pto]; apply and_elim_r
+
+instance false_instValid : Valid (ρ := ρ) iprop(False) := by
+  constructor; nofun
+
+instance AnyValid_instValid : Valid (ρ := ρ) AnyValid := by
+  constructor; trivial
+
+instance validly_instValid (P : RProp ρ) : Valid iprop(<✓> P) := by
+  constructor; apply and_elim_r
+
+lemma own_Valid : ✓ r → Valid (own r) := by
+  intro _; constructor; intro _ rfl; apply Mset.valid_pure; trivial
+
+instance emp_instValid : Valid (ρ := ρ) emp := by
+  apply own_Valid; apply PCM.valid_one
+
+instance bigoplus_instValid (P : ι → RProp ρ) [∀ i, Valid (P i)] :
+    Valid iprop(⨁ i, P i) := by
+  constructor; rintro _ ⟨F, el, rfl⟩ _; simp only [Mset.mem_bigoplus];
+  intro ⟨i, _⟩; apply to_valid (P i) _ (el i); trivial
+
+lemma bigoplus_Valid (P : ι → RProp ρ) :
+    (∀ i, Valid (P i)) → Valid iprop(⨁ i, P i) := by
+  apply bigoplus_instValid
+
+instance oplus_instValid [Valid P] [Valid Q] : Valid iprop(P ⊕ Q) := by
+  rw [oplus_bigoplus]; apply bigoplus_Valid; rintro (_ | _) <;> trivial
+
+instance nb_instValid : Valid (nb (ρ := ρ)) := by
+  rw [nb_bigoplus]; apply bigoplus_Valid; intro _; trivial
+
+lemma sep_Valid_l [Inhab Q] [Nonnb Q] : Valid iprop(P ∗ Q) → Valid P := by
+  intro val; constructor; intro A _; have ⟨B, _⟩ := inhab Q;
+  apply Mset.valid_mul_l A B; { apply nonnb Q; trivial };
+  apply val.to_valid; exists A, by trivial, B
+
+lemma sep_Valid_r [Inhab P] [Nonnb P] : Valid iprop(P ∗ Q) → Valid Q := by
+  rw [sep_comm]; apply sep_Valid_l
+
+/-! ### Entailment rules for `<✓>` -/
+
+@[gcongr] lemma validly_mono : (P ⊢ Q) → <✓> P ⊢ <✓> Q := by
+  intro _; unfold validly; gcongr
+
+lemma validly_elim : <✓> P ⊢ P := by
+  apply and_elim_l
+
+lemma Valid_validly [Valid P] : <✓> P =ᴿ P := by
+  ext1; constructor; { apply validly_elim };
+  apply and_intro; { trivial }; apply to_valid
+
+lemma validly_idemp : <✓> <✓> P =ᴿ <✓> P := by
+  apply Valid_validly
+
+lemma AnyValid_validly : <✓> AnyValid =ᴿ@{ρ} AnyValid := by
+  apply Valid_validly
+
+lemma validly_and_l : <✓> (P ∧ Q) =ᴿ (<✓> P) ∧ Q := by
+  unfold validly; rw [and_assoc _ _, and_comm Q _, ←and_assoc]
+
+lemma validly_and_r : <✓> (P ∧ Q) =ᴿ P ∧ <✓> Q := by
+  rw [and_comm, validly_and_l, and_comm]
+
+lemma validly_exists (P : α → RProp ρ) : <✓> (∃ a, P a) =ᴿ ∃ a, <✓> P a := by
+  ext1; constructor; swap; { apply exists_elim; intro a; grw [exists_intro (Ψ := P) a] };
+  apply BI.imp_elim; apply exists_elim; intro a; apply BI.imp_intro; apply exists_intro a
+
+lemma validly_or : <✓> (P ∨ Q) =ᴿ <✓> P ∨ <✓> Q := by
+  simp only [or_exists, validly_exists]; congr; ext1 b; cases b <;> rfl
+
+lemma validly_false : <✓> False =ᴿ@{ρ} False := by
+  apply Valid_validly
+
+lemma validly_bigoplus (P : ι → RProp ρ) : <✓> (⨁ i, P i) =ᴿ ⨁ i, <✓> P i := by
+  ext1; constructor; swap;
+  { rw [←Valid_validly iprop(⨁ i, <✓> P i)]; gcongr; apply validly_elim };
+  rintro _ ⟨⟨F, _, rfl⟩, val⟩; exists F; and_intros; swap; { rfl }; intro i;
+  and_intros; { tauto }; intro _ _; apply val; rw [Mset.mem_bigoplus]; exists i
+
+lemma validly_oplus : <✓> (P ⊕ Q) =ᴿ <✓> P ⊕ <✓> Q := by
+  simp only [oplus_bigoplus, validly_bigoplus]; congr; ext1 b; cases b <;> rfl
+
+lemma validly_nb : <✓> nb =ᴿ@{ρ} nb := by
+  apply Valid_validly
+
 /-! ### Rules for `Precise` -/
 
 lemma precise_anti [Precise Q] : (P ⊢ Q) → Precise P := by
@@ -458,6 +579,9 @@ instance oplus_instPrecise [Precise P] [Precise Q] : Precise iprop(P ⊕ Q) := b
 
 instance nb_instPrecise : Precise (nb (ρ := ρ)) := by
   constructor; rw [nb_bigoplus]; apply (bigoplus_precise _ _).precise; nofun
+
+instance validly_instPrecise [Precise P] : Precise iprop(<✓> P) := by
+  apply precise_anti _ P; apply validly_elim
 
 /-! ### Rules for `Inhab` -/
 
@@ -513,6 +637,12 @@ instance nb_instInhab : Inhab (nb (ρ := ρ)) := by
 lemma persistently_inhab : (emp ⊢ P) → Inhab iprop(<pers> P) := by
   rw [persistently_emp_entails]; apply pure_Inhab
 
+instance AnyValid_instInhab : Inhab (ρ := ρ) AnyValid := by
+  apply Inhab_mono nb; apply to_valid
+
+instance validly_instInhab [Inhab P] [Valid P] : Inhab iprop(<✓> P) := by
+  rw [Valid_validly P]; trivial
+
 /-! ### Rules for `Nonnb` -/
 
 lemma Nonnb_anti [Nonnb Q] : (P ⊢ Q) → Nonnb P := by
@@ -555,5 +685,8 @@ instance (priority := mid) oplus_instNonnb_l [Nonnb P] : Nonnb iprop(P ⊕ Q) :=
 
 instance (priority := mid) oplus_instNonnb_r [Nonnb Q] : Nonnb iprop(P ⊕ Q) := by
   rw [oplus_bigoplus]; apply bigoplus_Nonnb _ false; trivial
+
+instance validly_instNonnb [Nonnb P] : Nonnb iprop(<✓> P) := by
+  apply Nonnb_anti _ P; apply validly_elim
 
 end RBI
