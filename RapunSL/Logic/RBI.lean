@@ -4,7 +4,7 @@ public import Iris.BI
 public import RapunSL.Math.PCM
 public import RapunSL.Logic.BI
 import Mathlib.Logic.Equiv.Bool
-open Iris OFE BI PCM Mset
+open Iris OFE BI PCM Mseti
 
 @[expose] public section
 
@@ -15,11 +15,11 @@ namespace RBI
 /-! ## RapunSL propositions -/
 
 /-- RapunSL proposition based on a multiset PCM -/
-def RProp ρ [PCMa ρ] := LeibnizO (Set (Mset ρ))
+def RProp ρ [PCM ρ] := LeibnizO (Set (Msetiv ρ))
 
-variable {ρ : Type u} [PCMa ρ] (P P' Q Q' R : RProp ρ) (r : ρ)
+variable {ρ : Type u} [PCM ρ] (P P' Q Q' R : RProp ρ) (r : ρ)
 
-protected instance instMembership : Membership (Mset ρ) (RProp ρ) where
+protected instance instMembership : Membership (Msetiv ρ) (RProp ρ) where
   mem P A := P.car A
 
 lemma mem_unfold A : (A ∈ P) = P.car A := rfl
@@ -40,13 +40,13 @@ protected instance instBIBase : BIBase (RProp ρ) where
   imp P Q := .mk fun A => A ∈ P → A ∈ Q
   sForall S := .mk fun A => ∀ P, S P → A ∈ P
   sExists S := .mk fun A => ∃ P, S P ∧ A ∈ P
-  emp := .mk fun A => A = 1
-  sep P Q := .mk fun A => ∃ B ∈ P, ∃ C ∈ Q, A = B * C
-  wand P Q := .mk fun A => ∀ B ∈ P, A * B ∈ Q
-  persistently P := .mk fun _ => 1 ∈ P
+  emp := .mk fun A => A.val = 1
+  sep P Q := .mk fun A => ∃ B C, B ∈ P ∧ C ∈ Q ∧ A.val = B.val * C.val
+  wand P Q := .mk fun A => ∀ B ∈ P, ∀ val, ⟨A.val * B.val, val⟩ ∈ Q
+  persistently P := .mk fun _ => ⟨1, PCM.valid_one⟩ ∈ P
   later P := P
 
-lemma emp_unfold A : (A ∈ emp (PROP := RProp ρ)) = (A = 1) := rfl
+lemma emp_unfold A : (A ∈ emp (PROP := RProp ρ)) = (A.val = 1) := rfl
 
 lemma forall_simple :
     BIBase.forall = fun P : α → RProp ρ => .mk fun A => ∀ x, A ∈ P x := by
@@ -103,31 +103,28 @@ protected instance instBI : BI (RProp ρ) where
   sForall_elim := by tauto
   sExists_intro := by tauto
   sExists_elim := by intro _ _ _ _ ⟨_, _⟩; tauto
-  sep_mono := by
-    intro _ _ _ _ _ _ _ ⟨A, _, B, _, _⟩; exists A, by tauto, B; tauto
-  sep_symm := by
-    rintro _ _ _ ⟨A, _, B, _, rfl⟩; exists B, by trivial, A; rw [mul_comm]; trivial
+  sep_mono := by intro _ _ _ _ _ _ _ ⟨A, B, _, _, _⟩; exists A, B; tauto
+  sep_symm := by intro _ _ _ ⟨A, B, _, _, _⟩; exists B, A; rw [mul_comm]; trivial
   emp_sep := by
     intro _; constructor;
-    · rintro _ ⟨_, eq, _, _, rfl⟩; rw [emp_unfold] at *; rw [eq, one_mul]; trivial
-    · intro A _; exists 1; and_intros; { rfl }; exists A; simp only [one_mul]; trivial
+    · rintro ⟨_, _⟩ ⟨⟨_, _⟩, _, rfl, val, rfl⟩; simp only [one_mul]; tauto
+    · intro A _; exists ⟨1, PCM.valid_one⟩; exists A; rw [one_mul]; trivial
   sep_assoc_l := by
-    rintro _ _ _ _ ⟨_, ⟨A, _, B, _, rfl⟩, C, _, rfl⟩;
-    exists A, by trivial, B * C; simp only [mul_assoc, _root_.and_true];
-    exists B, by trivial, C, by trivial
+    rintro _ _ _ ⟨_, val⟩ ⟨⟨_, _⟩, C, ⟨A, B, _, _, rfl⟩, _, rfl⟩;
+    exists A, ⟨B.val * C.val, by apply PCM.valid_mul_r; rw [←mul_assoc]; apply val⟩;
+    simp only [mul_assoc]; and_intros; { trivial }; { exists B, C }; { trivial };
   wand_intro := by
-    intro _ _ _ toR A _ B _; apply toR; exists A, by trivial, B
+    intro _ _ _ toR A _ B _ _; apply toR; exists A, B
   wand_elim := by
-    rintro _ _ _ toR _ ⟨_, _, _, _, rfl⟩; apply toR <;> trivial
+    rintro _ _ _ toR ⟨_, _⟩ ⟨_, _, _, _, rfl⟩; apply toR <;> trivial
   persistently_mono := by tauto
   persistently_idem_2 := by tauto
   persistently_emp_2 := by tauto
   persistently_and_2 := by tauto
   persistently_sExists_1 := by simp only [exists_simple]; tauto
-  persistently_absorb_l := by
-    rintro _ _ _ ⟨_, _, _, _, rfl⟩; tauto
+  persistently_absorb_l := by rintro _ _ ⟨_, _⟩ ⟨_, _, _, _, rfl⟩; tauto
   persistently_and_l := by
-    intro _ _ A ⟨_, _⟩; exists 1, by trivial, A; rw [one_mul]; trivial
+    intro _ _ A ⟨_, _⟩; exists ⟨1, PCM.valid_one⟩, A; rw [one_mul]; trivial
   later_mono := by tauto
   later_intro := by tauto
   later_sForall_2 := by simp only [forall_simple]; tauto
@@ -152,15 +149,15 @@ lemma choice {β : α → Sort*} (P : ∀ a, β a → RProp ρ) :
 
 lemma persistently_emp_entails : <pers> P =ᴿ ⌜emp ⊢ P⌝ := by
   apply set_ext; intro _; constructor; swap; { tauto };
-  intro _ _; rw [emp_unfold]; intro rfl; trivial
+  intro _ ⟨_, _⟩; rw [emp_unfold]; intro rfl; trivial
 
 /-! ### Utility -/
 
 lemma or_exists : P ∨ Q =ᴿ ∃ b : Bool, if b then P else Q := by
-  ext; apply BI.or_exists
+  ext1; apply BI.or_exists
 
 lemma false_exists : False =ᴿ@{ρ} ∃ e : Empty, nomatch e := by
-  ext; apply BI.false_exists
+  ext1; apply BI.false_exists
 
 lemma sep_comm : P ∗ Q =ᴿ Q ∗ P := by
   ext1; apply BI.sep_comm
@@ -176,32 +173,27 @@ lemma and_assoc : (P ∧ Q) ∧ R =ᴿ P ∧ (Q ∧ R) := by
 /-! ### Ownership -/
 
 /-- Ownership of an element -/
-def own (r : ρ) : RProp ρ := .mk fun A => A = pure r
+def own (r : ρ) : RProp ρ := .mk fun A => A.val = pure r
 
-lemma own_unfold r A : (A ∈ own (ρ := ρ) r) = (A = pure r) := rfl
+lemma own_unfold r A : (A ∈ own (ρ := ρ) r) = (A.val = pure r) := rfl
 
 /-! ### Multiset connectives -/
 
-/-- No behavior -/
-def nb : RProp ρ := .mk fun A => A = ∅
-
-lemma nb_unfold A : (A ∈ nb (ρ := ρ)) = (A = ∅) := rfl
-
 /-- Multiset sum -/
 def oplus (P Q : RProp ρ) : RProp ρ :=
-  .mk fun A => ∃ B ∈ P, ∃ C ∈ Q, A = B ⊕ᴹ C
+  .mk fun A => ∃ B C, B ∈ P ∧ C ∈ Q ∧ A.val = B.val ⊕ᴹⁱ C.val
 
 scoped syntax:30 term:31 " ⊕ " term:30 : term
 
 /-- Big multiset sum -/
-def bigoplus (P : ι → RProp ρ) : RProp ρ :=
-  .mk fun A => ∃ B : ι → Mset ρ, (∀ i, B i ∈ P i) ∧ A = ⨁ᴹ i, B i
+def bigoplus [Inhabited ι] (P : ι → RProp ρ) : RProp ρ :=
+  .mk fun A => ∃ B : ι → Msetiv ρ, (∀ i, B i ∈ P i) ∧ A.val = ⨁ᴹⁱ i, (B i).val
 
 scoped syntax "⨁ " Lean.Parser.Term.funBinder ", " term : term
 
 /-- Pine, the right adjoint of `⊕` -/
 def pine (P Q : RProp ρ) : RProp ρ :=
-  .mk fun A => ∀ B ∈ P, B ⊕ᴹ A ∈ Q
+  .mk fun A => ∀ B ∈ P, ∀ val, ⟨B.val ⊕ᴹⁱ A.val, val⟩ ∈ Q
 
 scoped syntax:25 term:26 " -⊕ " term:25 : term
 
@@ -219,101 +211,66 @@ delab_rule RBI.bigoplus
 delab_rule RBI.pine
   | `($_ $P $Q) => do ``(iprop($(←unpackIprop P) -⊕ $(←unpackIprop Q)))
 
-/-! ### Validity -/
-
-/-- Any valid ownership -/
-def AnyValid : RProp ρ := .mk fun A => ✓ A
-
-/-- Valid ownership -/
-class Valid (P : RProp ρ) : Prop where
-  to_valid : P ⊢ AnyValid
-
-lemma to_valid (P : RProp ρ) [Valid P] : P ⊢ AnyValid := by
-  apply Valid.to_valid
-
-/-- Restriction to valid ownership -/
-def validly (P : RProp ρ) : RProp ρ := iprop(P ∧ AnyValid)
-
-scoped syntax:max "<✓> " term:40 : term
-
-scoped macro_rules
-  | `(iprop(<✓> $P)) => `(RBI.validly iprop($P))
-
-delab_rule RBI.validly
-  | `($_ $P) => do ``(iprop(<✓> $(←unpackIprop P)))
-
 /-! ### More judgments -/
 
 /-- Preciseness -/
 class Precise (P : RProp ρ) : Prop where
-  precise : ∀ A ∈ P, ∀ B ∈ P, A = B
+  precise : ∀ A B, A ∈ P → B ∈ P → A = B
 
-lemma precise (P : RProp ρ) [Precise P] : ∀ A ∈ P, ∀ B ∈ P, A = B := by
+lemma precise (P : RProp ρ) [Precise P] : ∀ A B, A ∈ P → B ∈ P → A = B := by
   apply Precise.precise
-
-/-- Inhabitance, or being not `False` -/
-class Inhab (P : RProp ρ) : Prop where
-  inhab : ∃ A, A ∈ P
-
-lemma inhab (P : RProp ρ) [Inhab P] : ∃ A, A ∈ P := by
-  apply Inhab.inhab
-
-/-- Multiset inhabitance -/
-class Nonnb (P : RProp ρ) : Prop where
-  nonnb : ∀ A ∈ P, A.inhab
-
-lemma nonnb (P : RProp ρ) [Nonnb P] : ∀ A ∈ P, A.inhab := by
-  apply Nonnb.nonnb
 
 /-! ### Rules for `own` -/
 
 lemma emp_own : emp = own (ρ := ρ) 1 := rfl
 
 lemma own_sep : own (ρ := ρ) r ∗ own s =ᴿ own (r * s) := by
-  apply set_ext; intro _; constructor;
-  · rintro ⟨_, rfl, _, rfl, rfl⟩; rw [own_unfold, ←Mset.pure_mul]
-  · intro rfl; exists pure r, rfl, pure s; and_intros; { rfl }; { rw [←Mset.pure_mul] }
+  apply set_ext; intro ⟨_, val⟩; constructor;
+  · rintro ⟨⟨_, _⟩, ⟨_, _⟩, rfl, rfl, rfl⟩; simp only [own_unfold, Mseti.pure_mul]
+  · intro rfl; revert val; rw [Mseti.pure_mul]; intro val;
+    exists ⟨pure r, by apply PCM.valid_mul_l _ (pure s); trivial⟩;
+    exists ⟨pure s, by apply PCM.valid_mul_r (pure r); trivial⟩
 
-/-! ### Rules for `nb`, `⊕`, `⨁` and `-⊕` -/
-
-lemma nb_bigoplus : nb = bigoplus (ρ := ρ) (ι := Empty) nofun := by
-  apply set_ext; intro _; rw [nb_unfold]; constructor;
-  · intro rfl; exists nofun; simp only [IsEmpty.forall_iff, true_and];
-    rw [Mset.empty_bigoplus]; rfl
-  · rintro ⟨_, _, rfl⟩; rw [Mset.empty_bigoplus]; congr; ext1; trivial
+/-! ### Rules for `⊕`, `⨁` and `-⊕` -/
 
 lemma oplus_bigoplus : P ⊕ Q =ᴿ ⨁ (b : Bool), if b then P else Q := by
-  apply set_ext; intro _; constructor;
-  · rintro ⟨A, _, B, _, rfl⟩; exists fun b => if b then A else B;
-    simp only; constructor; { grind only }; rw [Mset.oplus_bigoplus]
-  · rintro ⟨A, el, rfl⟩; exists A true, el true, A false, el false;
-    rw [Mset.oplus_bigoplus]; grind only
+  apply set_ext; intro ⟨_, _⟩; constructor;
+  · rintro ⟨A, B, _, _, rfl⟩; exists fun b => if b then A else B;
+    simp only; constructor; { grind only }; rw [Mseti.oplus_bigoplus];
+    congr; ext1 b; cases b <;> rfl
+  · rintro ⟨A, el, rfl⟩; exists A true, A false, el true, el false;
+    rw [Mseti.oplus_bigoplus]; grind only
 
 lemma unary_bigoplus : (⨁ (_ : Unit), P) =ᴿ P := by
-  apply set_ext; intro A; constructor;
-  · rintro ⟨_, _, rfl⟩; rw [Mset.unary_bigoplus]; tauto
-  · intro _; exists fun _ => A; simp only [Mset.unary_bigoplus]; tauto
+  apply set_ext; intro ⟨A, val⟩; constructor;
+  · rintro ⟨A, el, rfl⟩;
+    suffices eq : ⟨(⨁ᴹⁱ u, ↑(A u)), val⟩ = A () by { rw [eq]; apply el };
+    ext : 2; simp only [Mseti.bigoplus_val, Mset.unary_bigoplus]
+  · intro _; exists fun _ => ⟨A, val⟩; simp only; and_intros; { tauto };
+    ext1; simp only [Mseti.bigoplus_val, Mset.unary_bigoplus]
 
-@[gcongr] lemma bigoplus_mono (P Q : ι → RProp ρ) :
+@[gcongr] lemma bigoplus_mono [Inhabited ι] (P Q : ι → RProp ρ) :
     (∀ i, P i ⊢ Q i) → (⨁ i, P i) ⊢ ⨁ i, Q i := by
   intro _ _ ⟨A, _, _⟩; exists A; tauto
 
 @[gcongr] lemma oplus_mono : (P ⊢ P') → (Q ⊢ Q') → P ⊕ Q ⊢ P' ⊕ Q' := by
   intro _ _; grw [oplus_bigoplus, oplus_bigoplus]; gcongr; grind only
 
-private lemma bigoplus_comm_fwd (f : ι' ≃ ι) (P : ι → RProp ρ) :
+private lemma bigoplus_comm_fwd [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ i, P i) ⊢ ⨁ j, P (f j) := by
-  intro _ ⟨A, _, eq⟩; exists A ∘ f; rw [eq, Mset.bigoplus_comm f]; tauto
+  intro _ ⟨A, _, eq⟩; exists A ∘ f; rw [eq]; and_intros; { tauto };
+  ext1; simp only [Mseti.bigoplus_val]; rw [Mset.bigoplus_comm f]; rfl
 
-private lemma bigoplus_comm_bwd (f : ι' ≃ ι) (P : ι → RProp ρ) :
+private lemma bigoplus_comm_bwd [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ j, P (f j)) ⊢ ⨁ i, P i := by
   grw [bigoplus_comm_fwd f.symm]; gcongr; rw [Equiv.apply_symm_apply]
 
-lemma bigoplus_comm (f : ι' ≃ ι) (P : ι → RProp ρ) :
+lemma bigoplus_comm [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ i, P i) =ᴿ ⨁ j, P (f j) := by
   ext1; constructor; { apply bigoplus_comm_fwd }; { apply bigoplus_comm_bwd }
 
-lemma bigoplus_comm' (P : ι → RProp ρ) (Q : ι' → RProp ρ) (f : ι → ι') (g : ι' → ι) :
+lemma bigoplus_comm' [Inhabited ι] [Inhabited ι']
+    (P : ι → RProp ρ) (Q : ι' → RProp ρ) (f : ι → ι') (g : ι' → ι) :
     (∀ i, P i = Q (f i)) → g.LeftInverse f → g.RightInverse f →
     (⨁ i, P i) =ᴿ ⨁ j, Q j := by
   intro _ li ri; rw [bigoplus_comm ⟨f, g, li, ri⟩]; congr; ext1 _; tauto
@@ -322,18 +279,26 @@ lemma oplus_comm : P ⊕ Q =ᴿ Q ⊕ P := by
   simp only [oplus_bigoplus]; rw [bigoplus_comm Equiv.boolNot]; congr;
   simp only [Equiv.boolNot_apply]; grind only
 
-lemma bigoplus_assoc {ι' : ι → Type} (P : ∀ i, ι' i → RProp ρ) :
+lemma bigoplus_assoc {ι' : ι → Type} [Inhabited ι] [∀ i, Inhabited (ι' i)]
+    (P : ∀ i, ι' i → RProp ρ) :
     (⨁ i, ⨁ j, P i j) =ᴿ ⨁ (⟨i, j⟩ : Sigma ι'), P i j := by
   ext1; constructor;
-  · intro _ ⟨_, el, eq⟩; simp only at *; subst eq; have ⟨A, el⟩ := Classical.skolem.mp el;
+  · rintro ⟨_, _⟩ ⟨_, el, rfl⟩; have ⟨A, el⟩ := Classical.skolem.mp el;
     exists fun ⟨i, j⟩ => A i j; simp only at *; and_intros; { grind only };
-    trans; swap; { apply Mset.bigoplus_assoc (fun i j => (A i j)) }; grind only
-  · rintro _ ⟨A, el, rfl⟩; exists fun i => ⨁ᴹ j, A ⟨i, j⟩; simp only at *;
-    and_intros; swap;
-    { symm; apply Mset.bigoplus_assoc }; intro i; exists fun j => A ⟨i, j⟩;
-    simp only [and_true]; intro _; apply el ⟨_, _⟩
+    ext; simp only [Mseti.bigoplus_val];
+    trans; swap; { apply Mset.bigoplus_assoc (fun i j => (A i j).val.val) };
+    congr; ext1 i; rw [(el i).right]; rfl
+  · rintro ⟨_, val⟩ ⟨A, el, rfl⟩;
+    exists fun i => ⟨⨁ᴹⁱ j, A ⟨i, j⟩, by
+      intro _; simp only [Mseti.mem_unfold, Mseti.bigoplus_val, Mset.mem_bigoplus];
+      intro ⟨_, _⟩; apply val;
+      simp only [Mseti.mem_unfold, Mseti.bigoplus_val, Mset.mem_bigoplus]; tauto⟩;
+    and_intros; swap; { symm; ext; apply Mset.bigoplus_assoc };
+    intro i; exists fun j => A ⟨i, j⟩; simp only [and_true]; intro _; apply el ⟨_, _⟩
 
 lemma oplus_assoc : (P ⊕ Q) ⊕ R =ᴿ P ⊕ (Q ⊕ R) := by
+  have _ : ∀ b, Inhabited (match b with | true => Bool | false => Unit) := by
+    rintro (_ | _) <;> apply inferInstance
   have eq : ∀ P Q R : RProp ρ,
       (P ⊕ Q) ⊕ R =ᴿ ⨁ (b : Bool),
         ⨁ (i : match b with | true => Bool | false => Unit),
@@ -346,26 +311,14 @@ lemma oplus_assoc : (P ⊕ Q) ⊕ R =ᴿ P ⊕ (Q ⊕ R) := by
     (fun | ⟨true, b⟩ => if b then ⟨true, false⟩ else ⟨false, ()⟩ | ⟨false, _⟩ => ⟨true, true⟩) <;>
     { rintro ⟨(_ | _), i⟩; { rfl }; cases i <;> rfl }
 
-lemma oplus_nb : P ⊕ nb =ᴿ P := by
-  have eq : P ⊕ nb =ᴿ ⨁ (b : Bool),
-      ⨁ (i : match b with | true => Unit | false => Empty), match b with | true => P := by
-    rw [oplus_bigoplus, nb_bigoplus]; congr; ext1 b; cases b <;> simp only;
-    { simp only [Bool.false_eq_true, reduceIte]; congr; ext1 _; trivial };
-    { simp only [reduceIte]; rw [unary_bigoplus] }
-  rw [eq, bigoplus_assoc]; trans; swap; { apply unary_bigoplus };
-  apply bigoplus_comm' _ _ (fun | ⟨true, _⟩ => ()) (fun _ => ⟨true, ()⟩) <;>
-    { rintro ⟨(_ | _), _⟩ <;> trivial }
-
-lemma nb_oplus : nb ⊕ P =ᴿ P := by rw [oplus_comm, oplus_nb]
-
 lemma pine_intro_l : (P ⊕ Q ⊢ R) → Q ⊢ P -⊕ R := by
-  intro toR A _ B _; apply toR; exists B, by trivial, A, by trivial
+  intro toR A _ B _ _; apply toR; exists B, A, by trivial
 
 lemma pine_intro_r : (P ⊕ Q ⊢ R) → P ⊢ Q -⊕ R := by
   rw [oplus_comm]; apply pine_intro_l
 
 lemma pine_elim_l : P ⊕ (P -⊕ Q) ⊢ Q := by
-  rintro _ ⟨_, _, _, _, rfl⟩; tauto
+  rintro ⟨_, _⟩ ⟨_, _, _, _, rfl⟩; tauto
 
 lemma pine_elim_r : (P -⊕ Q) ⊕ P ⊢ Q := by
   rw [oplus_comm]; apply pine_elim_l
@@ -395,21 +348,25 @@ lemma oplus_false_l : P ⊕ False =ᴿ False := by
 lemma oplus_false_r : False ⊕ P =ᴿ False := by
   rw [oplus_comm, oplus_false_l]
 
-lemma bigoplus_exists {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
+lemma bigoplus_exists [Inhabited ι] {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
     (⨁ i, ∃ a, P i a) =ᴿ ∃ f : (∀ i, α i), ⨁ i, P i (f i) := by
   ext1; constructor; swap;
   { apply exists_elim; intro f; gcongr; apply exists_intro };
-  simp only [exists_simple]; rintro _ ⟨F, el, rfl⟩;
+  simp only [exists_simple]; rintro ⟨_, _⟩ ⟨F, el, rfl⟩;
   have ⟨f, el⟩ := Classical.skolem.mp el; exists f; exists F
 
-/-! ### Rules for interaction of `nb`, `⊕` and `⨁` with `∗` -/
+/-! ### Rules for interaction of `⊕` and `⨁` with `∗` -/
 
-lemma bigoplus_frame_l (Q : ι → RProp ρ) :
+lemma bigoplus_frame_l [Inhabited ι] (Q : ι → RProp ρ) :
     P ∗ (⨁ i, Q i) ⊢ ⨁ i, P ∗ Q i := by
-  rintro _ ⟨A, _, _, ⟨B, _, rfl⟩, rfl⟩; exists fun i => A * B i; simp only; and_intros;
-  { intros i; exists A, by trivial, B i, by tauto }; { rw [Mset.mul_bigoplus_l] }
+  rintro ⟨_, val⟩ ⟨A, ⟨_, _⟩, _, ⟨B, _, rfl⟩, rfl⟩;
+  exists fun i => ⟨A.val * (B i).val, by
+    intro _; simp only [Mseti.mem_mul]; rintro ⟨r, s, _, _, rfl⟩; apply val; simp only;
+    rw [Mseti.mem_mul]; exists r, s;
+    simp only [Mseti.mem_unfold, Mseti.bigoplus_val, Mset.mem_bigoplus]; tauto⟩;
+  simp only; and_intros; { intro i; exists A, B i; tauto }; { rw [Mseti.mul_bigoplus_l] }
 
-lemma bigoplus_frame_r (P : ι → RProp ρ) Q :
+lemma bigoplus_frame_r [Inhabited ι] (P : ι → RProp ρ) Q :
     (⨁ i, P i) ∗ Q ⊢ ⨁ i, P i ∗ Q := by
   grw [sep_comm, bigoplus_frame_l]; gcongr 1; rw [sep_comm]
 
@@ -420,22 +377,21 @@ lemma oplus_frame_l : P ∗ (Q ⊕ R) ⊢ (P ∗ Q) ⊕ (P ∗ R) := by
 lemma oplus_frame_r : (P ⊕ Q) ∗ R ⊢ (P ∗ R) ⊕ (Q ∗ R) := by
   grw [sep_comm, oplus_frame_l, sep_comm, sep_comm R]
 
-lemma nb_sep_l : P ∗ nb ⊢ nb := by
-  simp only [nb_bigoplus]; grw [bigoplus_frame_l]; gcongr; tauto
-
-lemma nb_sep_r : nb ∗ P ⊢ nb := by grw [sep_comm, nb_sep_l]
-
-lemma bigoplus_unframe_l P (Q : ι → RProp ρ) [Nonempty ι] [Precise P] :
+lemma bigoplus_unframe_l [Inhabited ι] P (Q : ι → RProp ρ) [Precise P] :
     (⨁ i, P ∗ Q i) =ᴿ P ∗ ⨁ i, Q i := by
   ext1; constructor; swap; { apply bigoplus_frame_l };
-  rintro _ ⟨_, el, rfl⟩;
-  have ⟨A, el⟩ := Classical.skolem.mp el; have AQ i := (el i).left;
-  have ⟨B, el⟩ := Classical.skolem.mp (fun i => (el i).right);
+  rintro ⟨_, _⟩ ⟨_, el, rfl⟩;
+  have ⟨A, el⟩ := Classical.skolem.mp el; have ⟨B, el⟩ := Classical.skolem.mp el;
   have i0 : ι := Classical.choice inferInstance;
-  exists A i0, by tauto, ⨁ᴹ i, B i; and_intros; { exists B, fun i => (el i).left };
-  rw [Mset.mul_bigoplus_l]; congr; ext1 i; rw [precise P _ (AQ i0) _ (AQ i)]; grind only
+  exists A i0, ⟨⨁ᴹⁱ i, B i, by
+    intro _; simp only [Mseti.mem_unfold, Mseti.bigoplus_val, Mset.mem_bigoplus];
+    intro ⟨i, _⟩; apply (B i).prop; trivial⟩;
+  and_intros; { apply (el i0).left };
+  { exists B; and_intros; { intro i; exact (el i).right.left }; { rfl } };
+  ext1; simp only [Mseti.mul_bigoplus_l]; congr; ext1 i;
+  rw [precise P _ _ (el i0).left (el i).left]; grind only
 
-lemma bigoplus_unframe_r (P : ι → RProp ρ) Q [Nonempty ι] [Precise Q] :
+lemma bigoplus_unframe_r [Inhabited ι] (P : ι → RProp ρ) Q [Precise Q] :
     (⨁ i, P i ∗ Q) =ᴿ ((⨁ i, P i) ∗ Q) := by
   ext1; constructor; swap; { apply bigoplus_frame_r };
   grw [sep_comm, ←bigoplus_unframe_l _ _]; gcongr 1; rw [sep_comm]
@@ -447,106 +403,6 @@ lemma oplus_unframe_l [Precise P] : (P ∗ Q) ⊕ (P ∗ R) =ᴿ P ∗ (Q ⊕ R)
 lemma oplus_unframe_r [Precise R] : (P ∗ R) ⊕ (Q ∗ R) =ᴿ (P ⊕ Q) ∗ R := by
   ext1; constructor; swap; { apply oplus_frame_r };
   grw [sep_comm iprop(P ⊕ Q), ←oplus_unframe_l, sep_comm, sep_comm Q]
-
-lemma nb_unsep_l [Inhab P] : nb =ᴿ P ∗ nb := by
-  ext1; constructor; swap; { apply nb_sep_l };
-  intro _ rfl; have ⟨A, _⟩ := inhab P;
-  exists A, by trivial, ∅, rfl; simp only [Mset.mul_empty_l]
-
-lemma nb_unsep_r [Inhab P] : nb =ᴿ nb ∗ P := by
-  rw [sep_comm]; apply nb_unsep_l
-
-/-! ### Rules for `Valid` -/
-
-lemma Valid_anti [Valid Q] : (P ⊢ Q) → Valid P := by
-  intro _; constructor; grw [←to_valid Q]; trivial
-
-lemma validly_valid : (P ⊢ <✓> P) → Valid P := by
-  intro Pto; constructor; grw [Pto]; apply and_elim_r
-
-instance false_instValid : Valid (ρ := ρ) iprop(False) := by
-  constructor; nofun
-
-instance AnyValid_instValid : Valid (ρ := ρ) AnyValid := by
-  constructor; trivial
-
-instance validly_instValid (P : RProp ρ) : Valid iprop(<✓> P) := by
-  constructor; apply and_elim_r
-
-lemma own_Valid : ✓ r → Valid (own r) := by
-  intro _; constructor; intro _ rfl; apply Mset.valid_pure; trivial
-
-instance emp_instValid : Valid (ρ := ρ) emp := by
-  apply own_Valid; apply PCM.valid_one
-
-instance bigoplus_instValid (P : ι → RProp ρ) [∀ i, Valid (P i)] :
-    Valid iprop(⨁ i, P i) := by
-  constructor; rintro _ ⟨F, el, rfl⟩ _; simp only [Mset.mem_bigoplus];
-  intro ⟨i, _⟩; apply to_valid (P i) _ (el i); trivial
-
-lemma bigoplus_Valid (P : ι → RProp ρ) :
-    (∀ i, Valid (P i)) → Valid iprop(⨁ i, P i) := by
-  apply bigoplus_instValid
-
-instance oplus_instValid [Valid P] [Valid Q] : Valid iprop(P ⊕ Q) := by
-  rw [oplus_bigoplus]; apply bigoplus_Valid; rintro (_ | _) <;> trivial
-
-instance nb_instValid : Valid (nb (ρ := ρ)) := by
-  rw [nb_bigoplus]; apply bigoplus_Valid; intro _; trivial
-
-lemma sep_Valid_l [Inhab Q] [Nonnb Q] : Valid iprop(P ∗ Q) → Valid P := by
-  intro val; constructor; intro A _; have ⟨B, _⟩ := inhab Q;
-  apply Mset.valid_mul_l A B; { apply nonnb Q; trivial };
-  apply val.to_valid; exists A, by trivial, B
-
-lemma sep_Valid_r [Inhab P] [Nonnb P] : Valid iprop(P ∗ Q) → Valid Q := by
-  rw [sep_comm]; apply sep_Valid_l
-
-/-! ### Entailment rules for `<✓>` -/
-
-@[gcongr] lemma validly_mono : (P ⊢ Q) → <✓> P ⊢ <✓> Q := by
-  intro _; unfold validly; gcongr
-
-lemma validly_elim : <✓> P ⊢ P := by
-  apply and_elim_l
-
-lemma Valid_validly [Valid P] : <✓> P =ᴿ P := by
-  ext1; constructor; { apply validly_elim };
-  apply and_intro; { trivial }; apply to_valid
-
-lemma validly_idemp : <✓> <✓> P =ᴿ <✓> P := by
-  apply Valid_validly
-
-lemma AnyValid_validly : <✓> AnyValid =ᴿ@{ρ} AnyValid := by
-  apply Valid_validly
-
-lemma validly_and_l : <✓> (P ∧ Q) =ᴿ (<✓> P) ∧ Q := by
-  unfold validly; rw [and_assoc _ _, and_comm Q _, ←and_assoc]
-
-lemma validly_and_r : <✓> (P ∧ Q) =ᴿ P ∧ <✓> Q := by
-  rw [and_comm, validly_and_l, and_comm]
-
-lemma validly_exists (P : α → RProp ρ) : <✓> (∃ a, P a) =ᴿ ∃ a, <✓> P a := by
-  ext1; constructor; swap; { apply exists_elim; intro a; grw [exists_intro (Ψ := P) a] };
-  apply BI.imp_elim; apply exists_elim; intro a; apply BI.imp_intro; apply exists_intro a
-
-lemma validly_or : <✓> (P ∨ Q) =ᴿ <✓> P ∨ <✓> Q := by
-  simp only [or_exists, validly_exists]; congr; ext1 b; cases b <;> rfl
-
-lemma validly_false : <✓> False =ᴿ@{ρ} False := by
-  apply Valid_validly
-
-lemma validly_bigoplus (P : ι → RProp ρ) : <✓> (⨁ i, P i) =ᴿ ⨁ i, <✓> P i := by
-  ext1; constructor; swap;
-  { rw [←Valid_validly iprop(⨁ i, <✓> P i)]; gcongr; apply validly_elim };
-  rintro _ ⟨⟨F, _, rfl⟩, val⟩; exists F; and_intros; swap; { rfl }; intro i;
-  and_intros; { tauto }; intro _ _; apply val; rw [Mset.mem_bigoplus]; exists i
-
-lemma validly_oplus : <✓> (P ⊕ Q) =ᴿ <✓> P ⊕ <✓> Q := by
-  simp only [oplus_bigoplus, validly_bigoplus]; congr; ext1 b; cases b <;> rfl
-
-lemma validly_nb : <✓> nb =ᴿ@{ρ} nb := by
-  apply Valid_validly
 
 /-! ### Rules for `Precise` -/
 
@@ -562,131 +418,19 @@ instance own_instPrecise : Precise (own r) := by
 instance emp_instPrecise : Precise (ρ := ρ) emp := own_instPrecise _
 
 instance sep_instPrecise [Precise P] [Precise Q] : Precise iprop(P ∗ Q) := by
-  constructor; rintro _ ⟨_, elP, _, elQ, rfl⟩ _ ⟨_, elP', _, elQ', rfl⟩;
-  rw [precise P _ elP _ elP', precise Q _ elQ _ elQ']
+  constructor; rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩;
+  simp only [precise P _ _ elP elP', precise Q _ _ elQ elQ']
 
-lemma bigoplus_precise (P : ι → RProp ρ) :
+lemma bigoplus_precise [Inhabited ι] (P : ι → RProp ρ) :
     (∀ i, Precise (P i)) → Precise iprop(⨁ i, P i) := by
-  intro _; constructor; rintro _ ⟨F, el, rfl⟩ _ ⟨G, el', rfl⟩; congr; ext1 i;
-  apply precise (P i) <;> tauto
+  intro _; constructor; rintro ⟨_, _⟩ ⟨_, _⟩ ⟨F, el, rfl⟩ ⟨G, el', rfl⟩;
+  congr; ext1 i; congr; apply precise (P i) <;> tauto
 
-instance bigoplus_instPrecise (P : ι → RProp ρ) [∀ i, Precise (P i)] :
+instance bigoplus_instPrecise [Inhabited ι] (P : ι → RProp ρ) [∀ i, Precise (P i)] :
     Precise iprop(⨁ i, P i) :=
   bigoplus_precise P inferInstance
 
 instance oplus_instPrecise [Precise P] [Precise Q] : Precise iprop(P ⊕ Q) := by
   constructor; rw [oplus_bigoplus]; apply (bigoplus_precise _ _).precise; rintro (_ | _) <;> tauto
-
-instance nb_instPrecise : Precise (nb (ρ := ρ)) := by
-  constructor; rw [nb_bigoplus]; apply (bigoplus_precise _ _).precise; nofun
-
-instance validly_instPrecise [Precise P] : Precise iprop(<✓> P) := by
-  apply precise_anti _ P; apply validly_elim
-
-/-! ### Rules for `Inhab` -/
-
-lemma Inhab_not_false : Inhab P = (P ≠ iprop(False)) := by
-  ext1; constructor; { intro ⟨_, _⟩ rfl; trivial };
-  intro ne; suffices P.car.Nonempty by tauto;
-  apply Set.nonempty_iff_ne_empty.mpr; cases P; intro rfl; tauto
-
-lemma Inhab_mono [Inhab P] : (P ⊢ Q) → Inhab Q := by
-  intro _; have _ := inhab P; tauto
-
-lemma pure_Inhab : φ → Inhab (ρ := ρ) iprop(⌜φ⌝) := by
-  intro φ; exists 1
-
-instance true_instInhab : Inhab (ρ := ρ) iprop(True) := pure_Inhab trivial
-
-lemma own_Inhab : Inhab (own r) := by
-  exists pure r
-
-instance emp_instInhab : Inhab (ρ := ρ) emp := own_Inhab _
-
-lemma exists_Inhab a (P : α → RProp ρ) :
-    Inhab (P a) → Inhab iprop(∃ x, P x) := by
-  intro ⟨A, _⟩; constructor; exists A; rw [exists_simple]; exists a
-
-instance (priority := mid) exists_instInhab (P : α → RProp ρ)
-    [Inhabited α] [Inhab (P default)] : Inhab iprop(∃ x, P x) := by
-  apply exists_Inhab; trivial
-
-instance (priority := mid) or_instInhab_l [Inhab P] : Inhab iprop(P ∨ Q) := by
-  rw [or_exists]; apply exists_Inhab true; trivial
-
-instance (priority := mid) or_instInhab_r [Inhab Q] : Inhab iprop(P ∨ Q) := by
-  rw [or_exists]; apply exists_Inhab false; trivial
-
-instance sep_instInhab [Inhab P] [Inhab Q] : Inhab iprop(P ∗ Q) := by
-  have ⟨A, _⟩ := inhab P; have ⟨B, _⟩ := inhab Q;
-  exists A * B; exists A, by trivial, B
-
-instance bigoplus_instInhab (P : ι → RProp ρ) [∀ i, Inhab (P i)] :
-    Inhab iprop(⨁ i, P i) := by
-  have ⟨A, _⟩ := Classical.skolem.mp (fun i => inhab (P i)); exists ⨁ᴹ i, A i, A
-
-lemma bigoplus_Inhab (P : ι → RProp ρ) :
-    (∀ i, Inhab (P i)) → Inhab iprop(⨁ i, P i) := by apply bigoplus_instInhab
-
-instance oplus_instInhab [Inhab P] [Inhab Q] : Inhab iprop(P ⊕ Q) := by
-  rw [oplus_bigoplus]; apply bigoplus_Inhab; rintro (_ | _) <;> trivial
-
-instance nb_instInhab : Inhab (nb (ρ := ρ)) := by
-  rw [nb_bigoplus]; apply bigoplus_Inhab; nofun
-
-lemma persistently_inhab : (emp ⊢ P) → Inhab iprop(<pers> P) := by
-  rw [persistently_emp_entails]; apply pure_Inhab
-
-instance AnyValid_instInhab : Inhab (ρ := ρ) AnyValid := by
-  apply Inhab_mono nb; apply to_valid
-
-instance validly_instInhab [Inhab P] [Valid P] : Inhab iprop(<✓> P) := by
-  rw [Valid_validly P]; trivial
-
-/-! ### Rules for `Nonnb` -/
-
-lemma Nonnb_anti [Nonnb Q] : (P ⊢ Q) → Nonnb P := by
-  intro _; constructor; intro _ _; apply nonnb Q; tauto
-
-instance not_nb_instNonnb : Nonnb (ρ := ρ) iprop(¬ nb) := by
-  constructor; intro _ _; rw [←Mset.not_empty_inhab]; tauto
-
-lemma to_not_nb_Nonnb : (P ⊢ ¬ nb) → Nonnb P := by
-  apply Nonnb_anti
-
-lemma Nonnb_not_nb : Nonnb P = (P ⊢ ¬ nb) := by
-  ext1; constructor; swap; { apply to_not_nb_Nonnb };
-  intro _ _ elP; have inh := nonnb P _ elP; rw [←Mset.not_empty_inhab] at inh; tauto
-
-instance false_instNonnb : Nonnb (ρ := ρ) iprop(False) := by
-  constructor; nofun
-
-instance own_instNonnb : Nonnb (own r) := by
-  constructor; rintro _ rfl; simp only [Mset.inhab_pure]
-
-instance emp_instNonnb : Nonnb (ρ := ρ) emp := own_instNonnb _
-
-instance sep_instNonnb [Nonnb P] [Nonnb Q] : Nonnb iprop(P ∗ Q) := by
-  constructor; rintro _ ⟨A, _, B, _, rfl⟩;
-  simp only [Mset.mul_unfold, functor_norm, Mset.inhab_seq, Mset.inhab_map];
-  and_intros; { apply nonnb P; trivial }; { apply nonnb Q; trivial }
-
-lemma bigoplus_Nonnb (P : ι → RProp ρ) i0 :
-    Nonnb (P i0) → Nonnb iprop(⨁ i, P i) := by
-  intro _; constructor; rintro _ ⟨F, el, rfl⟩; simp only [Mset.inhab_bigoplus];
-  exists i0; apply nonnb (P i0); tauto
-
-instance (priority := mid) bigoplus_instNonnb (P : ι → RProp ρ)
-    [Inhabited ι] [Nonnb (P default)] : Nonnb iprop(⨁ i, P i) := by
-  apply bigoplus_Nonnb; trivial
-
-instance (priority := mid) oplus_instNonnb_l [Nonnb P] : Nonnb iprop(P ⊕ Q) := by
-  rw [oplus_bigoplus]; apply bigoplus_Nonnb _ true; trivial
-
-instance (priority := mid) oplus_instNonnb_r [Nonnb Q] : Nonnb iprop(P ⊕ Q) := by
-  rw [oplus_bigoplus]; apply bigoplus_Nonnb _ false; trivial
-
-instance validly_instNonnb [Nonnb P] : Nonnb iprop(<✓> P) := by
-  apply Nonnb_anti _ P; apply validly_elim
 
 end RBI
