@@ -225,9 +225,12 @@ protected def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
 
 /-! ### Inhabitedness lemmas -/
 
+@[simp] protected lemma Mset.inhab_map' (f : α → β) (A : Mset α) :
+    (f <$>ᴹ A).inhab = A.inhab := by
+  simp only [Mset.inhab, Mset.mem_map']; grind only
+
 @[simp] protected lemma Mset.inhab_map (f : α → β) (A : Mset α) :
-    (f <$> A).inhab = A.inhab := by
-  simp only [Mset.inhab, Mset.mem_map]; grind only
+    (f <$> A).inhab = A.inhab := by apply Mset.inhab_map'
 
 @[simp] protected lemma Mset.inhab_empty : (∅ : Mset α).inhab = False := by
   simp only [Mset.inhab, Mset.mem_empty]; grind only
