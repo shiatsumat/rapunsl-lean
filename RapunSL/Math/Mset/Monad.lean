@@ -223,8 +223,8 @@ protected instance Mset.instCommApplicative : CommApplicative Mset.{u} where
   simp only [Mset.inhab, Mset.mem_join]; grind only
 
 @[simp] protected lemma Mset.inhab_bind' (A : Mset α) (K : α → Mset β) :
-    (A >>=ᴹ K).inhab = (A.inhab ∧ ∃ a ∈ A, (K a).inhab) := by
+    (A >>=ᴹ K).inhab = (∃ a ∈ A, (K a).inhab) := by
   simp only [Mset.inhab, Mset.mem_bind']; grind only
 
 @[simp] protected lemma Mset.inhab_bind (A : Mset α) (K : α → Mset β) :
-    (A >>= K).inhab = (A.inhab ∧ ∃ a ∈ A, (K a).inhab) := by apply Mset.inhab_bind'
+    (A >>= K).inhab = (∃ a ∈ A, (K a).inhab) := by apply Mset.inhab_bind'
