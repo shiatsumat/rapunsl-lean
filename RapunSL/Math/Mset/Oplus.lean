@@ -204,7 +204,7 @@ protected lemma Mset.oplus_bigoplus (A B : Mset α) :
 /-! ## Inhabitance -/
 
 @[simp] protected lemma Mset.inhab_oplus (A B : Mset α) :
-    (A ⊕ᴹ B).inhab = A.inhab ∨ B.inhab := by
+    (A ⊕ᴹ B).inhab = (A.inhab ∨ B.inhab) := by
   simp only [Mset.inhab, Mset.mem_oplus]; grind only
 
 @[simp] protected lemma Mset.inhab_bigoplus {ι : Type} (A : ι → Mset α) :
