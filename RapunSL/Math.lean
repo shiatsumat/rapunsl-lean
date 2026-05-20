@@ -1,4 +1,4 @@
 module
 
 public import RapunSL.Math.Mset
-public import RapunSL.Math.PCM
+public import RapunSL.Math.Algebra

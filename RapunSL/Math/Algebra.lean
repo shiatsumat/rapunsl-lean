@@ -6,7 +6,7 @@ open Mseti
 
 @[expose] public section
 
-/-! # PCM -/
+/-! # Algebras -/
 
 /-! ## Commutative monoid -/
 
