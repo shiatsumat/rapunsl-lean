@@ -1,9 +1,8 @@
 module
 
-public import Batteries.Tactic.Trans
-public import Mathlib.Tactic.Gcongr
 public import Iris.BI
-import Mathlib.Tactic.Lemma
+import Batteries.Tactic.Trans
+import Mathlib.Tactic.Gcongr
 import Iris.ProofMode
 open Iris BI
 
