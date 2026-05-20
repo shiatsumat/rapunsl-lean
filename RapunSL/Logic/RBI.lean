@@ -179,7 +179,7 @@ lemma own_unfold r A : (A ∈ own (ρ := ρ) r) = (A.val = pure r) := rfl
 
 /-! ### Multiset connectives -/
 
-/-- Multiset sum -/
+/-- Binary multiset sum -/
 def oplus (P Q : RProp ρ) : RProp ρ :=
   .mk fun A => ∃ B C, B ∈ P ∧ C ∈ Q ∧ A.val = B.val ⊕ᴹⁱ C.val
 
