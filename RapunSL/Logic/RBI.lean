@@ -4,7 +4,7 @@ public import Iris.BI
 public import RapunSL.Math.Algebra
 public import RapunSL.Logic.BI
 import Mathlib.Logic.Equiv.Bool
-open Iris OFE BI PCM Mseti
+open Iris OFE BI PCM RM Mseti ENNReal
 
 @[expose] public section
 
@@ -14,10 +14,10 @@ namespace RBI
 
 /-! ## RapunSL propositions -/
 
-/-- RapunSL proposition based on a multiset PCM -/
-def RProp ρ [PCM ρ] := LeibnizO (Set (Msetiv ρ))
+/-- RapunSL proposition based on a multiset RM -/
+def RProp ρ [RM ρ] := LeibnizO (Set (Msetiv ρ))
 
-variable {ρ : Type u} [PCM ρ] (P P' Q Q' R : RProp ρ) (r : ρ)
+variable {ρ : Type u} [RM ρ] (P P' Q Q' R : RProp ρ) (r : ρ)
 
 protected instance instMembership : Membership (Msetiv ρ) (RProp ρ) where
   mem P A := P.car A
@@ -222,6 +222,13 @@ class Precise (P : RProp ρ) : Prop where
 
 lemma precise (P : RProp ρ) [Precise P] : ∀ A B, A ∈ P → B ∈ P → A = B := by
   apply Precise.precise
+
+/-- Probability -/
+class Prob (P : RProp ρ) (p : ℝ≥0∞) : Prop where
+  prob : ∀ A ∈ P, RM.prob A.val = p
+
+lemma prob (P : RProp ρ) (p : ℝ≥0∞) [Prob P p] : ∀ A ∈ P, RM.prob A.val = p := by
+  apply Prob.prob
 
 /-! ### Rules for `own` -/
 
@@ -435,5 +442,36 @@ instance bigoplus_instPrecise [Inhabited ι] (P : ι → RProp ρ) [∀ i, Preci
 
 instance oplus_instPrecise [Precise P] [Precise Q] : Precise iprop(P ⊕ Q) := by
   constructor; rw [oplus_bigoplus]; apply (bigoplus_precise _ _).precise; rintro (_ | _) <;> tauto
+
+/-! ### Rules for `Prob` -/
+
+lemma prob_anti [Prob Q p] : (P ⊢ Q) → Prob P p := by
+  intro _; constructor; intro _ _; apply prob Q; tauto
+
+lemma precise_prob [Precise P] : ∃ p, Prob P p := by
+  rcases em (∃ A, A ∈ P) with (⟨A, el⟩ | _); swap; { exists 0; constructor; tauto };
+  exists (RM.prob A.val); constructor; intro _ el'; rw [precise P _ _ el el']
+
+instance false_instProb p : Prob (ρ := ρ) iprop(False) p := by
+  constructor; nofun
+
+instance own_instProb (r : ρ) : Prob (own r) (RM.prob r) := by
+  constructor; rintro ⟨_, _⟩ rfl; apply Mseti.prob_pure
+
+instance emp_instProb : Prob (ρ := ρ) emp 1 := by
+  constructor; rintro ⟨_, _⟩ rfl; simp only [Mseti.one_unfold, Mseti.prob_pure, RM.prob_one]
+
+instance sep_instProb [Prob P p] [Prob Q q] : Prob iprop(P ∗ Q) (p * q) := by
+  constructor; rintro ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩;
+  rw [RM.prob_mul, prob P p _ elP, prob Q q _ elQ]
+
+instance bigoplus_instProb [Inhabited ι] (P : ι → RProp ρ) (p : ι → ℝ≥0∞) [∀ i, Prob (P i) (p i)] :
+    Prob iprop(⨁ i, P i) (∑' i, p i) := by
+  constructor; rintro ⟨_, _⟩ ⟨_, _, rfl⟩; trans; { apply ENNReal.Mset.tsum_bigoplus };
+  congr; ext1 i; apply prob (P i); tauto
+
+instance oplus_instProb [Prob P p] [Prob Q q] : Prob iprop(P ⊕ Q) (p + q) := by
+  constructor; rintro ⟨_, _⟩ ⟨_, _, _, _, rfl⟩; trans; { apply ENNReal.Mset.tsum_oplus };
+  congr; { apply prob P; trivial }; { apply prob Q; trivial }
 
 end RBI
