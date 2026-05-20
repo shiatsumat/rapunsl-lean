@@ -23,7 +23,7 @@ protected instance Mset.instApplicative : Applicative Mset.{u} where
   seq F A := F <*>ᴹ A ()
 
 protected lemma Mset.seq_unfold (F : Mset (α → β)) (A : Mset α) :
-    F <*> A = F <*>ᴹ A := rfl
+    F <*> A = (fun (f, a) => f a) <$> (F ×ᴹ A) := rfl
 
 /-! `LawfulApplicative` is later derived from `LawfulMonad` -/
 
