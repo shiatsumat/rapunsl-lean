@@ -25,6 +25,13 @@ protected instance Mset.instApplicative : Applicative Mset.{u} where
 protected lemma Mset.seq_unfold (F : Mset (α → β)) (A : Mset α) :
     F <*> A = (fun (f, a) => f a) <$> (F ×ᴹ A) := rfl
 
+protected lemma Mset.map'_seq' (f : α → β → γ) A B :
+    f <$>ᴹ A <*>ᴹ B = Function.uncurry f <$>ᴹ (A ×ᴹ B) := by
+  rw [Mset.seq, Mset.prod_map'_l, ←Mset.comp_map]; rfl
+
+protected lemma Mset.map_seq (f : α → β → γ) A B :
+    f <$> A <*> B = Function.uncurry f <$> (A ×ᴹ B) := by apply Mset.map'_seq'
+
 /-! `LawfulApplicative` is later derived from `LawfulMonad` -/
 
 /-! ## `seq` distributes over `⊕ᴹ` -/
@@ -182,8 +189,7 @@ protected instance Mset.instLawfulMonad : LawfulMonad Mset.{u} where
 
 protected lemma Mset.commutative_prod (A : Mset α) (B : Mset β) :
     Prod.mk <$>ᴹ A <*>ᴹ B = (fun b a => (a, b)) <$>ᴹ B <*>ᴹ A := by
-  unfold Mset.seq; rw [Mset.prod_map'_l, Mset.prod_map'_l];
-  rw [←Mset.comp_map, ←Mset.comp_map, Mset.prod_comm, ←Mset.comp_map]; rfl
+  simp only [Mset.map'_seq']; rw [Mset.prod_comm, ←Mset.comp_map]; rfl
 
 /-- Commutative applicative laws for `Mset` -/
 protected instance Mset.instCommApplicative : CommApplicative Mset.{u} where
