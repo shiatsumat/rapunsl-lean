@@ -30,6 +30,7 @@ class PCM (α : Type u) extends CommMonoid' α where
   /-- Take the left-hand side of `*` in `✓` -/
   protected valid_mul_l : ∀ a b : α, valid (a * b) → valid a
 
+@[inherit_doc]
 scoped[PCM] prefix:50 "✓ " => PCM.valid
 open PCM
 

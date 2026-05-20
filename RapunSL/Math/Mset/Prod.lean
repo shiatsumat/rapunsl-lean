@@ -13,6 +13,7 @@ open Ifam Mset
 protected def Ifam.prod {α β} (A : Ifam α) (B : Ifam β) : Ifam (α × β) :=
   .mk (A.dom × B.dom) (fun (i, j) => (A.elem i, B.elem j))
 
+@[inherit_doc]
 scoped[Ifam] infixr:69 " ×ᴵ " => Ifam.prod
 
 @[simp] protected lemma Ifam.prod_dom (A : Ifam α) (B : Ifam β) :
@@ -31,6 +32,7 @@ protected def Mset.prod {α β} : Mset α → Mset β → Mset (α × β) :=
   .lift₂ (⟦ · ×ᴵ · ⟧) <| by
     intros; apply Quotient.sound; apply Ifam.prod_proper <;> trivial
 
+@[inherit_doc]
 scoped[Mset] infixr:69 " ×ᴹ " => Mset.prod
 
 /-! ## `×` over `map` -/

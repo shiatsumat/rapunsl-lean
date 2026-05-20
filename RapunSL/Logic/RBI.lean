@@ -183,18 +183,21 @@ lemma own_unfold r A : (A ∈ own (ρ := ρ) r) = (A.val = pure r) := rfl
 def oplus (P Q : RProp ρ) : RProp ρ :=
   .mk fun A => ∃ B C, B ∈ P ∧ C ∈ Q ∧ A.val = B.val ⊕ᴹⁱ C.val
 
+@[inherit_doc oplus]
 scoped syntax:30 term:31 " ⊕ " term:30 : term
 
 /-- Big multiset sum -/
 def bigoplus [Inhabited ι] (P : ι → RProp ρ) : RProp ρ :=
   .mk fun A => ∃ B : ι → Msetiv ρ, (∀ i, B i ∈ P i) ∧ A.val = ⨁ᴹⁱ i, (B i).val
 
+@[inherit_doc bigoplus]
 scoped syntax "⨁ " Lean.Parser.Term.funBinder ", " term : term
 
 /-- Pine, the right adjoint of `⊕` -/
 def pine (P Q : RProp ρ) : RProp ρ :=
   .mk fun A => ∀ B ∈ P, ∀ val, ⟨B.val ⊕ᴹⁱ A.val, val⟩ ∈ Q
 
+@[inherit_doc pine]
 scoped syntax:25 term:26 " -⊕ " term:25 : term
 
 scoped macro_rules

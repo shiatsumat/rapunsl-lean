@@ -49,6 +49,7 @@ def Mset.{u} (α : Type u) : Type (max 1 u) :=
 protected def Ifam.map {α β : Type*} (f : α → β) (A : Ifam α) : Ifam β :=
   .mk A.dom (fun i => f (A.elem i))
 
+@[inherit_doc]
 scoped[Ifam] infixr:100 " <$>ᴵ " => Ifam.map
 open Ifam
 
@@ -84,6 +85,7 @@ protected def Mset.map {α β : Type*} (f : α → β) : Mset α → Mset β :=
   .lift (⟦ f <$>ᴵ · ⟧) <| by
     intros; apply Quotient.sound; gcongr
 
+@[inherit_doc]
 scoped[Mset] infixr:100 " <$>ᴹ " => Mset.map
 open Mset
 

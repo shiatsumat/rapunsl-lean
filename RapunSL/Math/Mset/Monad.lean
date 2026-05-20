@@ -15,6 +15,7 @@ open Ifam Mset
 protected def Mset.seq {α β : Type*} (F : Mset (α → β)) (A : Mset α) : Mset β :=
   (fun (f, a) => f a) <$>ᴹ (F ×ᴹ A)
 
+@[inherit_doc]
 scoped[Mset] infixl:60 " <*>ᴹ " => Mset.seq
 
 /-- `Applicative` for `Mset` -/
@@ -138,6 +139,7 @@ protected lemma Mset.join_join (A : Mset (Mset (Mset α))) :
 protected noncomputable def Mset.bind {α β : Type*} (A : Mset α) (K : α → Mset β) : Mset β :=
   Mset.join (K <$>ᴹ A)
 
+@[inherit_doc]
 scoped[Mset] infixl:55 " >>=ᴹ " => Mset.bind
 
 /-- `Monad` for `Mset` -/

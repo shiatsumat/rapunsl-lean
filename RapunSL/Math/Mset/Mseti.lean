@@ -16,6 +16,7 @@ abbrev Mseti.{u} (α : Type u) : Type (max 1 u) := { A : Mset α // A.inhab }
 protected def Mseti.map {α β : Type*} (f : α → β) (A : Mseti α) : Mseti β :=
   ⟨f <$>ᴹ A.val, by grind only [Mset.inhab_map']⟩
 
+@[inherit_doc]
 scoped[Mseti] infixr:100 " <$>ᴹⁱ " => Mseti.map
 open Mseti
 
@@ -70,6 +71,7 @@ protected lemma Mseti.mem_unfold (A : Mseti α) (a : α) :
 protected def Mseti.oplus (A B : Mseti α) : Mseti α :=
   ⟨A.val ⊕ᴹ B.val, by grind only [Mset.inhab_oplus]⟩
 
+@[inherit_doc]
 scoped[Mseti] infixr:60 " ⊕ᴹⁱ " => Mseti.oplus
 
 @[simp] protected lemma Mseti.oplus_val (A B : Mseti α) :
@@ -80,6 +82,7 @@ protected noncomputable def Mseti.bigoplus {ι} [Inhabited ι] (A : ι → Mseti
   ⟨⨁ᴹ i, (A i).val, by
     simp only [Mset.inhab_bigoplus]; exists default; grind only⟩
 
+@[inherit_doc]
 scoped[Mseti] notation "⨁ᴹⁱ " i ", " A => Mseti.bigoplus (fun i => A)
 
 @[simp] protected lemma Mseti.bigoplus_val {ι} [Inhabited ι] (A : ι → Mseti α) :
@@ -96,6 +99,7 @@ lemma Mseti.oplus_bigoplus (A B : Mseti α) :
 protected def Mseti.prod (A : Mseti α) (B : Mseti β) : Mseti (α × β) :=
   ⟨A.val ×ᴹ B.val, by grind only [Mset.inhab_prod]⟩
 
+@[inherit_doc]
 scoped[Mseti] infixr:69 " ×ᴹⁱ " => Mseti.prod
 
 lemma Mseti.prod_val (A : Mseti α) (B : Mseti β) :
@@ -107,6 +111,7 @@ lemma Mseti.prod_val (A : Mseti α) (B : Mseti β) :
 protected def Mseti.seq {α β : Type*} (F : Mseti (α → β)) (A : Mseti α) : Mseti β :=
   ⟨F.val <*>ᴹ A.val, by grind only [Mset.inhab_seq']⟩
 
+@[inherit_doc]
 scoped[Mseti] infixl:60 " <*>ᴹⁱ " => Mseti.seq
 
 @[simp] protected lemma Mseti.seq'_val (F : Mseti (α → β)) (A : Mseti α) :
@@ -126,6 +131,7 @@ protected noncomputable def Mseti.bind {α β : Type*} (A : Mseti α) (K : α �
   ⟨A.val >>=ᴹ (fun a => (K a).val), by
     simp only [Mset.inhab_bind']; have ⟨a, el⟩ := A.prop; exists a, el; grind only⟩
 
+@[inherit_doc]
 scoped[Mseti] infixl:55 " >>=ᴹⁱ " => Mseti.bind
 
 @[simp] protected lemma Mseti.bind'_val (A : Mseti α) (K : α → Mseti β) :

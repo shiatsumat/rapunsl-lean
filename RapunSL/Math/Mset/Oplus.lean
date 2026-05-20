@@ -13,6 +13,7 @@ open Ifam Mset
 protected def Ifam.oplus {α} (A B : Ifam α) : Ifam α :=
   .mk (A.dom ⊕ B.dom) (fun s => s.casesOn A.elem B.elem)
 
+@[inherit_doc]
 scoped[Ifam] infixr:60 " ⊕ᴵ " => Ifam.oplus
 
 @[simp] protected lemma Ifam.oplus_dom (A B : Ifam α) :
@@ -35,6 +36,7 @@ protected def Mset.oplus.{u} {α} : Mset.{u} α → Mset.{u} α → Mset α :=
   .lift₂ (⟦ · ⊕ᴵ · ⟧) <| by
     intros; apply Quotient.sound; apply Ifam.oplus_proper <;> tauto
 
+@[inherit_doc]
 scoped[Mset] infixr:60 " ⊕ᴹ " => Mset.oplus
 
 /-! ### `map` over `⊕` -/
@@ -89,6 +91,7 @@ protected instance Mset.oplus_Associative :
 protected def Ifam.bigoplus {ι : Type} (A : ι → Ifam α) : Ifam α :=
   .mk (Σ i, (A i).dom) (fun ⟨i, j⟩ => (A i).elem j)
 
+@[inherit_doc]
 scoped[Ifam] notation "⨁ᴵ " i ", " A => Ifam.bigoplus (fun i => A)
 
 @[gcongr] protected lemma Ifam.bigoplus_proper (A A' : ι → Ifam α) :
@@ -106,6 +109,7 @@ scoped[Ifam] notation "⨁ᴵ " i ", " A => Ifam.bigoplus (fun i => A)
 protected noncomputable def Mset.bigoplus.{u} {ι : Type} (A : ι → Mset.{u} α) : Mset.{u} α :=
   ⟦ ⨁ᴵ i, (A i).out ⟧
 
+@[inherit_doc]
 scoped[Mset] notation "⨁ᴹ " i ", " A => Mset.bigoplus (fun i => A)
 
 /-! ### `map` over `bigoplus` -/
