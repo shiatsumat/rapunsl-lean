@@ -226,5 +226,3 @@ protected lemma Mseti.prob_bigoplus [Inhabited ι] [RM α] (A : ι → Mseti α)
 protected lemma Mseti.prob_oplus [RM α] (A B : Mseti α) :
     RM.prob (A ⊕ᴹⁱ B) = RM.prob A + RM.prob B := by
   rw [Mseti.prob_unfold, Mseti.oplus_val, ENNReal.Mset.tsum_oplus]; rfl
-
-end
