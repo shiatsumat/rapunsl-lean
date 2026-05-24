@@ -86,9 +86,9 @@ protected noncomputable instance Mseti.instRM (α : Type u) [RM α] : RM (Mseti 
   prob A := ∑ᴹ a ∈ᴹ A.val, RM.prob a
   prob_one := by
     rw [Mseti.one_unfold, Mseti.pure_val, Mset.tsum_pure, RM.prob_one]
-  prob_mul A B := by
-    rw [Mseti.mul_val, Mset.map_seq, Mset.tsum_map, ENNReal.Mset.tsum_mul_tsum];
-    congr; ext1 _; simp only [←RM.prob_mul]; rfl
+  prob_mul := by
+    intro _ _; rw [Mseti.mul_val, Mset.map_seq, Mset.tsum_map, ENNReal.Mset.tsum_mul_tsum];
+    congr; ext1 _; apply RM.prob_mul
 
 protected lemma Mseti.prob_unfold [RM α] (A : Mseti α) :
     RM.prob A = ∑ᴹ a ∈ᴹ A.val, RM.prob a := rfl
