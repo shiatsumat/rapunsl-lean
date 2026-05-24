@@ -121,7 +121,7 @@ protected lemma Pi.valid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α
 /-! ### Inhabited multiset PCM -/
 
 /-- `*` for inhabited multisets -/
-protected instance Mseti.Mul (α : Type u) [Mul α] : Mul (Mseti α) where
+protected instance Mseti.instMul (α : Type u) [Mul α] : Mul (Mseti α) where
   mul A B := ⟨HMul.hMul <$> A.val <*> B.val, by
     simp only [Mset.inhab_seq, Mset.inhab_map]; grind only⟩
 
