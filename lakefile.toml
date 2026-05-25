@@ -18,7 +18,7 @@ rev = "v4.29.0"
 name = "iris"
 git.url = "https://github.com/leanprover-community/iris-lean.git"
 git.subDir = "Iris"
-rev = "48afae08e80d33c2ebe4374b9701c832f8e8f28e"
+rev = "master"
 
 [[lean_lib]]
 name = "RapunSL"
