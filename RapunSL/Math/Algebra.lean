@@ -1,4 +1,4 @@
 module
 
 public import RapunSL.Math.Algebra.Core
-public import RapunSL.Math.Algebra.Mset
+public import RapunSL.Math.Algebra.Mseti

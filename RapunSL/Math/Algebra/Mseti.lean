@@ -7,7 +7,7 @@ open Mset Mseti PCM RM
 
 @[expose] public section
 
-/-! # Algebra constructions for multisets -/
+/-! # Algebra constructions for inhabited multisets -/
 
 /-! ## Inhabited multiset PCM -/
 

@@ -1,7 +1,7 @@
 module
 
 public import Iris.BI
-public import RapunSL.Math.Algebra.Mset
+public import RapunSL.Math.Algebra.Mseti
 public import RapunSL.Logic.BI
 open Iris OFE BI PCM RM ENNReal
 
