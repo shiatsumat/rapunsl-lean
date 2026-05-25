@@ -10,13 +10,13 @@ open Iris BI
 
 /-! # Utility for `BI` -/
 
-namespace BI
+namespace Iris.BI
 variable {PROP} [BI PROP] (P Q R S : PROP)
 
 @[refl] lemma entails_refl : P ⊢ P := by
   apply Std.refl
 
-@[trans] lemma entails_trans : (P ⊢ Q) → (Q ⊢ R) → P ⊢ R := by
+@[trans] lemma entails_trans' : (P ⊢ Q) → (Q ⊢ R) → P ⊢ R := by
   apply Std.trans
 
 @[refl] lemma bi_entails_refl : P ⊣⊢ P := by
@@ -68,4 +68,4 @@ lemma false_as_exists :
 @[gcongr] lemma later_mono' : (P ⊢ Q) → ▷ P ⊢ ▷ Q := by
   apply later_mono
 
-end BI
+end Iris.BI
