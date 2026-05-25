@@ -10,14 +10,14 @@ public import Mathlib.Data.Setoid.Basic
 /-! ## `Ifam`: Indexed family -/
 
 /-- Indexed family -/
-structure Ifam.{u} (α : Type u) : Type (max 1 u) where
+structure Ifam (α : Type u) : Type (max 1 u) where
   protected dom : Type
   protected elem : dom → α
 
 /-! ### Equivalence and setoid for `Ifam` -/
 
 /-- Equivalence between indexed families -/
-protected def Ifam.equiv.{u} (A B : Ifam.{u} α) : Prop :=
+protected def Ifam.equiv (A B : Ifam α) : Prop :=
   ∃ f : A.dom ≃ B.dom, ∀ i, A.elem i = B.elem (f i)
 
 /-- Utility for getting the inverse element equality -/
@@ -26,7 +26,7 @@ protected lemma Ifam.equiv_elem_eq_symm {A B : Ifam α} {f : A.dom ≃ B.dom} :
   intro AB j; rw [AB, Equiv.apply_symm_apply]
 
 protected lemma Ifam.equiv_is_equiv :
-    Equivalence (α := Ifam.{u} α) Ifam.equiv where
+    Equivalence (α := Ifam α) Ifam.equiv where
   refl _ := by exists Equiv.refl _; intros; rfl
   symm := by
     intro _ _ ⟨f, AB⟩; exists f.symm; intro _; rw [AB, Equiv.apply_symm_apply]
@@ -34,14 +34,14 @@ protected lemma Ifam.equiv_is_equiv :
     intro _ _ _ ⟨f, _⟩ ⟨g, _⟩; exists f.trans g; intro _; simp_all only [Equiv.trans_apply]
 
 /-- Setoid for `Ifam` -/
-protected instance Ifam.instSetoid.{u} α : Setoid (Ifam α) :=
-  Setoid.mk (Ifam.equiv.{u}) Ifam.equiv_is_equiv
+protected instance Ifam.instSetoid α : Setoid (Ifam α) :=
+  Setoid.mk (Ifam.equiv) Ifam.equiv_is_equiv
 
 /-! ## `Mset`: Multiset, possibly infinite -/
 
 /-- Multiset, possibly infinite -/
-def Mset.{u} (α : Type u) : Type (max 1 u) :=
-  Quotient (Ifam.instSetoid.{u} α)
+def Mset (α : Type u) : Type (max 1 u) :=
+  Quotient (Ifam.instSetoid α)
 
 /-! ## Functor -/
 
@@ -54,7 +54,7 @@ scoped[Ifam] infixr:100 " <$>ᴵ " => Ifam.map
 open Ifam
 
 /-- `Functor` for `Ifam` -/
-protected instance Ifam.instFunctor : Functor Ifam.{u} where
+protected instance Ifam.instFunctor : Functor Ifam where
   map := Ifam.map
 
 protected lemma Ifam.map_unfold : Functor.map = Ifam.map (α := α) (β := β) := rfl
@@ -65,7 +65,7 @@ protected lemma Ifam.comp_map (f : α → β) (g : β → γ) (A : Ifam α) :
     (g ∘ f) <$>ᴵ A = g <$>ᴵ (f <$>ᴵ A) := by rfl
 
 /-- `LawfulFunctor` for `Ifam` -/
-protected instance Ifam.instLawfulFunctor : LawfulFunctor Ifam.{u} where
+protected instance Ifam.instLawfulFunctor : LawfulFunctor Ifam where
   id_map _ := rfl
   comp_map _ _ _ := rfl
   map_const := rfl
@@ -90,7 +90,7 @@ scoped[Mset] infixr:100 " <$>ᴹ " => Mset.map
 open Mset
 
 /-- `Functor` for `Mset` -/
-protected instance Mset.instFunctor : Functor Mset.{u} where
+protected instance Mset.instFunctor : Functor Mset where
   map := Mset.map
 
 protected lemma Mset.map_unfold : Functor.map = Mset.map (α := α) (β := β) := rfl
@@ -103,7 +103,7 @@ protected lemma Mset.comp_map (f : α → β) (g : β → γ) (A : Mset α) :
   cases A using Quotient.ind; rfl
 
 /-- Functor laws for `Mset` -/
-protected instance Mset.instLawfulFunctor : LawfulFunctor Mset.{u} where
+protected instance Mset.instLawfulFunctor : LawfulFunctor Mset where
   id_map := Mset.id_map
   comp_map := Mset.comp_map
   map_const := rfl
@@ -141,7 +141,7 @@ protected lemma Mset.empty_map (f : α → β) :
 /-! ## Singleton -/
 
 /-- Singleton indexed family -/
-protected instance Ifam.instPure : Pure Ifam.{u} where
+protected instance Ifam.instPure : Pure Ifam where
   pure a := .mk Unit (fun _ => a)
 
 protected lemma Ifam.pure_unfold (a : α) :
@@ -154,7 +154,7 @@ protected lemma Ifam.pure_unfold (a : α) :
     (pure (f := Ifam) a).elem u = a := rfl
 
 /-- Singleton multiset -/
-protected instance Mset.instPure : Pure Mset.{u} where
+protected instance Mset.instPure : Pure Mset where
   pure a := ⟦ pure a ⟧
 
 protected lemma Mset.pure_unfold (a : α) :

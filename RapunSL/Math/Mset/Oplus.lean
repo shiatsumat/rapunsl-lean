@@ -32,7 +32,7 @@ scoped[Ifam] infixr:60 " ⊕ᴵ " => Ifam.oplus
     rintro (_ | _) <;> simp_all only [Ifam.oplus_elem_inl, Ifam.oplus_elem_inr] <;> rfl
 
 /-- Sum of two multisets -/
-protected def Mset.oplus.{u} {α} : Mset.{u} α → Mset.{u} α → Mset α :=
+protected def Mset.oplus {α} : Mset α → Mset α → Mset α :=
   .lift₂ (⟦ · ⊕ᴵ · ⟧) <| by
     intros; apply Quotient.sound; apply Ifam.oplus_proper <;> tauto
 
@@ -106,7 +106,7 @@ scoped[Ifam] notation "⨁ᴵ " i ", " A => Ifam.bigoplus (fun i => A)
     (Ifam.bigoplus (α := α) (ι := ι) A).elem ⟨i, j⟩ = (A i).elem j := rfl
 
 /-- Big sum of multisets -/
-protected noncomputable def Mset.bigoplus.{u} {ι : Type} (A : ι → Mset.{u} α) : Mset.{u} α :=
+protected noncomputable def Mset.bigoplus {ι : Type} (A : ι → Mset α) : Mset α :=
   ⟦ ⨁ᴵ i, (A i).out ⟧
 
 @[inherit_doc]

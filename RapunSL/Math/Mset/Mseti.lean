@@ -10,7 +10,7 @@ open Mset
 /-! # Nonempty multiset -/
 
 /-- Nonempty multiset -/
-abbrev Mseti.{u} (α : Type u) : Type (max 1 u) := { A : Mset α // A.inhab }
+abbrev Mseti (α : Type u) : Type (max 1 u) := { A : Mset α // A.inhab }
 
 /-- Map over `Mseti` -/
 protected def Mseti.map {α β : Type*} (f : α → β) (A : Mseti α) : Mseti β :=
@@ -26,7 +26,7 @@ open Mseti
 /-! ## Functor -/
 
 /-- `Functor` for `Mseti` -/
-protected instance Mseti.instFunctor : Functor Mseti.{u} where
+protected instance Mseti.instFunctor : Functor Mseti where
   map := Mseti.map
 
 protected lemma Mseti.map_unfold : Functor.map = Mseti.map (α := α) (β := β) := rfl
@@ -50,7 +50,7 @@ protected instance Mseti.instLawfulFunctor : LawfulFunctor Mseti where
 /-! ## Singleton -/
 
 /-- Singleton `Mseti` -/
-protected instance Mseti.instPure : Pure Mseti.{u} where
+protected instance Mseti.instPure : Pure Mseti where
   pure a := ⟨pure a, by simp only [Mset.inhab_pure]⟩
 
 @[simp] protected lemma Mseti.pure_val (a : α) :
@@ -118,7 +118,7 @@ scoped[Mseti] infixl:60 " <*>ᴹⁱ " => Mseti.seq
     (F <*>ᴹⁱ A).val = F.val <*>ᴹ A.val := rfl
 
 /-- `Applicative` for `Mset` -/
-protected instance Mseti.instApplicative : Applicative Mseti.{u} where
+protected instance Mseti.instApplicative : Applicative Mseti where
   seq F A := F <*>ᴹⁱ A ()
 
 @[simp] protected lemma Mseti.seq_val (F : Mseti (α → β)) (A : Mseti α) :
@@ -138,7 +138,7 @@ scoped[Mseti] infixl:55 " >>=ᴹⁱ " => Mseti.bind
     (A >>=ᴹⁱ K).val = A.val >>=ᴹ (fun a => (K a).val) := rfl
 
 /-- `Monad` for `Mseti` -/
-protected noncomputable instance Mseti.instMonad : Monad Mseti.{u} where
+protected noncomputable instance Mseti.instMonad : Monad Mseti where
   bind A K := A >>=ᴹⁱ K
 
 @[simp] protected lemma Mseti.bind_val (A : Mseti α) (K : α → Mseti β) :

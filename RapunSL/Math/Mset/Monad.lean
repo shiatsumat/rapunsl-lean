@@ -19,7 +19,7 @@ protected def Mset.seq {α β : Type*} (F : Mset (α → β)) (A : Mset α) : Ms
 scoped[Mset] infixl:60 " <*>ᴹ " => Mset.seq
 
 /-- `Applicative` for `Mset` -/
-protected instance Mset.instApplicative : Applicative Mset.{u} where
+protected instance Mset.instApplicative : Applicative Mset where
   seq F A := F <*>ᴹ A ()
 
 protected lemma Mset.seq_unfold (F : Mset (α → β)) (A : Mset α) :
@@ -150,7 +150,7 @@ protected noncomputable def Mset.bind {α β : Type*} (A : Mset α) (K : α → 
 scoped[Mset] infixl:55 " >>=ᴹ " => Mset.bind
 
 /-- `Monad` for `Mset` -/
-noncomputable instance Mset.instMonad : Monad Mset.{u} where
+noncomputable instance Mset.instMonad : Monad Mset where
   bind := Mset.bind
 
 /-! ### Monad laws -/
@@ -176,7 +176,7 @@ protected lemma Mset.bind_assoc (A : Mset α) (K : α → Mset β) (L : β → M
   unfold Mset.bind; rw [Mset.comp_map, ←Mset.join_join, Mset.map_join, ←Mset.comp_map]
 
 /-- Monad laws for `Mset` -/
-protected instance Mset.instLawfulMonad : LawfulMonad Mset.{u} where
+protected instance Mset.instLawfulMonad : LawfulMonad Mset where
   seqLeft_eq _ _ := rfl
   seqRight_eq _ _ := rfl
   pure_seq := Mset.pure_seq
@@ -192,7 +192,7 @@ protected lemma Mset.commutative_prod (A : Mset α) (B : Mset β) :
   simp only [Mset.map'_seq']; rw [Mset.prod_comm, ←Mset.comp_map]; rfl
 
 /-- Commutative applicative laws for `Mset` -/
-protected instance Mset.instCommApplicative : CommApplicative Mset.{u} where
+protected instance Mset.instCommApplicative : CommApplicative Mset where
   commutative_prod := Mset.commutative_prod
 
 /-! ### Membership -/
