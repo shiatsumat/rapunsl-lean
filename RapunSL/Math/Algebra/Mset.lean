@@ -33,11 +33,11 @@ protected lemma Mseti.mul_bigoplus_r [Mul α] [Inhabited ι] (A : ι → Mseti �
 
 protected lemma Mseti.mul_oplus_l [Mul α] (A B C : Mseti α) :
     A * (B ⊕ᴹⁱ C) = A * B ⊕ᴹⁱ A * C := by
-  ext; simp only [Mseti.oplus_bigoplus, Mseti.mul_bigoplus_l]; grind only
+  ext; simp only [Mseti.oplus_as_bigoplus, Mseti.mul_bigoplus_l]; grind only
 
 protected lemma Mseti.mul_oplus_r [Mul α] (A B C : Mseti α) :
     (A ⊕ᴹⁱ B) * C = A * C ⊕ᴹⁱ B * C := by
-  ext; simp only [Mseti.oplus_bigoplus, Mseti.mul_bigoplus_r]; grind only
+  ext; simp only [Mseti.oplus_as_bigoplus, Mseti.mul_bigoplus_r]; grind only
 
 @[simp] protected lemma Mseti.mem_mul [Mul α] (A B : Mseti α) a :
     (a ∈ A * B) = ∃ b c, b ∈ A ∧ c ∈ B ∧ a = b * c := by

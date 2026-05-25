@@ -28,12 +28,12 @@ variable {PROP} [BI PROP] (P Q R S : PROP)
 @[trans] lemma bi_entails_trans : P ⊣⊢ Q → Q ⊣⊢ R → P ⊣⊢ R := by
   intro ⟨_, _⟩ ⟨_, _⟩; constructor <;> trans <;> assumption
 
-lemma or_exists : P ∨ Q ⊣⊢ ∃ b : Bool, if b then P else Q := by
+lemma or_as_exists : P ∨ Q ⊣⊢ ∃ b : Bool, if b then P else Q := by
   constructor;
   · iintro (_ | _); { iexists true; trivial }; { iexists false; trivial }
   · iintro ⟨%b, _⟩; cases b; { iright; trivial }; { ileft; trivial }
 
-lemma false_exists :
+lemma false_as_exists :
     False ⊣⊢@{PROP} ∃ e : Empty, nomatch e := by
   constructor; { iintro %_; trivial }; { iintro ⟨%_, _⟩; trivial }
 

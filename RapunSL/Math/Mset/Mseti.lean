@@ -88,9 +88,9 @@ scoped[Mseti] notation "⨁ᴹⁱ " i ", " A => Mseti.bigoplus (fun i => A)
 @[simp] protected lemma Mseti.bigoplus_val {ι} [Inhabited ι] (A : ι → Mseti α) :
     (⨁ᴹⁱ i, A i).val = ⨁ᴹ i, (A i).val := rfl
 
-lemma Mseti.oplus_bigoplus (A B : Mseti α) :
+lemma Mseti.oplus_as_bigoplus (A B : Mseti α) :
     A ⊕ᴹⁱ B = ⨁ᴹⁱ (b : Bool), if b then A else B := by
-  ext1; simp only [Mseti.oplus_val, Mseti.bigoplus_val, Mset.oplus_bigoplus];
+  ext1; simp only [Mseti.oplus_val, Mseti.bigoplus_val, Mset.oplus_as_bigoplus];
   congr; ext1 b; cases b <;> rfl
 
 /-! ## Product -/

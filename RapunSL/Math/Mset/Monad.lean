@@ -52,28 +52,28 @@ protected lemma Mset.seq_bigoplus_r (F : ι → Mset (α → β)) (A : Mset α) 
 
 protected lemma Mset.seq'_oplus_l (F : Mset (α → β)) (A B : Mset α) :
     F <*>ᴹ (A ⊕ᴹ B) = (F <*>ᴹ A) ⊕ᴹ (F <*>ᴹ B) := by
-  simp only [Mset.oplus_bigoplus, Mset.seq'_bigoplus_l]; grind only
+  simp only [Mset.oplus_as_bigoplus, Mset.seq'_bigoplus_l]; grind only
 
 protected lemma Mset.seq_oplus_l (F : Mset (α → β)) (A B : Mset α) :
     F <*> (A ⊕ᴹ B) = (F <*> A) ⊕ᴹ (F <*> B) := by apply Mset.seq'_oplus_l
 
 protected lemma Mset.seq'_oplus_r (F G : Mset (α → β)) (A : Mset α) :
     (F ⊕ᴹ G) <*>ᴹ A = (F <*>ᴹ A) ⊕ᴹ (G <*>ᴹ A) := by
-  simp only [Mset.oplus_bigoplus, Mset.seq'_bigoplus_r]; grind only
+  simp only [Mset.oplus_as_bigoplus, Mset.seq'_bigoplus_r]; grind only
 
 protected lemma Mset.seq_oplus_r (F G : Mset (α → β)) (A : Mset α) :
     (F ⊕ᴹ G) <*> A = (F <*> A) ⊕ᴹ (G <*> A) := by apply Mset.seq'_oplus_r
 
 protected lemma Mset.seq'_empty_l (F : Mset (α → β)) :
     F <*>ᴹ (∅ : Mset α) = ∅ := by
-  simp only [Mset.empty_bigoplus, Mset.seq'_bigoplus_l]; congr; ext1 _; trivial
+  simp only [Mset.empty_as_bigoplus, Mset.seq'_bigoplus_l]; congr; ext1 _; trivial
 
 protected lemma Mset.seq_empty_l (F : Mset (α → β)) :
     F <*> (∅ : Mset α) = ∅ := by apply Mset.seq'_empty_l
 
 protected lemma Mset.seq'_empty_r (A : Mset α) :
     (∅ : Mset (α → β)) <*>ᴹ A = ∅ := by
-  simp only [Mset.empty_bigoplus, Mset.seq'_bigoplus_r]; congr; ext1 _; trivial
+  simp only [Mset.empty_as_bigoplus, Mset.seq'_bigoplus_r]; congr; ext1 _; trivial
 
 protected lemma Mset.seq_empty_r (A : Mset α) :
     (∅ : Mset (α → β)) <*> A = ∅ := by apply Mset.seq'_empty_r

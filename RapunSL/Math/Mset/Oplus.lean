@@ -153,11 +153,11 @@ private instance Ifam.Empty_bigoplus_IsEmpty :
     IsEmpty (Ifam.bigoplus (ι := Empty) A).dom where
   false := nofun
 
-protected lemma Ifam.empty_bigoplus : ∅ ≈ Ifam.bigoplus (ι := Empty) A := by
+protected lemma Ifam.empty_as_bigoplus : ∅ ≈ Ifam.bigoplus (ι := Empty) A := by
   exists Equiv.equivOfIsEmpty _ _; nofun
 
-protected lemma Mset.empty_bigoplus : ∅ = Mset.bigoplus (ι := Empty) (α := α) nofun := by
-  apply Quotient.sound; apply Ifam.empty_bigoplus
+protected lemma Mset.empty_as_bigoplus : ∅ = Mset.bigoplus (ι := Empty) (α := α) nofun := by
+  apply Quotient.sound; apply Ifam.empty_as_bigoplus
 
 /-! ### Unary `bigoplus` -/
 
@@ -170,7 +170,7 @@ protected lemma Mset.unary_bigoplus (A : Unit → Mset α) : Mset.bigoplus A = A
 
 /-! ### `⊕` as `bigoplus` -/
 
-protected lemma Ifam.oplus_bigoplus (A B : Ifam α) :
+protected lemma Ifam.oplus_as_bigoplus (A B : Ifam α) :
     F true = A → F false = B → A ⊕ᴵ B ≈ Ifam.bigoplus F := by
   intro rfl rfl;
   exists { toFun := fun | .inl i => ⟨true, i⟩ | .inr i => ⟨false, i⟩,
@@ -179,10 +179,10 @@ protected lemma Ifam.oplus_bigoplus (A B : Ifam α) :
            right_inv := by rintro ⟨_ | _, _⟩ <;> rfl };
   rintro (_ | _) <;> rfl
 
-protected lemma Mset.oplus_bigoplus (A B : Mset α) :
+protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     A ⊕ᴹ B = ⨁ᴹ (b : Bool), if b then A else B := by
   rw (occs := [1]) [←Quotient.out_eq A, ←Quotient.out_eq B];
-  apply Quotient.sound; apply Ifam.oplus_bigoplus <;> rfl
+  apply Quotient.sound; apply Ifam.oplus_as_bigoplus <;> rfl
 
 /-! ## Membership -/
 

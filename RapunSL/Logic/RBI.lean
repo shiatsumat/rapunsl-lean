@@ -153,11 +153,11 @@ lemma persistently_emp_entails : <pers> P =ᴿ ⌜emp ⊢ P⌝ := by
 
 /-! ### Utility -/
 
-lemma or_exists : P ∨ Q =ᴿ ∃ b : Bool, if b then P else Q := by
-  ext1; apply BI.or_exists
+lemma or_as_exists : P ∨ Q =ᴿ ∃ b : Bool, if b then P else Q := by
+  ext1; apply BI.or_as_exists
 
-lemma false_exists : False =ᴿ@{ρ} ∃ e : Empty, nomatch e := by
-  ext1; apply BI.false_exists
+lemma false_as_exists : False =ᴿ@{ρ} ∃ e : Empty, nomatch e := by
+  ext1; apply BI.false_as_exists
 
 lemma sep_comm : P ∗ Q =ᴿ Q ∗ P := by
   ext1; apply BI.sep_comm
@@ -232,7 +232,7 @@ lemma prob (P : RProp ρ) (p : ℝ≥0∞) [Prob P p] : ∀ A ∈ P, RM.prob A.v
 
 /-! ### Rules for `own` -/
 
-lemma emp_own : emp = own (ρ := ρ) 1 := rfl
+lemma emp_as_own : emp = own (ρ := ρ) 1 := rfl
 
 lemma own_sep : own (ρ := ρ) r ∗ own s =ᴿ own (r * s) := by
   apply set_ext; intro ⟨_, val⟩; constructor;
@@ -243,13 +243,13 @@ lemma own_sep : own (ρ := ρ) r ∗ own s =ᴿ own (r * s) := by
 
 /-! ### Rules for `⊕`, `⨁` and `-⊕` -/
 
-lemma oplus_bigoplus : P ⊕ Q =ᴿ ⨁ (b : Bool), if b then P else Q := by
+lemma oplus_as_bigoplus : P ⊕ Q =ᴿ ⨁ (b : Bool), if b then P else Q := by
   apply set_ext; intro ⟨_, _⟩; constructor;
   · rintro ⟨A, B, _, _, rfl⟩; exists fun b => if b then A else B;
-    simp only; constructor; { grind only }; rw [Mseti.oplus_bigoplus];
+    simp only; constructor; { grind only }; rw [Mseti.oplus_as_bigoplus];
     congr; ext1 b; cases b <;> rfl
   · rintro ⟨A, el, rfl⟩; exists A true, A false, el true, el false;
-    rw [Mseti.oplus_bigoplus]; grind only
+    rw [Mseti.oplus_as_bigoplus]; grind only
 
 lemma unary_bigoplus : (⨁ (_ : Unit), P) =ᴿ P := by
   apply set_ext; intro ⟨A, val⟩; constructor;
@@ -264,7 +264,7 @@ lemma unary_bigoplus : (⨁ (_ : Unit), P) =ᴿ P := by
   intro _ _ ⟨A, _, _⟩; exists A; tauto
 
 @[gcongr] lemma oplus_mono : (P ⊢ P') → (Q ⊢ Q') → P ⊕ Q ⊢ P' ⊕ Q' := by
-  intro _ _; grw [oplus_bigoplus, oplus_bigoplus]; gcongr; grind only
+  intro _ _; grw [oplus_as_bigoplus, oplus_as_bigoplus]; gcongr; grind only
 
 private lemma bigoplus_comm_fwd [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ i, P i) ⊢ ⨁ j, P (f j) := by
@@ -286,7 +286,7 @@ lemma bigoplus_comm' [Inhabited ι] [Inhabited ι']
   intro _ li ri; rw [bigoplus_comm ⟨f, g, li, ri⟩]; congr; ext1 _; tauto
 
 lemma oplus_comm : P ⊕ Q =ᴿ Q ⊕ P := by
-  simp only [oplus_bigoplus]; rw [bigoplus_comm Equiv.boolNot]; congr;
+  simp only [oplus_as_bigoplus]; rw [bigoplus_comm Equiv.boolNot]; congr;
   simp only [Equiv.boolNot_apply]; grind only
 
 lemma bigoplus_assoc {ι' : ι → Type} [Inhabited ι] [∀ i, Inhabited (ι' i)]
@@ -313,7 +313,7 @@ lemma oplus_assoc : (P ⊕ Q) ⊕ R =ᴿ P ⊕ (Q ⊕ R) := by
       (P ⊕ Q) ⊕ R =ᴿ ⨁ (b : Bool),
         ⨁ (i : match b with | true => Bool | false => Unit),
           match b with | true => if i then P else Q | false => R := by
-    intro _ _ _; simp only [oplus_bigoplus]; congr; ext1 b; cases b <;> simp only;
+    intro _ _ _; simp only [oplus_as_bigoplus]; congr; ext1 b; cases b <;> simp only;
     { rw [unary_bigoplus]; rfl }; { rfl }
   rw [eq, oplus_comm, eq]; simp only [bigoplus_assoc];
   apply bigoplus_comm' _ _
@@ -347,13 +347,13 @@ lemma oplus_exists_r (P : α → RProp ρ) Q :
   rw [oplus_comm, oplus_exists_l]; congr; ext1 _; rw [oplus_comm]
 
 lemma oplus_or_l : P ⊕ (Q ∨ R) =ᴿ (P ⊕ Q) ∨ (P ⊕ R) := by
-  simp only [or_exists, oplus_exists_l]; congr; ext1 b; cases b <;> rfl
+  simp only [or_as_exists, oplus_exists_l]; congr; ext1 b; cases b <;> rfl
 
 lemma oplus_or_r : (P ∨ Q) ⊕ R =ᴿ (P ⊕ R) ∨ (Q ⊕ R) := by
   rw [oplus_comm, oplus_or_l, oplus_comm, oplus_comm R]
 
 lemma oplus_false_l : P ⊕ False =ᴿ False := by
-  simp only [false_exists, oplus_exists_l]; congr; ext1 _; trivial
+  simp only [false_as_exists, oplus_exists_l]; congr; ext1 _; trivial
 
 lemma oplus_false_r : False ⊕ P =ᴿ False := by
   rw [oplus_comm, oplus_false_l]
@@ -381,7 +381,7 @@ lemma bigoplus_frame_r [Inhabited ι] (P : ι → RProp ρ) Q :
   grw [sep_comm, bigoplus_frame_l]; gcongr 1; rw [sep_comm]
 
 lemma oplus_frame_l : P ∗ (Q ⊕ R) ⊢ (P ∗ Q) ⊕ (P ∗ R) := by
-  grw [oplus_bigoplus, oplus_bigoplus, bigoplus_frame_l];
+  grw [oplus_as_bigoplus, oplus_as_bigoplus, bigoplus_frame_l];
   gcongr with b; cases b <;> rfl
 
 lemma oplus_frame_r : (P ⊕ Q) ∗ R ⊢ (P ∗ R) ⊕ (Q ∗ R) := by
@@ -408,7 +408,7 @@ lemma bigoplus_unframe_r [Inhabited ι] (P : ι → RProp ρ) Q [Precise Q] :
 
 lemma oplus_unframe_l [Precise P] : (P ∗ Q) ⊕ (P ∗ R) =ᴿ P ∗ (Q ⊕ R) := by
   ext1; constructor; swap; { apply oplus_frame_l };
-  simp only [oplus_bigoplus]; grw [←bigoplus_unframe_l]; gcongr with b; cases b <;> rfl
+  simp only [oplus_as_bigoplus]; grw [←bigoplus_unframe_l]; gcongr with b; cases b <;> rfl
 
 lemma oplus_unframe_r [Precise R] : (P ∗ R) ⊕ (Q ∗ R) =ᴿ (P ⊕ Q) ∗ R := by
   ext1; constructor; swap; { apply oplus_frame_r };
@@ -441,7 +441,8 @@ instance bigoplus_instPrecise [Inhabited ι] (P : ι → RProp ρ) [∀ i, Preci
   bigoplus_precise P inferInstance
 
 instance oplus_instPrecise [Precise P] [Precise Q] : Precise iprop(P ⊕ Q) := by
-  constructor; rw [oplus_bigoplus]; apply (bigoplus_precise _ _).precise; rintro (_ | _) <;> tauto
+  constructor; rw [oplus_as_bigoplus]; apply (bigoplus_precise _ _).precise;
+  rintro (_ | _) <;> tauto
 
 /-! ### Rules for `Prob` -/
 

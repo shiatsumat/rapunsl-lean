@@ -122,17 +122,17 @@ protected lemma Mset.prod_bigoplus_r (A : ι → Mset α) (B : Mset β) :
 
 protected lemma Mset.prod_oplus_l (A : Mset α) (B C : Mset β) :
     A ×ᴹ (B ⊕ᴹ C) = A ×ᴹ B ⊕ᴹ A ×ᴹ C := by
-  simp only [Mset.oplus_bigoplus, Mset.prod_bigoplus_l]; grind only
+  simp only [Mset.oplus_as_bigoplus, Mset.prod_bigoplus_l]; grind only
 
 protected lemma Mset.prod_oplus_r (A B : Mset α) (C : Mset β) :
     (A ⊕ᴹ B) ×ᴹ C = A ×ᴹ C ⊕ᴹ B ×ᴹ C := by
-  simp only [Mset.oplus_bigoplus, Mset.prod_bigoplus_r]; grind only
+  simp only [Mset.oplus_as_bigoplus, Mset.prod_bigoplus_r]; grind only
 
 protected lemma Mset.prod_empty_l (A : Mset α) : A ×ᴹ (∅ : Mset β) = ∅ := by
-  simp only [Mset.empty_bigoplus, Mset.prod_bigoplus_l]; congr; ext1 _; trivial
+  simp only [Mset.empty_as_bigoplus, Mset.prod_bigoplus_l]; congr; ext1 _; trivial
 
 protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ := by
-  simp only [Mset.empty_bigoplus, Mset.prod_bigoplus_r]; congr; ext1 _; trivial
+  simp only [Mset.empty_as_bigoplus, Mset.prod_bigoplus_r]; congr; ext1 _; trivial
 
 /-! ## Membership -/
 
