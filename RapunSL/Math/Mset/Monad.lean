@@ -204,9 +204,8 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
 
 @[simp] protected lemma Mset.mem_join (A : Mset (Mset α)) a :
     (a ∈ Mset.join A) = ∃ B ∈ A, a ∈ B := by
-  revert A; apply Quotient.ind; intro A;
-  rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.mem_bigoplus]; ext1;
-  constructor; { tauto }; intro ⟨_, ⟨_, rfl⟩, _⟩; tauto
+  cases A using Quotient.ind; rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.mem_bigoplus];
+  ext1; constructor; { tauto }; intro ⟨_, ⟨_, rfl⟩, _⟩; tauto
 
 @[simp] protected lemma Mset.mem_bind' (A : Mset α) (K : α → Mset β) b :
     (b ∈ A >>=ᴹ K) = ∃ a ∈ A, b ∈ K a := by
