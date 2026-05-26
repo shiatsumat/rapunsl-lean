@@ -16,7 +16,7 @@ namespace RBI
 /-- RapunSL proposition based on a multiset PCMP -/
 def RProp ρ [PCMP ρ] := LeibnizO (Set (Msetiv ρ))
 
-variable {ρ : Type u} [PCMP ρ] (P P' Q Q' R : RProp ρ) (r : ρ)
+variable {ρ : Type u} [PCMP ρ] (P Q R : RProp ρ) (r s : ρ)
 
 protected instance instMembership : Membership (Msetiv ρ) (RProp ρ) where
   mem P A := P.car A
@@ -232,7 +232,7 @@ lemma precise_prob [Precise P] : ∃ p, Prob P p := by
 instance false_instProb p : Prob (ρ := ρ) iprop(False) p := by
   constructor; nofun
 
-instance own_instProb (r : ρ) : Prob (own r) (PCMP.prob r) := by
+instance own_instProb : Prob (own r) (PCMP.prob r) := by
   constructor; rintro ⟨_, _⟩ rfl; apply Mseti.prob_pure
 
 instance emp_instProb : Prob (ρ := ρ) emp 1 := by
