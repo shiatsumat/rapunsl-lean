@@ -183,7 +183,7 @@ protected lemma Ifam.mem_proper' (A B : Ifam α) :
 
 protected lemma Ifam.mem_proper (A B : Ifam α) :
     A ≈ B → (a ∈ A) = (a ∈ B) := by
-  intro _; ext1; constructor <;> { apply Ifam.mem_proper'; tauto }
+  intro _; ext1; constructor <;> apply Ifam.mem_proper' <;> tauto
 
 /-- Membership for `Mset` -/
 protected instance Mset.instMembership : Membership α (Mset α) where
