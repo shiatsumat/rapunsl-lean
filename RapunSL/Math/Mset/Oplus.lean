@@ -28,7 +28,7 @@ scoped[Ifam] infixr:60 " ⊕ᴵ " => Ifam.oplus
 @[gcongr] protected lemma Ifam.oplus_proper (A A' B B' : Ifam α) :
     A ≈ A' → B ≈ B' → A ⊕ᴵ B ≈ A' ⊕ᴵ B' :=
   fun ⟨f, AB⟩ ⟨g, A'B'⟩ => by
-    exists Equiv.sumCongr f g; simp only [Ifam.oplus_dom];
+    exists Equiv.sumCongr f g;
     rintro (_ | _) <;> simp_all only [Ifam.oplus_elem_inl, Ifam.oplus_elem_inr] <;> rfl
 
 /-- Sum of two multisets -/

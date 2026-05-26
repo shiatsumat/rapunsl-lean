@@ -131,9 +131,7 @@ protected lemma Mset.join_pure_map (A : Mset α) : Mset.join (pure <$>ᴹ A) = A
 protected lemma Mset.join_join (A : Mset (Mset (Mset α))) :
     Mset.join (Mset.join A) = Mset.join (Mset.join <$>ᴹ A) := by
   revert A; apply Quotient.ind; intro ⟨_, F⟩; apply Quotient.sound;
-  unfold Mset.join; unfold Ifam.join;
-  simp only [Ifam.bigoplus_dom, Ifam.map_dom, Ifam.map_elem];
-  trans; swap;
+  unfold Mset.join; unfold Ifam.join; simp only [Ifam.map_elem]; trans; swap;
   { apply Ifam.bigoplus_proper;
     { intro i; rewrite [←Quotient.out_eq (F i), Quotient.lift_mk];
       symm; unfold Mset.bigoplus; apply Quotient.mk_out }; }
