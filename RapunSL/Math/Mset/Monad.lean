@@ -217,7 +217,7 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
 @[simp] protected lemma Mset.mem_bind (A : Mset α) (K : α → Mset β) b :
     (b ∈ A >>= K) = ∃ a ∈ A, b ∈ K a := by apply Mset.mem_bind'
 
-/-! ### Inhabitance -/
+/-! ### Inhabitedness -/
 
 @[simp] protected lemma Mset.inhab_seq' (F : Mset (α → β)) (A : Mset α) :
     (F <*>ᴹ A).inhab = (F.inhab ∧ A.inhab) := by

@@ -147,7 +147,7 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.mem_prod
 
-/-! ## Inhabitance -/
+/-! ## Inhabitedness -/
 
 @[simp] protected lemma Mset.inhab_prod (A : Mset α) (B : Mset β) :
     (A ×ᴹ B).inhab = (A.inhab ∧ B.inhab) := by

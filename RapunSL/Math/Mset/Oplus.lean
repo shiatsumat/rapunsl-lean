@@ -205,7 +205,7 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     (a ∈ ⨁ᴹ i, A i) = ∃ i, a ∈ A i := by
   trans; { apply Ifam.mem_bigoplus }; congr; funext _; apply Mset.mem_out
 
-/-! ## Inhabitance -/
+/-! ## Inhabitedness -/
 
 @[simp] protected lemma Mset.inhab_oplus (A B : Mset α) :
     (A ⊕ᴹ B).inhab = (A.inhab ∨ B.inhab) := by
