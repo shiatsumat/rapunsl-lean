@@ -95,6 +95,8 @@ protected lemma Prod.mul_unfold [PCM α] [PCM β] :
 protected lemma Prod.valid_unfold [PCM α] [PCM β] :
     PCM.valid (α := α × β) = fun | (a, b) => ✓ a ∧ ✓ b := rfl
 
+/-! ### Pi PCM -/
+
 /-- Pi PCM -/
 protected instance Pi.instPCM (ι : Type u) (α : ι → Type u') [∀ i, PCM (α i)] :
     PCM (∀ i, α i) where
