@@ -196,11 +196,11 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
 /-! ### Membership -/
 
 @[simp] protected lemma Mset.mem_seq' (F : Mset (α → β)) (A : Mset α) b :
-    (b ∈ F <*>ᴹ A) = ∃ f ∈ F, ∃ a ∈ A, f a = b := by
+    (b ∈ F <*>ᴹ A) = ∃ f ∈ F, ∃ a ∈ A, b = f a := by
   rw [Mset.seq]; simp only [Mset.mem_map', Prod.exists, Mset.mem_prod]; grind only
 
 @[simp] protected lemma Mset.mem_seq (F : Mset (α → β)) (A : Mset α) b :
-    (b ∈ F <*> A) = ∃ f ∈ F, ∃ a ∈ A, f a = b := by apply Mset.mem_seq'
+    (b ∈ F <*> A) = ∃ f ∈ F, ∃ a ∈ A, b = f a := by apply Mset.mem_seq'
 
 @[simp] protected lemma Mset.mem_join (A : Mset (Mset α)) a :
     (a ∈ Mset.join A) = ∃ B ∈ A, a ∈ B := by

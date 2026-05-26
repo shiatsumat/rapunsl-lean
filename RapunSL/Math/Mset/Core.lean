@@ -195,17 +195,17 @@ protected instance Mset.instMembership : Membership α (Mset α) where
   cases A using Quotient.ind; apply Ifam.mem_proper; apply Quotient.mk_out
 
 @[simp] protected lemma Ifam.mem_map' (f : α → β) (A : Ifam α) b :
-    (b ∈ f <$>ᴵ A) = ∃ a ∈ A, f a = b := by
+    (b ∈ f <$>ᴵ A) = ∃ a ∈ A, b = f a := by
   ext1; constructor;
   · intro ⟨i, eq⟩; subst eq; exists A.elem i; and_intros; { exists i }; { rfl }
   · intro ⟨a, ⟨i, eq⟩, eq'⟩; subst eq eq'; exists i
 
 @[simp] protected lemma Mset.mem_map' (f : α → β) (A : Mset α) b :
-    (b ∈ f <$>ᴹ A) = ∃ a ∈ A, f a = b := by
+    (b ∈ f <$>ᴹ A) = ∃ a ∈ A, b = f a := by
   cases A using Quotient.ind; apply Ifam.mem_map'
 
 @[simp] protected lemma Mset.mem_map (f : α → β) (A : Mset α) b :
-    (b ∈ f <$> A) = ∃ a ∈ A, f a = b := by apply Mset.mem_map'
+    (b ∈ f <$> A) = ∃ a ∈ A, b = f a := by apply Mset.mem_map'
 
 @[simp] protected lemma Ifam.mem_empty (a : α) : (a ∈ (∅ : Ifam α)) = False := by
   rw [eq_iff_iff, iff_false]; nofun
