@@ -74,7 +74,7 @@ protected instance Mset.oplus_LawfulCommIdentity :
   right_id A := by
     cases A using Quotient.ind; apply Quotient.sound; apply Ifam.oplus_id_r
 
-/-! ### `⊕` is assoc -/
+/-! ### `⊕` is associative -/
 
 protected lemma Ifam.oplus_assoc (A B C : Ifam α) : (A ⊕ᴵ B) ⊕ᴵ C ≈ A ⊕ᴵ (B ⊕ᴵ C) := by
   exists Equiv.sumAssoc _ _ _; rintro ((_ | _) | _) <;> rfl
