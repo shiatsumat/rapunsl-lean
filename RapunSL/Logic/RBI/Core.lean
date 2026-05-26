@@ -3,7 +3,7 @@ module
 public import Iris.BI
 public import RapunSL.Math.Algebra.Mseti
 public import RapunSL.Logic.BI
-open Iris OFE BI PCM RM ENNReal
+open Iris OFE BI PCM PCMP ENNReal
 
 @[expose] public section
 
@@ -13,10 +13,10 @@ namespace RBI
 
 /-! ## RapunSL propositions -/
 
-/-- RapunSL proposition based on a multiset RM -/
-def RProp ρ [RM ρ] := LeibnizO (Set (Msetiv ρ))
+/-- RapunSL proposition based on a multiset PCMP -/
+def RProp ρ [PCMP ρ] := LeibnizO (Set (Msetiv ρ))
 
-variable {ρ : Type u} [RM ρ] (P P' Q Q' R : RProp ρ) (r : ρ)
+variable {ρ : Type u} [PCMP ρ] (P P' Q Q' R : RProp ρ) (r : ρ)
 
 protected instance instMembership : Membership (Msetiv ρ) (RProp ρ) where
   mem P A := P.car A
@@ -215,9 +215,9 @@ instance sep_instPrecise [Precise P] [Precise Q] : Precise iprop(P ∗ Q) := by
 
 /-- Probability -/
 class Prob (P : RProp ρ) (p : ℝ≥0∞) : Prop where
-  prob : ∀ A ∈ P, RM.prob A.val = p
+  prob : ∀ A ∈ P, PCMP.prob A.val = p
 
-lemma prob (P : RProp ρ) (p : ℝ≥0∞) [Prob P p] : ∀ A ∈ P, RM.prob A.val = p := by
+lemma prob (P : RProp ρ) (p : ℝ≥0∞) [Prob P p] : ∀ A ∈ P, PCMP.prob A.val = p := by
   apply Prob.prob
 
 /-! ### Rules for `Prob` -/
@@ -227,19 +227,19 @@ lemma prob_anti [Prob Q p] : (P ⊢ Q) → Prob P p := by
 
 lemma precise_prob [Precise P] : ∃ p, Prob P p := by
   rcases em (∃ A, A ∈ P) with (⟨A, el⟩ | _); swap; { exists 0; constructor; tauto };
-  exists (RM.prob A.val); constructor; intro _ el'; rw [precise P _ _ el el']
+  exists (PCMP.prob A.val); constructor; intro _ el'; rw [precise P _ _ el el']
 
 instance false_instProb p : Prob (ρ := ρ) iprop(False) p := by
   constructor; nofun
 
-instance own_instProb (r : ρ) : Prob (own r) (RM.prob r) := by
+instance own_instProb (r : ρ) : Prob (own r) (PCMP.prob r) := by
   constructor; rintro ⟨_, _⟩ rfl; apply Mseti.prob_pure
 
 instance emp_instProb : Prob (ρ := ρ) emp 1 := by
-  constructor; rintro ⟨_, _⟩ rfl; simp only [Mseti.one_unfold, Mseti.prob_pure, RM.prob_one]
+  constructor; rintro ⟨_, _⟩ rfl; simp only [Mseti.one_unfold, Mseti.prob_pure, PCMP.prob_one]
 
 instance sep_instProb [Prob P p] [Prob Q q] : Prob iprop(P ∗ Q) (p * q) := by
   constructor; rintro ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩;
-  rw [RM.prob_mul, prob P p _ elP, prob Q q _ elQ]
+  rw [PCMP.prob_mul, prob P p _ elP, prob Q q _ elQ]
 
 end RBI

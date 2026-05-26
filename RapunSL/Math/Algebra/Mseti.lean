@@ -3,7 +3,7 @@ module
 public import Mathlib.Algebra.Group.Defs
 public import RapunSL.Math.Algebra.Core
 public import RapunSL.Math.Mset
-open Mset Mseti PCM RM
+open Mset Mseti PCM PCMP
 
 @[expose] public section
 
@@ -79,28 +79,28 @@ protected lemma Mseti.valid_pure [PCM α] (a : α) :
 /-- Valid inhabited multisets -/
 abbrev Msetiv α [PCM α] := { A : Mseti α // ✓ A }
 
-/-! ## Inhabited multiset RM -/
+/-! ## Inhabited multiset PCMP -/
 
-/-- Inhabited multiset RM -/
-protected noncomputable instance Mseti.instRM (α : Type u) [RM α] : RM (Mseti α) where
-  prob A := ∑ᴹ a ∈ᴹ A.val, RM.prob a
+/-- Inhabited multiset PCMP -/
+protected noncomputable instance Mseti.instPCMP (α : Type u) [PCMP α] : PCMP (Mseti α) where
+  prob A := ∑ᴹ a ∈ᴹ A.val, PCMP.prob a
   prob_one := by
-    rw [Mseti.one_unfold, Mseti.pure_val, Mset.tsum_pure, RM.prob_one]
+    rw [Mseti.one_unfold, Mseti.pure_val, Mset.tsum_pure, PCMP.prob_one]
   prob_mul := by
     intro _ _; rw [Mseti.mul_val, Mset.map_seq, Mset.tsum_map, ENNReal.Mset.tsum_mul_tsum];
-    congr; ext1 _; apply RM.prob_mul
+    congr; ext1 _; apply PCMP.prob_mul
 
-protected lemma Mseti.prob_unfold [RM α] (A : Mseti α) :
-    RM.prob A = ∑ᴹ a ∈ᴹ A.val, RM.prob a := rfl
+protected lemma Mseti.prob_unfold [PCMP α] (A : Mseti α) :
+    PCMP.prob A = ∑ᴹ a ∈ᴹ A.val, PCMP.prob a := rfl
 
-protected lemma Mseti.prob_pure [RM α] (a : α) :
-    RM.prob (pure a : Mseti α) = RM.prob a := by
+protected lemma Mseti.prob_pure [PCMP α] (a : α) :
+    PCMP.prob (pure a : Mseti α) = PCMP.prob a := by
   rw [Mseti.prob_unfold, Mseti.pure_val, Mset.tsum_pure]
 
-protected lemma Mseti.prob_bigoplus [Inhabited ι] [RM α] (A : ι → Mseti α) :
-    RM.prob (⨁ᴹⁱ i, A i) = ∑' i, RM.prob (A i) := by
+protected lemma Mseti.prob_bigoplus [Inhabited ι] [PCMP α] (A : ι → Mseti α) :
+    PCMP.prob (⨁ᴹⁱ i, A i) = ∑' i, PCMP.prob (A i) := by
   rw [Mseti.prob_unfold, Mseti.bigoplus_val, ENNReal.Mset.tsum_bigoplus]; rfl
 
-protected lemma Mseti.prob_oplus [RM α] (A B : Mseti α) :
-    RM.prob (A ⊕ᴹⁱ B) = RM.prob A + RM.prob B := by
+protected lemma Mseti.prob_oplus [PCMP α] (A B : Mseti α) :
+    PCMP.prob (A ⊕ᴹⁱ B) = PCMP.prob A + PCMP.prob B := by
   rw [Mseti.prob_unfold, Mseti.oplus_val, ENNReal.Mset.tsum_oplus]; rfl

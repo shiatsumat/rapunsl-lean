@@ -117,10 +117,10 @@ protected lemma Pi.mul_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i
 protected lemma Pi.valid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     PCM.valid (α := ∀ i, α i) = fun f => ∀ i, ✓ f i := rfl
 
-/-! ## Resource monoid -/
+/-! ## PCM with probability -/
 
-/-- Resource monoid: PCM with probability -/
-class RM (α : Type u) extends PCM α where
+/-- PCM with probability -/
+class PCMP (α : Type u) extends PCM α where
   /-- Probability function -/
   protected prob : α → ℝ≥0∞
   /-- `1` has probability `1` -/
