@@ -77,11 +77,11 @@ protected lemma Excl.valid_unfold :
 /-- Product PCM -/
 protected instance Prod.instPCM (α : Type u) (β : Type u') [PCM α] [PCM β] : PCM (α × β) where
   one := (1, 1)
-  mul | (a, b), (a', b') => (a * a', b * b')
+  mul p q := (p.1 * q.1, p.2 * q.2)
   mul_one _ := by ext1 <;> apply mul_one
   mul_comm _ _ := by ext1 <;> apply mul_comm
   mul_assoc _ _ _ := by ext1 <;> apply mul_assoc
-  valid | (a, b) => ✓ a ∧ ✓ b
+  valid p := ✓ p.1 ∧ ✓ p.2
   valid_one := by and_intros <;> apply PCM.valid_one
   valid_mul_l := by
     intro _ _ ⟨val, val'⟩; and_intros;
@@ -90,10 +90,10 @@ protected instance Prod.instPCM (α : Type u) (β : Type u') [PCM α] [PCM β] :
 protected lemma Prod.one_unfold [PCM α] [PCM β] : (1 : α × β) = (1, 1) := rfl
 
 protected lemma Prod.mul_unfold [PCM α] [PCM β] :
-    (HMul.hMul : α × β → α × β → _) = fun | (a, b), (a', b') => (a * a', b * b') := rfl
+    (HMul.hMul : α × β → α × β → _) = fun p q => (p.1 * q.1, p.2 * q.2) := rfl
 
 protected lemma Prod.valid_unfold [PCM α] [PCM β] :
-    PCM.valid (α := α × β) = fun | (a, b) => ✓ a ∧ ✓ b := rfl
+    PCM.valid (α := α × β) = fun p => ✓ p.1 ∧ ✓ p.2 := rfl
 
 /-! ### Pi PCM -/
 
