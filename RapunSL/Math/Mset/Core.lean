@@ -136,7 +136,7 @@ protected lemma Ifam.empty_map (f : α → β) :
 
 protected lemma Mset.empty_map (f : α → β) :
     f <$>ᴹ (∅ : Mset α) = ∅ := by
-  apply (congr_arg (Quotient.mk _)); apply Ifam.empty_map
+  apply congr_arg (Quotient.mk _); apply Ifam.empty_map
 
 /-! ## Singleton -/
 
