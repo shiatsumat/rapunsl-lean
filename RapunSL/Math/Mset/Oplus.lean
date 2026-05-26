@@ -190,7 +190,7 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     (a ∈ A ⊕ᴵ B) = (a ∈ A ∨ a ∈ B) := by
   ext1; constructor;
   · rintro ⟨i | j, rfl⟩; { left; exists i }; { right; exists j }
-  · rintro (⟨i, rfl⟩ | ⟨i, rfl⟩); { exists (.inl i) }; { exists (.inr i) }
+  · rintro (⟨i, rfl⟩ | ⟨i, rfl⟩); { exists .inl i }; { exists .inr i }
 
 @[simp] protected lemma Mset.mem_oplus (A B : Mset α) a :
     (a ∈ A ⊕ᴹ B) = (a ∈ A ∨ a ∈ B) := by

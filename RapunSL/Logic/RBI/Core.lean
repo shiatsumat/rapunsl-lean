@@ -226,8 +226,8 @@ lemma prob_anti [Prob Q p] : (P ⊢ Q) → Prob P p := by
   intro _; constructor; intro _ _; apply prob Q; tauto
 
 lemma precise_prob [Precise P] : ∃ p, Prob P p := by
-  rcases em (∃ A, A ∈ P) with (⟨A, el⟩ | _); swap; { exists 0; constructor; tauto };
-  exists (PCMP.prob A.val); constructor; intro _ el'; rw [precise P _ _ el el']
+  rcases em (∃ A, A ∈ P) with ⟨A, el⟩ | _; swap; { exists 0; constructor; tauto };
+  exists PCMP.prob A.val; constructor; intro _ el'; rw [precise P _ _ el el']
 
 instance false_instProb p : Prob (ρ := ρ) iprop(False) p := by
   constructor; nofun
