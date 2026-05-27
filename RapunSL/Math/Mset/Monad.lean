@@ -233,3 +233,41 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
 
 @[simp] protected lemma Mset.inhab_bind (A : Mset α) (K : α → Mset β) :
     (A >>= K).inhab = (∃ a ∈ A, (K a).inhab) := by apply Mset.inhab_bind'
+
+/-! ### Pair membership -/
+
+@[simp] protected lemma Mset.pairmem_seq' (F : Mset (α → β)) (A : Mset α) b b' :
+    (F <*>ᴹ A).pairmem b b' =
+      ∃ f g a a', b = f a ∧ b' = g a' ∧
+        ((F.pairmem f g ∧ A.pairmem a a') ∨
+         (f = g ∧ f ∈ F ∧ A.pairmem a a') ∨
+         (a = a' ∧ a ∈ A ∧ F.pairmem f g)) := by
+  simp only [Mset.seq, Mset.pairmem_map', Mset.pairmem_prod]; aesop
+
+@[simp] protected lemma Mset.pairmem_seq (F : Mset (α → β)) (A : Mset α) b b' :
+    (F <*> A).pairmem b b' =
+      ∃ f g a a', b = f a ∧ b' = g a' ∧
+        ((F.pairmem f g ∧ A.pairmem a a') ∨
+         (f = g ∧ f ∈ F ∧ A.pairmem a a') ∨
+         (a = a' ∧ a ∈ A ∧ F.pairmem f g)) := by apply Mset.pairmem_seq'
+
+@[simp] protected lemma Mset.pairmem_join (A : Mset (Mset α)) a a' :
+    A.join.pairmem a a' =
+      ((∃ B ∈ A, B.pairmem a a') ∨
+       ∃ B B', A.pairmem B B' ∧ a ∈ B ∧ a' ∈ B') := by
+  revert A; apply Quotient.ind; intro A;
+  rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.pairmem_bigoplus]; congr <;> ext1;
+  { constructor; { tauto }; intro ⟨_, ⟨_, rfl⟩, _⟩; tauto }
+  constructor; swap; { intro ⟨_, _, ⟨i, i', _, rfl, rfl⟩, _, _⟩; exists i, i' };
+  intro ⟨i, i', _, el, el'⟩; exists A.elem i, A.elem i'; constructor; { exists i, i' }; { tauto }
+
+@[simp] protected lemma Mset.pairmem_bind' (A : Mset α) (K : α → Mset β) b b' :
+    (A >>=ᴹ K).pairmem b b' =
+      ((∃ a ∈ A, (K a).pairmem b b') ∨
+       (∃ a a', A.pairmem a a' ∧ b ∈ K a ∧ b' ∈ K a')) := by
+  simp only [Mset.bind, Mset.pairmem_map', Mset.pairmem_join]; aesop
+
+@[simp] protected lemma Mset.pairmem_bind (A : Mset α) (K : α → Mset β) b b' :
+    (A >>= K).pairmem b b' =
+      ((∃ a ∈ A, (K a).pairmem b b') ∨
+       (∃ a a', A.pairmem a a' ∧ b ∈ K a ∧ b' ∈ K a')) := by apply Mset.pairmem_bind'

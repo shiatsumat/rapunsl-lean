@@ -256,3 +256,68 @@ protected lemma Mset.not_inhab_empty (A : Mset α) :
 
 protected lemma Mset.not_empty_inhab (A : Mset α) :
     (A ≠ ∅) = A.inhab := by rw [Ne, ←Mset.not_inhab_empty, not_not]
+
+/-! ## Pair membership -/
+
+/-- Pair membership for `Ifam` -/
+protected def Ifam.pairmem (A : Ifam α) (a b : α) : Prop :=
+  ∃ i j, i ≠ j ∧ A.elem i = a ∧ A.elem j = b
+
+protected lemma Ifam.pairmem_proper' (A B : Ifam α) :
+    A ≈ B → A.pairmem a b → B.pairmem a b := by
+  rintro ⟨f, AB⟩ ⟨i, j, _, rfl, rfl⟩; exists f i, f j;
+  constructor; swap; { simp only [AB]; trivial };
+  grind only [EquivLike.apply_eq_iff_eq f]
+
+protected lemma Ifam.pairmem_proper (A B : Ifam α) :
+    A ≈ B → A.pairmem a b = B.pairmem a b := by
+  intro _; ext1; constructor <;> { apply Ifam.pairmem_proper'; tauto }
+
+/-- Pair membership for `Mset` -/
+protected def Mset.pairmem (A : Mset α) (a b : α) : Prop :=
+  A.liftOn (·.pairmem a b) <| Ifam.pairmem_proper
+
+/-! ### Pair membership lemmas -/
+
+/-- Pair membership is symmetric -/
+protected instance Mset.pairmem_instSymm (A : Mset α) : Std.Symm A.pairmem where
+  symm := by
+    cases A using Quotient.ind; rintro _ _ ⟨i, j, _, rfl, rfl⟩;
+    exists j, i; constructor <;> tauto
+
+/-- Pair membership is symmetric -/
+@[symm] protected lemma Mset.pairmem_symm (A : Mset α) a b :
+    A.pairmem a b → A.pairmem b a := by
+  apply (Mset.pairmem_instSymm A).symm
+
+/-- Pair membership implies membership -/
+protected lemma Mset.pairmem_mem_l (A : Mset α) a b : A.pairmem a b → a ∈ A := by
+  cases A using Quotient.ind; rintro ⟨i, _, _, rfl, _⟩; exists i
+
+/-- Pair membership implies membership -/
+protected lemma Mset.pairmem_mem_r (A : Mset α) a b : A.pairmem a b → b ∈ A := by
+  intro mem; symm at mem; apply Mset.pairmem_mem_l; trivial
+
+@[simp] protected lemma Mset.pairmem_out (A : Mset α) a b :
+    A.out.pairmem a b = A.pairmem a b := by
+  cases A using Quotient.ind; apply Ifam.pairmem_proper; apply Quotient.mk_out
+
+@[simp] protected lemma Ifam.pairmem_map' (f : α → β) (A : Ifam α) b b' :
+    (f <$>ᴵ A).pairmem b b' = ∃ a a', A.pairmem a a' ∧ b = f a ∧ b' = f a' := by
+  ext1; constructor;
+  · rintro ⟨i, j, _, rfl, rfl⟩; exists A.elem i, A.elem j; constructor; { exists i, j }; trivial
+  · rintro ⟨_, _, ⟨i, j, _, rfl, rfl⟩, rfl, rfl⟩; exists i, j
+
+@[simp] protected lemma Mset.pairmem_map' (f : α → β) (A : Mset α) b b' :
+    (f <$>ᴹ A).pairmem b b' = ∃ a a', A.pairmem a a' ∧ b = f a ∧ b' = f a' := by
+  cases A using Quotient.ind; apply Ifam.pairmem_map'
+
+@[simp] protected lemma Mset.pairmem_map (f : α → β) (A : Mset α) b b' :
+    (f <$> A).pairmem b b' = ∃ a a', A.pairmem a a' ∧ b = f a ∧ b' = f a' := by
+  apply Mset.pairmem_map'
+
+@[simp] protected lemma Mset.pairmem_empty a b : (∅ : Mset α).pairmem a b = False := by
+  simp only [eq_iff_iff, iff_false]; nofun
+
+@[simp] protected lemma Mset.pairmem_pure a b c : (pure a : Mset α).pairmem b c = False := by
+  simp only [eq_iff_iff, iff_false]; nofun

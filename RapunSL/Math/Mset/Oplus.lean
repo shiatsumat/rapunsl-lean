@@ -214,3 +214,40 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
 @[simp] protected lemma Mset.inhab_bigoplus {ι : Type} (A : ι → Mset α) :
     (⨁ᴹ i, A i).inhab = ∃ i, (A i).inhab := by
   simp only [Mset.inhab, Mset.mem_bigoplus]; grind only
+
+/-! ## Pair membership -/
+
+@[simp] protected lemma Ifam.pairmem_oplus (a b : α) (A B : Ifam α) :
+    (A ⊕ᴵ B).pairmem a b =
+      (A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b) := by
+  ext1; constructor;
+  · rintro ⟨(i | i), (j | j), ne, rfl, rfl⟩;
+    · left; exists i, j; tauto
+    · right; left; and_intros; { exists i }; { exists j }
+    · right; right; left; and_intros; { exists i }; { exists j }
+    · right; right; right; exists i, j; tauto
+  · rintro (⟨i, j, ne, rfl, rfl⟩ | ⟨⟨i, rfl⟩, ⟨j, rfl⟩⟩ |
+      ⟨⟨i, rfl⟩, ⟨j, rfl⟩⟩ | ⟨i, j, ne, rfl, rfl⟩);
+    { exists .inl i, .inl j; aesop }; { exists .inl i, .inr j; tauto }
+    { exists .inr i, .inl j; tauto }; { exists .inr i, .inr j; aesop }
+
+@[simp] protected lemma Mset.pairmem_oplus (a b : α) (A B : Mset α) :
+    (A ⊕ᴹ B).pairmem a b =
+      (A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b) := by
+  cases A using Quotient.ind; cases B using Quotient.ind;
+  apply Ifam.pairmem_oplus
+
+@[simp] protected lemma Ifam.pairmem_bigoplus {ι : Type} (A : ι → Ifam α) a b :
+    (⨁ᴵ i, A i).pairmem a b =
+      ((∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i')) := by
+  ext1; constructor;
+  · rintro ⟨⟨i, j⟩, ⟨i', j'⟩, ne, rfl, rfl⟩;
+    rcases Classical.em (i = i') with rfl | ne; { left; exists i, j, j'; aesop }
+    right; exists i, i'; constructor; { trivial }; and_intros; { exists j }; { exists j' }
+  · rintro (⟨i, j, j', ne, rfl, rfl⟩ | ⟨i, i', ne, ⟨j, rfl⟩, ⟨j', rfl⟩⟩);
+    { exists ⟨i, j⟩, ⟨i, j'⟩; aesop }; { exists ⟨i, j⟩, ⟨i', j'⟩; aesop }
+
+@[simp] protected lemma Mset.pairmem_bigoplus {ι : Type} (A : ι → Mset α) a b :
+    (⨁ᴹ i, A i).pairmem a b =
+      ((∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i')) := by
+  trans; { apply Ifam.pairmem_bigoplus }; simp only [Mset.pairmem_out, Mset.mem_out]

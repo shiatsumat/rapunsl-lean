@@ -153,3 +153,31 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
     (A ×ᴹ B).inhab = (A.inhab ∧ B.inhab) := by
   simp only [Mset.inhab, Mset.mem_prod]; ext1; constructor; { tauto };
   intro ⟨⟨a, _⟩, ⟨b, _⟩⟩; exists (a, b)
+
+/-! ## Pair membership -/
+
+@[simp] protected lemma Ifam.pairmem_prod (A : Ifam α) (B : Ifam β) p q :
+    (A ×ᴵ B).pairmem p q =
+      ((A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
+       (p.1 = q.1 ∧ p.1 ∈ A ∧ B.pairmem p.2 q.2) ∨
+       (p.2 = q.2 ∧ p.2 ∈ B ∧ A.pairmem p.1 q.1)) := by
+  ext1; constructor;
+  · rintro ⟨⟨i, j⟩, ⟨i', j'⟩, _, rfl, rfl⟩;
+    rcases Classical.em (i = i') with rfl | _;
+    { right; left; constructor; { rfl }; and_intros; { exists i }; exists j, j'; aesop };
+    rcases Classical.em (j = j') with (rfl | _);
+    { right; right; constructor; { rfl }; and_intros; { exists j }; exists i, i' };
+    left; and_intros; { exists i, i' }; { exists j, j' }
+  · cases p; cases q;
+    rintro (⟨⟨i, i', _, rfl, rfl⟩, ⟨j, j', _, rfl, rfl⟩⟩ |
+      ⟨rfl, ⟨i, rfl⟩, ⟨j, j', _, rfl, rfl⟩⟩ | ⟨rfl, ⟨j, rfl⟩, ⟨i, i', _, rfl, rfl⟩⟩);
+    { exists (i, j), (i', j'); aesop };
+    { exists (i, j), (i, j'); aesop }; { exists (i, j), (i', j); aesop }
+
+@[simp] protected lemma Mset.pairmem_prod (A : Mset α) (B : Mset β) p q :
+    (A ×ᴹ B).pairmem p q =
+      ((A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
+       (p.1 = q.1 ∧ p.1 ∈ A ∧ B.pairmem p.2 q.2) ∨
+       (p.2 = q.2 ∧ p.2 ∈ B ∧ A.pairmem p.1 q.1)) := by
+  cases A using Quotient.ind; cases B using Quotient.ind;
+  apply Ifam.pairmem_prod
