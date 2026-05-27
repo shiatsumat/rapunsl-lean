@@ -44,6 +44,14 @@ protected lemma Mseti.mul_oplus_r [Mul α] (A B C : Mseti α) :
   simp only [Mseti.mul_val, Mset.mem_seq, Mset.mem_map, existsAndEq];
   ext1; tauto
 
+@[simp] protected lemma Mseti.pairmem_mul [Mul α] (A B : Mseti α) c c' :
+    (A * B).val.pairmem c c' =
+      ∃ a a' b b', c = a * b ∧ c' = a' * b' ∧
+        ((A.val.pairmem a a' ∧ B.val.pairmem b b') ∨
+         (a = a' ∧ a ∈ A.val ∧ B.val.pairmem b b') ∨
+         (b = b' ∧ b ∈ B.val ∧ A.val.pairmem a a')) := by
+  simp only [Mseti.mul_val, Mset.map_seq, Mset.pairmem_map, Mset.pairmem_prod]; aesop
+
 /-- `1` for multisets -/
 protected instance Mseti.instOne (α : Type u) [One α] : One (Mseti α) where
   one := pure 1
