@@ -14,9 +14,9 @@ namespace RBI
 /-! ## RapunSL propositions -/
 
 /-- RapunSL proposition based on a multiset PCMP -/
-def RProp ρ [PCMP ρ] := LeibnizO (Set (Msetiv ρ))
+def RProp ρ [RM ρ] := LeibnizO (Set (Msetiv ρ))
 
-variable {ρ : Type u} [PCMP ρ] (P Q R : RProp ρ) (r s : ρ)
+variable {ρ : Type u} [RM ρ] (P Q R : RProp ρ) (r s : ρ)
 
 protected instance instMembership : Membership (Msetiv ρ) (RProp ρ) where
   mem P A := P.car A
