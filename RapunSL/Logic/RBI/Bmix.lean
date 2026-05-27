@@ -249,8 +249,7 @@ instance bigbmix_instPrecise [Inhabited ι] (P : ι → RProp ρ) [∀ i, Precis
 
 /-- Preciseness of `⊕` -/
 instance bmix_instPrecise [Precise P] [Precise Q] : Precise iprop(P ⊕ Q) := by
-  constructor; rw [bmix_as_bigbmix]; apply (bigbmix_precise _ _).precise;
-  rintro (_ | _) <;> tauto
+  rw [bmix_as_bigbmix]; apply bigbmix_precise; rintro (_ | _) <;> tauto
 
 /-! ## Rules for `Prob` -/
 
