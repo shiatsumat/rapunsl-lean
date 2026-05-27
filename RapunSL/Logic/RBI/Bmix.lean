@@ -51,6 +51,8 @@ scoped delab_rules RBI.pine
 
 /-! ## Rules for `⊕`, `⨁` and `-⊕` -/
 
+/-! ### Reinterpretation -/
+
 lemma bmix_as_bigbmix : P ⊕ Q =ᴿ ⨁ (b : Bool), if b then P else Q := by
   apply set_ext; intro ⟨_, _⟩; constructor;
   · rintro ⟨A, B, _, _, rfl⟩; exists fun b => if b then A else B;
@@ -67,12 +69,16 @@ lemma unary_bigbmix : (⨁ (_ : Unit), P) =ᴿ P := by
   · intro _; exists fun _ => ⟨A, val⟩; simp only; and_intros; { tauto };
     ext1; simp only [Mseti.bigoplus_val, Mset.unary_bigoplus]
 
+/-! ### Monotonicity -/
+
 @[gcongr] lemma bigbmix_mono [Inhabited ι] (P Q : ι → RProp ρ) :
     (∀ i, P i ⊢ Q i) → (⨁ i, P i) ⊢ ⨁ i, Q i := by
   intro _ _ ⟨A, _, _⟩; exists A; tauto
 
 @[gcongr] lemma bmix_mono : (P ⊢ P') → (Q ⊢ Q') → P ⊕ Q ⊢ P' ⊕ Q' := by
   intro _ _; grw [bmix_as_bigbmix, bmix_as_bigbmix]; gcongr; grind only
+
+/-! ### Commutativity -/
 
 private lemma bigbmix_comm_fwd [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ i, P i) ⊢ ⨁ j, P (f j) := by
@@ -96,6 +102,8 @@ lemma bigbmix_comm' [Inhabited ι] [Inhabited ι']
 lemma bmix_comm : P ⊕ Q =ᴿ Q ⊕ P := by
   simp only [bmix_as_bigbmix]; rw [bigbmix_comm Equiv.boolNot]; congr;
   simp only [Equiv.boolNot_apply]; grind only
+
+/-! ### Associativity -/
 
 lemma bigbmix_assoc {ι' : ι → Type} [Inhabited ι] [∀ i, Inhabited (ι' i)]
     (P : ∀ i, ι' i → RProp ρ) :
@@ -129,6 +137,8 @@ lemma bmix_assoc : (P ⊕ Q) ⊕ R =ᴿ P ⊕ (Q ⊕ R) := by
     (fun | ⟨true, b⟩ => if b then ⟨true, false⟩ else ⟨false, ()⟩ | ⟨false, _⟩ => ⟨true, true⟩) <;>
     { rintro ⟨(_ | _), i⟩; { rfl }; cases i <;> rfl }
 
+/-! ### `-⊕` -/
+
 lemma pine_intro_l : (P ⊕ Q ⊢ R) → Q ⊢ P -⊕ R := by
   intro toR A _ B _ _; apply toR; exists B, A, by trivial
 
@@ -144,6 +154,8 @@ lemma pine_elim_r : (P -⊕ Q) ⊕ P ⊢ Q := by
 lemma pine_adj : (P ⊕ Q ⊢ R) = (Q ⊢ P -⊕ R) := by
   ext1; constructor; { apply pine_intro_l };
   intro Qto; grw [Qto]; apply pine_elim_l
+
+/-! ### Interaction of `⊕` and `⨁` with disjunction -/
 
 lemma bmix_exists_l (Q : α → RProp ρ) :
     P ⊕ (∃ a, Q a) =ᴿ ∃ a, P ⊕ Q a := by
@@ -224,26 +236,31 @@ lemma bmix_unframe_r [Precise R] : (P ∗ R) ⊕ (Q ∗ R) =ᴿ (P ⊕ Q) ∗ R 
 
 /-! ## Rules for `Precise` -/
 
+/-- Preciseness of `⨁` -/
 lemma bigbmix_precise [Inhabited ι] (P : ι → RProp ρ) :
     (∀ i, Precise (P i)) → Precise iprop(⨁ i, P i) := by
   intro _; constructor; rintro ⟨_, _⟩ ⟨_, _⟩ ⟨F, el, rfl⟩ ⟨G, el', rfl⟩;
   congr; ext1 i; congr; apply precise (P i) <;> tauto
 
+/-- Preciseness of `⨁` -/
 instance bigbmix_instPrecise [Inhabited ι] (P : ι → RProp ρ) [∀ i, Precise (P i)] :
     Precise iprop(⨁ i, P i) :=
   bigbmix_precise P inferInstance
 
+/-- Preciseness of `⊕` -/
 instance bmix_instPrecise [Precise P] [Precise Q] : Precise iprop(P ⊕ Q) := by
   constructor; rw [bmix_as_bigbmix]; apply (bigbmix_precise _ _).precise;
   rintro (_ | _) <;> tauto
 
 /-! ## Rules for `Prob` -/
 
+/-- Probability of `⨁` -/
 instance bigbmix_instProb [Inhabited ι] (P : ι → RProp ρ) (p : ι → ℝ≥0∞) [∀ i, Prob (P i) (p i)] :
     Prob iprop(⨁ i, P i) (∑' i, p i) := by
   constructor; rintro ⟨_, _⟩ ⟨_, _, rfl⟩; trans; { apply ENNReal.Mset.tsum_bigoplus };
   congr; ext1 i; apply prob (P i); tauto
 
+/-- Probability of `⊕` -/
 instance bmix_instProb [Prob P p] [Prob Q q] : Prob iprop(P ⊕ Q) (p + q) := by
   constructor; rintro ⟨_, _⟩ ⟨_, _, _, _, rfl⟩; trans; { apply ENNReal.Mset.tsum_oplus };
   congr; { apply prob P; trivial }; { apply prob Q; trivial }
