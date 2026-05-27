@@ -1,4 +1,4 @@
 module
 
 public import RapunSL.Logic.RBI.Core
-public import RapunSL.Logic.RBI.Oplus
+public import RapunSL.Logic.RBI.Bmix
