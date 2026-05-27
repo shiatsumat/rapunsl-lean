@@ -38,16 +38,16 @@ scoped syntax:25 term:26 " -⊕ " term:25 : term
 scoped macro_rules
   | `(iprop($P ⊕ $Q)) => `(RBI.bmix iprop($P) iprop($Q))
   | `(iprop(⨁ $i, $P)) => `(RBI.bigbmix (fun $i => iprop($P)))
-  | `(iprop($P -⊕ $Q)) => `(pine iprop($P) iprop($Q))
+  | `(iprop($P -⊕ $Q)) => `(RBI.pine iprop($P) iprop($Q))
 
 delab_rule RBI.bmix
-  | `($_ $P $Q) => do ``(iprop($(←unpackIprop P) ⊕ $(←unpackIprop Q)))
+  | `($_ $P $Q) => do ``(iprop($(← unpackIprop P) ⊕ $(← unpackIprop Q)))
 
 delab_rule RBI.bigbmix
-  | `($_ fun $i => $P) => do ``(iprop(⨁ $i, $(←unpackIprop P)))
+  | `($_ fun $i => $P) => do ``(iprop(⨁ $i, $(← unpackIprop P)))
 
 delab_rule RBI.pine
-  | `($_ $P $Q) => do ``(iprop($(←unpackIprop P) -⊕ $(←unpackIprop Q)))
+  | `($_ $P $Q) => do ``(iprop($(← unpackIprop P) -⊕ $(← unpackIprop Q)))
 
 /-! ## Rules for `⊕`, `⨁` and `-⊕` -/
 
