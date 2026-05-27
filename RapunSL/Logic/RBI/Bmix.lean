@@ -26,7 +26,7 @@ def bigbmix [Inhabited ι] (P : ι → RProp ρ) : RProp ρ :=
   .mk fun A => ∃ B : ι → Msetiv ρ, (∀ i, B i ∈ P i) ∧ A.val = ⨁ᴹⁱ i, (B i).val
 
 @[inherit_doc bigbmix]
-scoped syntax "⨁ " Lean.Parser.Term.funBinder ", " term : term
+scoped syntax "⨁ " Syntax.funBinder ", " term : term
 
 /-- Pine, the right adjoint of `⊕` -/
 def pine (P Q : RProp ρ) : RProp ρ :=
@@ -40,13 +40,13 @@ scoped macro_rules
   | `(iprop(⨁ $i, $P)) => `(RBI.bigbmix (fun $i => iprop($P)))
   | `(iprop($P -⊕ $Q)) => `(RBI.pine iprop($P) iprop($Q))
 
-delab_rule RBI.bmix
+scoped delab_rules RBI.bmix
   | `($_ $P $Q) => do ``(iprop($(← unpackIprop P) ⊕ $(← unpackIprop Q)))
 
-delab_rule RBI.bigbmix
+scoped delab_rules RBI.bigbmix
   | `($_ fun $i => $P) => do ``(iprop(⨁ $i, $(← unpackIprop P)))
 
-delab_rule RBI.pine
+scoped delab_rules RBI.pine
   | `($_ $P $Q) => do ``(iprop($(← unpackIprop P) -⊕ $(← unpackIprop Q)))
 
 /-! ## Rules for `⊕`, `⨁` and `-⊕` -/

@@ -1,5 +1,6 @@
 module
 
+public import RapunSL.Util.Syntax
 public import Iris.BI
 public import RapunSL.Math.Algebra.Mseti
 public import RapunSL.Logic.BI
@@ -220,7 +221,7 @@ def Incomp (P Q : RProp ρ) : Prop :=
 @[inherit_doc Incomp]
 scoped macro:25 P:term:25 " #ᴿ " Q:term:25 : term => `(Incomp iprop($P) iprop($Q))
 
-delab_rule Incomp
+scoped delab_rules Incomp
   | `($_ $P $Q) => do ``($(← unpackIprop P) #ᴿ $(← unpackIprop Q))
 
 /-! ### Incompatibility lemmas -/
