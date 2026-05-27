@@ -27,7 +27,7 @@ scoped[Ifam] notation "∏ᴵ " a " ∈ᴵ " A ", " b:67 => Ifam.tprod (fun a =>
 scoped[Ifam] notation "∑ᴵ " a " ∈ᴵ " A ", " b:67 => Ifam.tsum (fun a => b) A
 
 @[to_additive]
-protected lemma Ifam.tprod_proper {α} A B (k : α → κ) :
+protected lemma Ifam.tprod_proper {α} (k : α → κ) A B :
     A ≈ B → ∏ᴵ a ∈ᴵ A, k a = ∏ᴵ b ∈ᴵ B, k b := by
   have ⟨ι, A⟩ := A; have ⟨ι', B⟩ := B; rintro ⟨ιι', AB⟩; simp only at *;
   trans; swap; { apply Equiv.tprod_eq ιι' }; simp only [Ifam.tprod]; congr;  ext1 _; rw [AB]
@@ -35,7 +35,7 @@ protected lemma Ifam.tprod_proper {α} A B (k : α → κ) :
 /-- Infinite product over a multiset -/
 @[to_additive /-- Infinite sum over a multiset -/]
 protected noncomputable def Mset.tprod (k : α → κ) : Mset α → κ :=
-  Quotient.lift (Ifam.tprod k) <| by intro _ _; apply Ifam.tprod_proper
+  Quotient.lift (Ifam.tprod k) (Ifam.tprod_proper k)
 
 @[inherit_doc Mset.tprod]
 scoped[Mset] notation "∏ᴹ " a " ∈ᴹ " A ", " b:67 => Mset.tprod (fun a => b) A

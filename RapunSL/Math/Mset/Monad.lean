@@ -99,7 +99,7 @@ protected noncomputable def Ifam.join {α} (A : Ifam (Mset α)) : Mset α :=
 
 /-- `join` for `Mset` -/
 protected noncomputable def Mset.join {α} : Mset (Mset α) → Mset α :=
-  .lift (·.join) <| by intros; apply Ifam.join_proper; trivial
+  .lift (·.join) Ifam.join_proper
 
 /-! ### Join laws -/
 

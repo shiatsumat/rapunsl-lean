@@ -187,7 +187,7 @@ protected lemma Ifam.mem_proper (A B : Ifam α) :
 
 /-- Membership for `Mset` -/
 protected instance Mset.instMembership : Membership α (Mset α) where
-  mem A a := A.liftOn (a ∈ ·) <| Ifam.mem_proper
+  mem A a := A.liftOn (a ∈ ·) Ifam.mem_proper
 
 /-! ### Membership lemmas -/
 
@@ -275,7 +275,7 @@ protected lemma Ifam.pairmem_proper (A B : Ifam α) :
 
 /-- Pair membership for `Mset` -/
 protected def Mset.pairmem (A : Mset α) (a b : α) : Prop :=
-  A.liftOn (·.pairmem a b) <| Ifam.pairmem_proper
+  A.liftOn (·.pairmem a b) Ifam.pairmem_proper
 
 /-! ### Pair membership lemmas -/
 
