@@ -3,7 +3,7 @@ module
 public import Iris.BI
 public import RapunSL.Math.Algebra.Mseti
 public import RapunSL.Logic.BI
-open Iris OFE BI PCM PCMP ENNReal
+open Iris OFE BI PCM PCMC PCMP ENNReal
 
 @[expose] public section
 
@@ -210,6 +210,83 @@ instance emp_instPrecise : Precise (ρ := ρ) emp := own_instPrecise _
 instance sep_instPrecise [Precise P] [Precise Q] : Precise iprop(P ∗ Q) := by
   constructor; rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩;
   simp only [precise P _ _ elP elP', precise Q _ _ elQ elQ']
+
+/-! ## Incompatibility -/
+
+/-- Incompatibility between propositions -/
+def Incomp (P Q : RProp ρ) : Prop :=
+  ∀ A B, A ∈ P → B ∈ Q → ∀ a b, a ∈ A.val.val → b ∈ B.val.val → a # b
+
+@[inherit_doc Incomp]
+scoped macro:25 P:term:25 " #ᴿ " Q:term:25 : term => `(Incomp iprop($P) iprop($Q))
+
+delab_rule Incomp
+  | `($_ $P $Q) => do ``($(← unpackIprop P) #ᴿ $(← unpackIprop Q))
+
+/-! ### Incompatibility lemmas -/
+
+/-- Incompatibility is symmetric -/
+@[symm] lemma incomp_symm : (P #ᴿ Q) → Q #ᴿ P := by
+  intro inc _ _ _ _ _ _ _ _; symm; apply inc <;> trivial
+
+/-- Incompatibility is antitone -/
+lemma incomp_anti :
+    (P' #ᴿ Q') → (P ⊢ P') → (Q ⊢ Q') → P #ᴿ Q := by
+  intro inc PP' QQ' _ _ _ _ ; apply inc; { apply PP'; trivial }; { apply QQ'; trivial }
+
+/-- Incompatibility over `own` -/
+lemma incomp_own : r # s → own r #ᴿ own s := by
+  rintro inc ⟨_, _⟩ ⟨_, _⟩ rfl rfl _ _; simp only [Mseti.pure_val, Mset.mem_pure]; aesop
+
+/-- Incompatibility over `∗` -/
+lemma incomp_sep_l : (P #ᴿ Q) → P ∗ R #ᴿ Q := by
+  rintro inc ⟨_, val⟩ _ ⟨_, _, _, _, rfl⟩ _ _ _; simp only [Mseti.mem_mul];
+  rintro ⟨_, _, _, _, rfl⟩ _; apply PCMC.incomp_mul_l;
+  { apply val; simp only [Mseti.mem_mul]; tauto }; { apply inc <;> try trivial }
+
+/-- Incompatibility over `∗` -/
+lemma incomp_sep_r : (P #ᴿ Q) → R ∗ P #ᴿ Q := by
+  rw [sep_comm]; apply incomp_sep_l
+
+/-! ## Unambiguity -/
+
+/-- Unambiguity of a proposition -/
+class Unambig (P : RProp ρ) : Prop where
+  unambig : ∀ A ∈ P, ∀ a b, A.val.val.pairmem a b → a # b
+
+lemma unambig [Unambig P] : ∀ A ∈ P, ∀ a b, A.val.val.pairmem a b → a # b := by
+  apply Unambig.unambig
+
+/-! ### Unambiguity lemmas -/
+
+/-- Unambiguity is antitone -/
+lemma unambig_anti [Unambig Q] : (P ⊢ Q) → Unambig P := by
+  intro PQ; constructor; intro _ _ _ _; apply unambig Q; apply PQ; trivial
+
+/-- Unambiguity over `own` -/
+instance own_instUnambig (r : ρ) : Unambig (own r) := by
+  constructor; intro ⟨_, _⟩ rfl _ _; rw [Mseti.pure_val, Mset.pairmem_pure r]; tauto
+
+/-- Unambiguity over `emp` -/
+instance emp_instUnambig : Unambig (ρ := ρ) emp := by apply own_instUnambig
+
+/-- Unambiguity over `∗` -/
+instance sep_instUnambig [Unambig P] [Unambig Q] :
+    Unambig iprop(P ∗ Q) := by
+  constructor; rintro ⟨_, val⟩ ⟨_, _, elP, _, rfl⟩ _ _; simp only [Mseti.pairmem_mul];
+  rintro ⟨_, _, _, _, rfl, rfl, (⟨_, _⟩ | ⟨rfl, _, _⟩ | ⟨rfl, _, _⟩)⟩;
+  swap;
+  { apply PCMC.incomp_mul_r;
+    { apply val; rw [Mseti.mem_mul]; grind only [Mset.pairmem_mem_l] };
+    symm; apply PCMC.incomp_mul_r;
+    { apply val; rw [Mseti.mem_mul]; grind only [Mset.pairmem_mem_r] };
+    apply unambig Q <;> tauto };
+  all_goals
+  { apply PCMC.incomp_mul_l;
+    { apply val; rw [Mseti.mem_mul]; grind only [Mset.pairmem_mem_l] };
+    symm; apply PCMC.incomp_mul_l;
+    { apply val; rw [Mseti.mem_mul]; grind only [Mset.pairmem_mem_r] };
+    apply unambig P <;> tauto }
 
 /-! ## Probability -/
 

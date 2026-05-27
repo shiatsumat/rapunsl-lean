@@ -248,4 +248,34 @@ instance oplus_instProb [Prob P p] [Prob Q q] : Prob iprop(P ⊕ Q) (p + q) := b
   constructor; rintro ⟨_, _⟩ ⟨_, _, _, _, rfl⟩; trans; { apply ENNReal.Mset.tsum_oplus };
   congr; { apply prob P; trivial }; { apply prob Q; trivial }
 
+/-! ## Rules for `Incomp` -/
+
+/-- Incompatibility over `⨁` -/
+lemma incomp_bigoplus [Inhabited ι] (P : ι → RProp ρ) :
+    (∀ i, P i #ᴿ Q) → (⨁ i, P i) #ᴿ Q := by
+  rintro inc ⟨_, val⟩ _ ⟨_, _, rfl⟩ _ _ _; simp only [Mseti.bigoplus_val, Mset.mem_bigoplus];
+  intro ⟨i, _⟩; apply inc i <;> tauto
+
+/-- Incompatibility over `⊕` -/
+lemma incomp_oplus : (P #ᴿ R) → (Q #ᴿ R) → P ⊕ Q #ᴿ R := by
+  intros; rw [oplus_as_bigoplus]; apply incomp_bigoplus; rintro (_ | _) <;> trivial
+
+/-! ## Rules for `Unambig` -/
+
+/-- Unambiguity over `⨁` -/
+lemma bigoplus_unambig [Inhabited ι] (P : ι → RProp ρ) :
+    (∀ i, Unambig (P i)) → (∀ i j, i ≠ j → Incomp (P i) (P j)) →
+    Unambig (ρ := ρ) iprop(⨁ i, P i) := by
+  intro _ inc; constructor; rintro ⟨_, _⟩ ⟨_, _, rfl⟩ _ _;
+  rw [Mseti.bigoplus_val, Mset.pairmem_bigoplus];
+  rintro (⟨i, _⟩ | ⟨_, _, _, _, _⟩);
+  { apply unambig (P i) <;> tauto }; { apply inc <;> tauto }
+
+/-- Unambiguity over `⊕` -/
+lemma oplus_unambig [Unambig P] [Unambig Q] :
+    Incomp P Q → Unambig (ρ := ρ) iprop(P ⊕ Q) := by
+  intro inc; rw [oplus_as_bigoplus]; apply bigoplus_unambig;
+  { rintro (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> trivial };
+  rintro (_ | _) (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> tauto
+
 end RBI
