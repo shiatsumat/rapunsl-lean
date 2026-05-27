@@ -40,8 +40,8 @@ protected lemma Mseti.mul_oplus_r [Mul α] (A B C : Mseti α) :
   ext; simp only [Mseti.oplus_as_bigoplus, Mseti.mul_bigoplus_r]; grind only
 
 @[simp] protected lemma Mseti.mem_mul [Mul α] (A B : Mseti α) a :
-    (a ∈ A * B) = ∃ b c, b ∈ A ∧ c ∈ B ∧ a = b * c := by
-  simp only [Mseti.mul_val, Mseti.mem_unfold, Mset.mem_seq, Mset.mem_map, existsAndEq];
+    (a ∈ (A * B).val) = ∃ b c, b ∈ A.val ∧ c ∈ B.val ∧ a = b * c := by
+  simp only [Mseti.mul_val, Mset.mem_seq, Mset.mem_map, existsAndEq];
   ext1; tauto
 
 /-- `1` for multisets -/
@@ -61,20 +61,19 @@ protected instance Mseti.instPCM (α : Type u) [PCM α] : PCM (Mseti α) where
     grind only [mul_comm]
   mul_assoc _ _ _ := by
     ext; simp only [Mseti.mul_val, functor_norm]; grind only [mul_assoc]
-  valid A := ∀ a ∈ A, ✓ a
+  valid A := ∀ a ∈ A.val, ✓ a
   valid_one := by
-    simp only [Mseti.one_unfold, Mseti.mem_unfold, Mseti.pure_val, Mset.mem_pure, forall_eq];
-    apply PCM.valid_one
+    simp only [Mseti.one_unfold, Mseti.pure_val, Mset.mem_pure, forall_eq]; apply PCM.valid_one
   valid_mul_l := by
     intro A ⟨B, ⟨b, _⟩⟩ val a _; apply PCM.valid_mul_l _ b;
     apply val; simp only [Mseti.mem_mul]; exists a, b
 
 protected lemma Mseti.valid_unfold [PCM α] :
-    PCM.valid (α := Mseti α) = fun A => ∀ a ∈ A, ✓ a := rfl
+    PCM.valid (α := Mseti α) = fun A => ∀ a ∈ A.val, ✓ a := rfl
 
 protected lemma Mseti.valid_pure [PCM α] (a : α) :
     (✓ (pure a : Mseti α)) = (✓ a) := by
-  simp only [Mseti.valid_unfold, Mseti.mem_unfold, Mseti.pure_val, Mset.mem_pure, forall_eq]
+  simp only [Mseti.valid_unfold, Mseti.pure_val, Mset.mem_pure, forall_eq]
 
 /-- Valid inhabited multisets -/
 abbrev Msetiv α [PCM α] := { A : Mseti α // ✓ A }

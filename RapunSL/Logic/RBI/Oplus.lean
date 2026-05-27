@@ -108,9 +108,9 @@ lemma bigoplus_assoc {ι' : ι → Type} [Inhabited ι] [∀ i, Inhabited (ι' i
     congr; ext1 i; rw [(el i).right]; rfl
   · rintro ⟨_, val⟩ ⟨A, el, rfl⟩;
     exists fun i => ⟨⨁ᴹⁱ j, A ⟨i, j⟩, by
-      intro _; simp only [Mseti.mem_unfold, Mseti.bigoplus_val, Mset.mem_bigoplus];
+      intro _; simp only [Mseti.bigoplus_val, Mset.mem_bigoplus];
       intro ⟨_, _⟩; apply val;
-      simp only [Mseti.mem_unfold, Mseti.bigoplus_val, Mset.mem_bigoplus]; tauto⟩;
+      simp only [Mseti.bigoplus_val, Mset.mem_bigoplus]; tauto⟩;
     and_intros; swap; { symm; ext; apply Mset.bigoplus_assoc };
     intro i; exists fun j => A ⟨i, j⟩; simp only [and_true]; intro _; apply el ⟨_, _⟩
 
@@ -181,7 +181,7 @@ lemma bigoplus_frame_l [Inhabited ι] (Q : ι → RProp ρ) :
   exists fun i => ⟨A.val * (B i).val, by
     intro _; simp only [Mseti.mem_mul]; rintro ⟨r, s, _, _, rfl⟩; apply val; simp only;
     rw [Mseti.mem_mul]; exists r, s;
-    simp only [Mseti.mem_unfold, Mseti.bigoplus_val, Mset.mem_bigoplus]; tauto⟩;
+    simp only [Mseti.bigoplus_val, Mset.mem_bigoplus]; tauto⟩;
   simp only; and_intros; { intro i; exists A, B i; tauto }; { rw [Mseti.mul_bigoplus_l] }
 
 lemma bigoplus_frame_r [Inhabited ι] (P : ι → RProp ρ) Q :
@@ -202,7 +202,7 @@ lemma bigoplus_unframe_l [Inhabited ι] P (Q : ι → RProp ρ) [Precise P] :
   have ⟨A, el⟩ := Classical.skolem.mp el; have ⟨B, el⟩ := Classical.skolem.mp el;
   have i0 : ι := Classical.choice inferInstance;
   exists A i0, ⟨⨁ᴹⁱ i, B i, by
-    intro _; simp only [Mseti.mem_unfold, Mseti.bigoplus_val, Mset.mem_bigoplus];
+    intro _; simp only [Mseti.bigoplus_val, Mset.mem_bigoplus];
     intro ⟨i, _⟩; apply (B i).prop; trivial⟩;
   and_intros; { apply (el i0).left };
   { exists B; and_intros; { intro i; exact (el i).right.left }; { rfl } };

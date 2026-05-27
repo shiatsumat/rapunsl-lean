@@ -56,15 +56,6 @@ protected instance Mseti.instPure : Pure Mseti where
 @[simp] protected lemma Mseti.pure_val (a : α) :
     (pure a : Mseti α).val = pure a := rfl
 
-/-! ## Membership -/
-
-/-- Membership for `Mseti` -/
-protected instance Mseti.instMembership : Membership α (Mseti α) where
-  mem A a := a ∈ A.val
-
-protected lemma Mseti.mem_unfold (A : Mseti α) (a : α) :
-    (a ∈ A) = (a ∈ A.val) := rfl
-
 /-! ## Sum -/
 
 /-- Binary sum of `Mseti`s -/
