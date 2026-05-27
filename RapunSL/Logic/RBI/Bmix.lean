@@ -251,6 +251,24 @@ instance bigbmix_instPrecise [Inhabited ι] (P : ι → RProp ρ) [∀ i, Precis
 instance bmix_instPrecise [Precise P] [Precise Q] : Precise iprop(P ⊕ Q) := by
   rw [bmix_as_bigbmix]; apply bigbmix_precise; rintro (_ | _) <;> tauto
 
+/-! ## Rules for `Satis` -/
+
+/-- Satisfiability of `⨁` -/
+lemma bigbmix_satis [Inhabited ι] (P : ι → RProp ρ) :
+    (∀ i, Satis (P i)) → Satis iprop(⨁ i, P i) := by
+  intro _; constructor; have ⟨A, el⟩ := Classical.skolem.mp (fun i => satis (P i));
+  exists ⟨⨁ᴹⁱ i, A i, by
+    intro _; simp only [Mseti.bigoplus_val, Mset.mem_bigoplus]; intro ⟨i, _⟩;
+    apply (A i).prop; trivial⟩;
+  exists A
+
+instance bigbmix_instSatis [Inhabited ι] (P : ι → RProp ρ) [∀ i, Satis (P i)] :
+    Satis iprop(⨁ i, P i) := bigbmix_satis P inferInstance
+
+/-- Satisfiability of `⊕` -/
+instance bmix_instSatis [Satis P] [Satis Q] : Satis iprop(P ⊕ Q) := by
+  rw [bmix_as_bigbmix]; apply bigbmix_satis; rintro (_ | _) <;> tauto
+
 /-! ## Rules for `Prob` -/
 
 /-- Probability of `⨁` -/

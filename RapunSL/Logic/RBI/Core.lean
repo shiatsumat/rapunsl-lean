@@ -212,6 +212,43 @@ instance sep_instPrecise [Precise P] [Precise Q] : Precise iprop(P ∗ Q) := by
   constructor; rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩;
   simp only [precise P _ _ elP elP', precise Q _ _ elQ elQ']
 
+/-! ## Satisfiability -/
+
+/-- Satisfiability of a proposition, i.e., not being `False` -/
+class Satis (P : RProp ρ) : Prop where
+  satis : ∃ A, A ∈ P
+
+lemma satis (P : RProp ρ) [Satis P] : ∃ A, A ∈ P := by
+  apply Satis.satis
+
+/-! ### Satisfiability lemmas -/
+
+/-- Satisfiability is the same as not being `False` -/
+lemma satis_ne_false : Satis P = (P ≠ iprop(False)) := by
+  ext1; constructor; { intro ⟨_, _⟩ rfl; trivial }
+  intro ne; constructor; apply Classical.not_forall_not.mp; intro el;
+  suffices P =ᴿ False by { tauto }; ext1; constructor <;> tauto
+
+/-- Satisfiability is monotone -/
+lemma satis_mono [Satis P] : (P ⊢ Q) → Satis Q := by
+  intro PQ; constructor; rcases satis P with ⟨A, _⟩; exists A; apply PQ; trivial
+
+/-- Satisfiability of `own` -/
+lemma own_instSatis : ✓ r → Satis (own r) := by
+  intro val; constructor; exists ⟨pure r, by rw [Mseti.valid_pure]; trivial⟩
+
+/-- Satisfiability of `emp` -/
+instance emp_instSatis : Satis (ρ := ρ) emp := by
+  constructor; exists ⟨1, PCM.valid_one⟩
+
+/-- Satisfiability of `pure` -/
+lemma pure_instSatis (φ : Prop) : φ → Satis (ρ := ρ) (pure φ) := by
+  intro h; constructor; exists ⟨1, PCM.valid_one⟩
+
+/-- Satisfiability of `True` -/
+instance true_instSatis : Satis (ρ := ρ) iprop(True) := by
+  apply pure_instSatis; trivial
+
 /-! ## Incompatibility -/
 
 /-- Incompatibility between propositions -/
