@@ -193,7 +193,7 @@ protected lemma Mset.commutative_prod (A : Mset α) (B : Mset β) :
 protected instance Mset.instCommApplicative : CommApplicative Mset where
   commutative_prod := Mset.commutative_prod
 
-/-! ### Membership -/
+/-! ## Membership -/
 
 @[simp] protected lemma Mset.mem_seq' (F : Mset (α → β)) (A : Mset α) b :
     (b ∈ F <*>ᴹ A) = ∃ f ∈ F, ∃ a ∈ A, b = f a := by
@@ -214,7 +214,7 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
 @[simp] protected lemma Mset.mem_bind (A : Mset α) (K : α → Mset β) b :
     (b ∈ A >>= K) = ∃ a ∈ A, b ∈ K a := by apply Mset.mem_bind'
 
-/-! ### Inhabitedness -/
+/-! ## Inhabitedness -/
 
 @[simp] protected lemma Mset.inhab_seq' (F : Mset (α → β)) (A : Mset α) :
     (F <*>ᴹ A).inhab = (F.inhab ∧ A.inhab) := by
@@ -234,7 +234,7 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
 @[simp] protected lemma Mset.inhab_bind (A : Mset α) (K : α → Mset β) :
     (A >>= K).inhab = (∃ a ∈ A, (K a).inhab) := by apply Mset.inhab_bind'
 
-/-! ### Pair membership -/
+/-! ## Pair membership -/
 
 @[simp] protected lemma Mset.pairmem_seq' (F : Mset (α → β)) (A : Mset α) b b' :
     (F <*>ᴹ A).pairmem b b' =
