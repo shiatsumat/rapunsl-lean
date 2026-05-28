@@ -134,7 +134,7 @@ protected lemma Mset.join_join (A : Mset (Mset (Mset α))) :
   unfold Mset.join; unfold Ifam.join; simp only [Ifam.map_elem]; trans; swap;
   { apply Ifam.bigoplus_proper;
     { intro i; rewrite [←(F i).out_eq, Quotient.lift_mk];
-      symm; unfold Mset.bigoplus; apply Quotient.mk_out }; }
+      symm; unfold Mset.bigoplus; apply Quotient.mk_out } }
   exists { toFun := fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, invFun := fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩ };
   intro _; rfl
 
