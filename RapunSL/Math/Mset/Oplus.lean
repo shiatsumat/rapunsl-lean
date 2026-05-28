@@ -181,7 +181,7 @@ protected lemma Ifam.oplus_as_bigoplus (A B : Ifam α) :
 
 protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     A ⊕ᴹ B = ⨁ᴹ (b : Bool), if b then A else B := by
-  rw (occs := [1]) [←Quotient.out_eq A, ←Quotient.out_eq B];
+  rw (occs := [1]) [←A.out_eq, ←B.out_eq];
   apply Quotient.sound; apply Ifam.oplus_as_bigoplus <;> rfl
 
 /-! ## Membership -/

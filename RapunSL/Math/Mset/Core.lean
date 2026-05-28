@@ -43,6 +43,9 @@ protected instance Ifam.instSetoid α : Setoid (Ifam α) :=
 def Mset (α : Type u) : Type (max 1 u) :=
   Quotient (Ifam.instSetoid α)
 
+/-- `Quotient.out_eq` for `Mset` -/
+protected def Mset.out_eq (A : Mset α) := Quotient.out_eq A
+
 /-! ## Functor -/
 
 /-- Functor map for `Ifam`, more universe-polymorphic than `Functor.map` -/

@@ -133,7 +133,7 @@ protected lemma Mset.join_join (A : Mset (Mset (Mset α))) :
   revert A; apply Quotient.ind; intro ⟨_, F⟩; apply Quotient.sound;
   unfold Mset.join; unfold Ifam.join; simp only [Ifam.map_elem]; trans; swap;
   { apply Ifam.bigoplus_proper;
-    { intro i; rewrite [←Quotient.out_eq (F i), Quotient.lift_mk];
+    { intro i; rewrite [←(F i).out_eq, Quotient.lift_mk];
       symm; unfold Mset.bigoplus; apply Quotient.mk_out }; }
   exists { toFun := fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, invFun := fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩ };
   intro _; rfl
