@@ -59,10 +59,10 @@ protected instance Ifam.instFunctor : Functor Ifam where
 
 protected lemma Ifam.map_unfold : Functor.map = Ifam.map (α := α) (β := β) := rfl
 
-protected lemma Ifam.id_map (A : Ifam α) : id <$>ᴵ A = A := by rfl
+protected lemma Ifam.id_map (A : Ifam α) : id <$>ᴵ A = A := rfl
 
 protected lemma Ifam.comp_map (f : α → β) (g : β → γ) (A : Ifam α) :
-    (g ∘ f) <$>ᴵ A = g <$>ᴵ (f <$>ᴵ A) := by rfl
+    (g ∘ f) <$>ᴵ A = g <$>ᴵ (f <$>ᴵ A) := rfl
 
 /-- `LawfulFunctor` for `Ifam` -/
 protected instance Ifam.instLawfulFunctor : LawfulFunctor Ifam where

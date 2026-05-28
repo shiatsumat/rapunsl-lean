@@ -114,7 +114,7 @@ protected lemma Pi.one_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i
 
 protected lemma Pi.mul_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     (HMul.hMul : (∀ i, α i) → (∀ i, α i) → (∀ i, α i)) =
-      fun f g i => f i * g i := by rfl
+      fun f g i => f i * g i := rfl
 
 protected lemma Pi.valid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     PCM.valid (α := ∀ i, α i) = fun f => ∀ i, ✓ f i := rfl
