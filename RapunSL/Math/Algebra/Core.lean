@@ -173,6 +173,10 @@ scoped infix:50 " # " => PCMC.incomp
 protected lemma coher_mul_r (a b c : α) : a ≎ b → c * a ≎ c * b := by
   rw [mul_comm c a, mul_comm c b]; apply PCMC.coher_mul_l
 
+/-- Coherence is compatible with `*` -/
+protected lemma coher_mul (a b a' b' : α) : a ≎ a' → b ≎ b' → a * b ≎ a' * b' := by
+  intro aa' _; trans; { apply PCMC.coher_mul_l; apply aa' }; apply PCMC.coher_mul_r; trivial
+
 /-- Coherence respects validity -/
 protected lemma coher_valid' (a b : α) :
     a ≎ b → ✓ a = ✓ b := by
