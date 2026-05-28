@@ -316,8 +316,14 @@ protected lemma Mset.pairmem_mem_r (A : Mset α) a b : A.pairmem a b → b ∈ A
     (f <$> A).pairmem b b' = ∃ a a', A.pairmem a a' ∧ b = f a ∧ b' = f a' := by
   apply Mset.pairmem_map'
 
+@[simp] protected lemma Ifam.pairmem_empty (a b : α) : (∅ : Ifam α).pairmem a b = False := by
+  simp only [eq_iff_iff, iff_false]; nofun
+
 @[simp] protected lemma Mset.pairmem_empty a b : (∅ : Mset α).pairmem a b = False := by
+  apply Ifam.pairmem_empty
+
+@[simp] protected lemma Ifam.pairmem_pure a b c : (pure a : Ifam α).pairmem b c = False := by
   simp only [eq_iff_iff, iff_false]; nofun
 
 @[simp] protected lemma Mset.pairmem_pure a b c : (pure a : Mset α).pairmem b c = False := by
-  simp only [eq_iff_iff, iff_false]; nofun
+  apply Ifam.pairmem_pure
