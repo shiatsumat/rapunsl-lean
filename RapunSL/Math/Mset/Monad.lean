@@ -271,3 +271,20 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
     (A >>= K).pairmem b b' =
       ((∃ a ∈ A, (K a).pairmem b b') ∨
        (∃ a a', A.pairmem a a' ∧ b ∈ K a ∧ b' ∈ K a')) := by apply Mset.pairmem_bind'
+
+/-! ## Bijection -/
+
+/-- Bijection for `<*>ᴹ` -/
+protected noncomputable def Mset.Bij.seq
+    {A : Mset (α → β)} {B : Mset α} {A' : Mset (α' → β')} {B' : Mset α'}
+    (r : A ≃ᴹ A') (s : B ≃ᴹ B') : A <*>ᴹ B ≃ᴹ A' <*>ᴹ B' :=
+  Mset.Bij.map (α := (α → β) × α) (α' := β) (β := (α' → β') × α') (β' := β')
+    (fun (f, a) => f a) (fun (f', a') => f' a') (Mset.Bij.prod r s)
+
+/-- The graph of `Mset.Bij.seq` -/
+protected lemma Mset.Bij.seq_graph
+    {A : Mset (α → β)} {B : Mset α} {A' : Mset (α' → β')} {B' : Mset α'}
+    (r : A ≃ᴹ A') (s : B ≃ᴹ B') :
+    (Mset.Bij.seq r s).graph =
+      (fun (f, f') (a, a') => (f a, f' a')) <$>ᴹ r.graph <*>ᴹ s.graph := by
+  trans; { apply Mset.Bij.map_graph }; simp only [Mset.Bij.prod_graph, ←Mset.comp_map]; rfl

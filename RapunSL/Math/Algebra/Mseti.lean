@@ -52,6 +52,16 @@ protected lemma Mseti.mul_oplus_r [Mul α] (A B C : Mseti α) :
          (b = b' ∧ b ∈ B.val ∧ A.val.pairmem a a')) := by
   simp only [Mseti.mul_val, Mset.map_seq, Mset.pairmem_map, Mset.pairmem_prod]; aesop
 
+protected noncomputable def Mseti.Bij.mul [Mul α] {A A' B B' : Mseti α}
+    (r : A.val ≃ᴹ A'.val) (s : B.val ≃ᴹ B'.val) : (A * B).val ≃ᴹ (A' * B').val :=
+  Mset.Bij.seq (Mset.Bij.map HMul.hMul HMul.hMul r) s
+
+@[simp] protected lemma Mseti.Bij.mul_graph [Mul α] {A A' B B' : Mseti α}
+    (r : A.val ≃ᴹ A'.val) (s : B.val ≃ᴹ B'.val) :
+    (Mseti.Bij.mul r s).graph =
+      (fun (a, a') (b, b') => (a * b, a' * b')) <$>ᴹ r.graph <*>ᴹ s.graph := by
+  trans; { apply Mset.Bij.seq_graph }; rw [Mset.Bij.map_graph, ←Mset.comp_map]; rfl
+
 /-! ## `1` for inhabited multisets -/
 
 /-- `1` for inhabited multisets -/

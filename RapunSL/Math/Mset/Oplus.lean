@@ -1,6 +1,6 @@
 module
 
-public import RapunSL.Math.Mset.Core
+public import RapunSL.Math.Mset.Bij
 open Ifam Mset
 
 @[expose] public section
@@ -251,3 +251,62 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     (⨁ᴹ i, A i).pairmem a b =
       ((∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i')) := by
   trans; { apply Ifam.pairmem_bigoplus }; simp only [Mset.pairmem_out, Mset.mem_out]
+
+/-! ## Bijection -/
+
+/-! ### For `⊕` -/
+
+/-- Bijection for `⊕ᴵ` -/
+protected noncomputable def Ifam.Bij.oplus
+    {A A' : Ifam α} {B B' : Ifam β} (r : A ≃ᴵ B) (s : A' ≃ᴵ B') :
+    A ⊕ᴵ A' ≃ᴵ B ⊕ᴵ B' :=
+  Equiv.sumCongr r s
+
+/-- Bijection for `⊕ᴹ` -/
+protected noncomputable def Mset.Bij.oplus
+    {A A' : Mset α} {B B' : Mset β} (r : A ≃ᴹ B) (s : A' ≃ᴹ B') :
+    A ⊕ᴹ A' ≃ᴹ B ⊕ᴹ B' :=
+  A.out_eq ▸ A'.out_eq ▸ B.out_eq ▸ B'.out_eq ▸
+    Ifam.Bij.lift_mk (Ifam.Bij.oplus r s)
+
+/-- The graph of `Ifam.Bij.oplus` -/
+@[simp] protected lemma Ifam.Bij.oplus_graph
+    {A A' : Ifam α} {B B' : Ifam β} (r : A ≃ᴵ B) (s : A' ≃ᴵ B') :
+    (Ifam.Bij.oplus r s).graph = r.graph ⊕ᴵ s.graph := by
+  apply congr_arg (Ifam.mk _); ext1 (_ | _) <;> rfl
+
+/-- The graph of `Mset.Bij.oplus` -/
+@[simp] protected lemma Mset.Bij.oplus_graph
+    {A A' : Mset α} {B B' : Mset β} (r : A ≃ᴹ B) (s : A' ≃ᴹ B') :
+    (Mset.Bij.oplus r s).graph = r.graph ⊕ᴹ s.graph := by
+  rw [Mset.Bij.oplus];
+  generalize A.out_eq = eq₁, A'.out_eq = eq₂, B.out_eq = eq₃, B'.out_eq = eq₄;
+  revert r s eq₁ eq₂ eq₃ eq₄; unfold Mset.Bij Mset.Bij.graph;
+  generalize A.out = Ao, A'.out = A'o, B.out = Bo, B'.out = B'o;
+  intro r s rfl rfl rfl rfl; simp only; trans; { apply Ifam.Bij.lift_mk_graph };
+  rw [Ifam.Bij.oplus_graph]; rfl
+
+/-! ### For `⨁` -/
+
+/-- Bijection for `⨁ᴵ` -/
+protected def Ifam.Bij.bigoplus {A : ι → Ifam α} {B : ι → Ifam β}
+    (r : ∀ i, A i ≃ᴵ B i) : (⨁ᴵ i, A i) ≃ᴵ ⨁ᴵ i, B i :=
+  Equiv.sigmaCongrRight r
+
+/-- Bijection for `⨁ᴹ` -/
+protected noncomputable def Mset.Bij.bigoplus {A : ι → Mset α} {B : ι → Mset β}
+    (r : ∀ i, A i ≃ᴹ B i) : (⨁ᴹ i, A i) ≃ᴹ ⨁ᴹ i, B i :=
+  Ifam.Bij.lift_mk (Ifam.Bij.bigoplus r)
+
+/-- The graph of `Ifam.Bij.bigoplus` -/
+@[simp] protected lemma Ifam.Bij.bigoplus_graph
+    {A : ι → Ifam α} {B : ι → Ifam β} (r : ∀ i, A i ≃ᴵ B i) :
+    (Ifam.Bij.bigoplus r).graph = ⨁ᴵ i, (r i).graph := rfl
+
+/-- The graph of `Mset.Bij.bigoplus` -/
+@[simp] protected lemma Mset.Bij.bigoplus_graph
+    {A : ι → Mset α} {B : ι → Mset β} (r : ∀ i, A i ≃ᴹ B i) :
+    (Mset.Bij.bigoplus r).graph = ⨁ᴹ i, (r i).graph := by
+  rw [Mset.Bij.bigoplus]; trans; { apply Ifam.Bij.lift_mk_graph };
+  rw [Ifam.Bij.bigoplus_graph, Mset.bigoplus]; apply Quotient.sound;
+  gcongr; symm; apply Quotient.mk_out

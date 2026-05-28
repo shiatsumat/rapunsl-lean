@@ -181,3 +181,33 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
        (p.2 = q.2 ∧ p.2 ∈ B ∧ A.pairmem p.1 q.1)) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.pairmem_prod
+
+/-! ## Bijection -/
+
+/-- Bijection for `×ᴵ` -/
+protected def Ifam.Bij.prod {A : Ifam α} {B : Ifam β} {A' : Ifam α'} {B' : Ifam β'}
+    (r : A ≃ᴵ A') (s : B ≃ᴵ B') : A ×ᴵ B ≃ᴵ A' ×ᴵ B' :=
+  Equiv.prodCongr r s
+
+/-- Bijection for `×ᴹ` -/
+protected noncomputable def Mset.Bij.prod {A : Mset α} {B : Mset β} {A' : Mset α'} {B' : Mset β'}
+    (r : A ≃ᴹ A') (s : B ≃ᴹ B') : A ×ᴹ B ≃ᴹ A' ×ᴹ B' :=
+  A.out_eq ▸ B.out_eq ▸ A'.out_eq ▸ B'.out_eq ▸ Ifam.Bij.lift_mk (Ifam.Bij.prod r s)
+
+/-- The graph of `Ifam.Bij.prod` -/
+protected lemma Ifam.Bij.prod_graph
+    {A : Ifam α} {B : Ifam β} {A' : Ifam α'} {B' : Ifam β'} (r : A ≃ᴵ A') (s : B ≃ᴵ B') :
+    (Ifam.Bij.prod r s).graph =
+      (fun ((a, a'), (b, b')) => ((a, b), (a', b'))) <$>ᴵ (r.graph ×ᴵ s.graph) := rfl
+
+/-- The graph of `Mset.Bij.prod` -/
+protected lemma Mset.Bij.prod_graph
+    {A : Mset α} {B : Mset β} {A' : Mset α'} {B' : Mset β'} (r : A ≃ᴹ A') (s : B ≃ᴹ B') :
+    (Mset.Bij.prod r s).graph =
+      (fun ((a, a'), (b, b')) => ((a, b), (a', b'))) <$>ᴹ (r.graph ×ᴹ s.graph) := by
+  rw [Mset.Bij.prod];
+  generalize A.out_eq = eq₁, A'.out_eq = eq₂, B.out_eq = eq₃, B'.out_eq = eq₄;
+  revert r s eq₁ eq₂ eq₃ eq₄; unfold Mset.Bij Mset.Bij.graph;
+  generalize A.out = Ao, A'.out = A'o, B.out = Bo, B'.out = B'o;
+  intro r s rfl rfl rfl rfl; simp only; trans; { apply Ifam.Bij.lift_mk_graph };
+  rw [Ifam.Bij.prod_graph]; rfl
