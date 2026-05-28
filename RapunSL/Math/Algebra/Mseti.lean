@@ -9,7 +9,7 @@ open Mset Mseti PCM PCMP
 
 /-! # Algebra constructions for inhabited multisets -/
 
-/-! ## Inhabited multiset PCM -/
+/-! ## `*` for inhabited multisets -/
 
 /-- `*` for inhabited multisets -/
 protected instance Mseti.instMul (α : Type u) [Mul α] : Mul (Mseti α) where
@@ -52,11 +52,15 @@ protected lemma Mseti.mul_oplus_r [Mul α] (A B C : Mseti α) :
          (b = b' ∧ b ∈ B.val ∧ A.val.pairmem a a')) := by
   simp only [Mseti.mul_val, Mset.map_seq, Mset.pairmem_map, Mset.pairmem_prod]; aesop
 
-/-- `1` for multisets -/
+/-! ## `1` for inhabited multisets -/
+
+/-- `1` for inhabited multisets -/
 protected instance Mseti.instOne (α : Type u) [One α] : One (Mseti α) where
   one := pure 1
 
 protected lemma Mseti.one_unfold [PCM α] : (1 : Mseti α) = pure 1 := rfl
+
+/-! ## Inhabited multiset PCM -/
 
 /-- Multiset PCM -/
 protected instance Mseti.instPCM (α : Type u) [PCM α] : PCM (Mseti α) where
