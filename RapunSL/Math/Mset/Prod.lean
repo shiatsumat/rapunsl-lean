@@ -165,7 +165,7 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
   · rintro ⟨⟨i, j⟩, ⟨i', j'⟩, _, rfl, rfl⟩;
     rcases Classical.em (i = i') with rfl | _;
     { right; left; constructor; { rfl }; and_intros; { exists i }; exists j, j'; aesop };
-    rcases Classical.em (j = j') with (rfl | _);
+    rcases Classical.em (j = j') with rfl | _;
     { right; right; constructor; { rfl }; and_intros; { exists j }; exists i, i' };
     left; and_intros; { exists i, i' }; { exists j, j' }
   · cases p; cases q;
