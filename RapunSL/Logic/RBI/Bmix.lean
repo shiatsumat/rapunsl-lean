@@ -269,19 +269,6 @@ instance bigbmix_instSatis [Inhabited ι] (P : ι → RProp ρ) [∀ i, Satis (P
 instance bmix_instSatis [Satis P] [Satis Q] : Satis iprop(P ⊕ Q) := by
   rw [bmix_as_bigbmix]; apply bigbmix_satis; rintro (_ | _) <;> tauto
 
-/-! ## Rules for `Prob` -/
-
-/-- Probability of `⨁` -/
-instance bigbmix_instProb [Inhabited ι] (P : ι → RProp ρ) (p : ι → ℝ≥0∞) [∀ i, Prob (P i) (p i)] :
-    Prob iprop(⨁ i, P i) (∑' i, p i) := by
-  constructor; rintro ⟨_, _⟩ ⟨_, _, rfl⟩; trans; { apply ENNReal.Mset.tsum_bigoplus };
-  congr; ext1 i; apply prob (P i); tauto
-
-/-- Probability of `⊕` -/
-instance bmix_instProb [Prob P p] [Prob Q q] : Prob iprop(P ⊕ Q) (p + q) := by
-  constructor; rintro ⟨_, _⟩ ⟨_, _, _, _, rfl⟩; trans; { apply ENNReal.Mset.tsum_oplus };
-  congr; { apply prob P; trivial }; { apply prob Q; trivial }
-
 /-! ## Rules for `Incomp` -/
 
 /-- Incompatibility over `⨁` -/
@@ -311,5 +298,18 @@ lemma bmix_unambig [Unambig P] [Unambig Q] :
   intro inc; rw [bmix_as_bigbmix]; apply bigbmix_unambig;
   { rintro (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> trivial };
   rintro (_ | _) (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> tauto
+
+/-! ## Rules for `Prob` -/
+
+/-- Probability of `⨁` -/
+instance bigbmix_instProb [Inhabited ι] (P : ι → RProp ρ) (p : ι → ℝ≥0∞) [∀ i, Prob (P i) (p i)] :
+    Prob iprop(⨁ i, P i) (∑' i, p i) := by
+  constructor; rintro ⟨_, _⟩ ⟨_, _, rfl⟩; trans; { apply ENNReal.Mset.tsum_bigoplus };
+  congr; ext1 i; apply prob (P i); tauto
+
+/-- Probability of `⊕` -/
+instance bmix_instProb [Prob P p] [Prob Q q] : Prob iprop(P ⊕ Q) (p + q) := by
+  constructor; rintro ⟨_, _⟩ ⟨_, _, _, _, rfl⟩; trans; { apply ENNReal.Mset.tsum_oplus };
+  congr; { apply prob P; trivial }; { apply prob Q; trivial }
 
 end RBI
