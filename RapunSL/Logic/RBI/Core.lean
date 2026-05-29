@@ -272,6 +272,17 @@ lemma incomp_anti :
     (P' #ᴿ Q') → (P ⊢ P') → (Q ⊢ Q') → P #ᴿ Q := by
   intro inc PP' QQ' _ _ _ _ ; apply inc; { apply PP'; trivial }; { apply QQ'; trivial }
 
+/-- Incompatibility over `∃` -/
+lemma incomp_exists (P : α → RProp ρ) : (∀ x, P x #ᴿ Q) → (∃ x, P x) #ᴿ Q := by
+  rewrite [exists_simple]; intro _ _ _ ⟨_, _⟩; tauto
+
+/-- Incompatibility over `∨` -/
+lemma incomp_or : (P #ᴿ R) → (Q #ᴿ R) → (P ∨ Q) #ᴿ R := by
+  rintro _ _ _ _ (_ | _) <;> tauto
+
+/-- Incompatibility over `False` -/
+lemma incomp_false : iprop(False) #ᴿ P := nofun
+
 /-- Incompatibility over `own` -/
 lemma incomp_own : r # s → own r #ᴿ own s := by
   rintro inc ⟨_, _⟩ ⟨_, _⟩ rfl rfl _ _; simp only [Mseti.pure_val, Mset.mem_pure]; aesop
@@ -302,6 +313,18 @@ lemma unambig [Unambig P] : ∀ A ∈ P, ∀ a b, A.val.val.pairmem a b → a # 
 /-- Unambiguity is antitone -/
 lemma unambig_anti [Unambig Q] : (P ⊢ Q) → Unambig P := by
   intro PQ; constructor; intro _ _ _ _; apply unambig Q; apply PQ; trivial
+
+/-- Unambiguity over `∃` -/
+instance exists_instUnambig (P : α → RProp ρ) [∀ x, Unambig (P x)] : Unambig iprop(∃ x, P x) := by
+  rewrite [exists_simple]; constructor; intro _ ⟨a, _⟩; apply unambig (P a); trivial
+
+/-- Unambiguity over `∨` -/
+instance or_instUnambig [Unambig P] [Unambig Q] : Unambig iprop(P ∨ Q) := by
+  constructor; rintro _ (_ | _); { apply unambig P; trivial }; { apply unambig Q; trivial }
+
+/-- Unambiguity over `False` -/
+instance false_instUnambig : Unambig (ρ := ρ) iprop(False) := by
+  constructor; nofun
 
 /-- Unambiguity over `own` -/
 instance own_instUnambig (r : ρ) : Unambig (own r) := by
@@ -349,6 +372,14 @@ lemma prob_anti [Prob Q p] : (P ⊢ Q) → Prob P p := by
 lemma precise_prob [Precise P] : ∃ p, Prob P p := by
   rcases em (∃ A, A ∈ P) with ⟨A, el⟩ | _; swap; { exists 0; constructor; tauto };
   exists PCMP.prob A.val; constructor; intro _ el'; rw [precise P _ _ el el']
+
+/-- Probability of `∃` -/
+instance exists_instProb (P : α → RProp ρ) [∀ x, Prob (P x) p] : Prob iprop(∃ x, P x) p := by
+  rw [exists_simple]; constructor; rintro ⟨_, _⟩ ⟨a, _⟩; apply prob (P a); trivial
+
+/-- Probability of `∨` -/
+instance or_instProb [Prob P p] [Prob Q p] : Prob iprop(P ∨ Q) p := by
+  constructor; rintro ⟨_, _⟩ (_ | _); { apply prob P; trivial }; { apply prob Q; trivial }
 
 /-- Probability of `False` -/
 instance false_instProb p : Prob (ρ := ρ) iprop(False) p := by
