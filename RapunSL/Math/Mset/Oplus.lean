@@ -310,3 +310,9 @@ protected noncomputable def Mset.Bij.bigoplus {A : ι → Mset α} {B : ι → M
   rw [Mset.Bij.bigoplus]; trans; { apply Ifam.Bij.lift_mk_graph };
   rw [Ifam.Bij.bigoplus_graph, Mset.bigoplus]; apply Quotient.sound;
   gcongr; symm; apply Quotient.mk_out
+
+/-- Membership for the graph of `Mset.Bij.bigoplus` -/
+@[simp] protected lemma Mset.Bij.bigoplus_graph_mem
+    {A : ι → Mset α} {B : ι → Mset β} (r : ∀ i, A i ≃ᴹ B i) a b :
+    ((a, b) ∈ (Mset.Bij.bigoplus r).graph) = ∃ i, (a, b) ∈ (r i).graph := by
+  rw [Mset.Bij.bigoplus_graph, Mset.bigoplus_mem]

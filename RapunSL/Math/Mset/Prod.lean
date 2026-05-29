@@ -211,3 +211,10 @@ protected lemma Mset.Bij.prod_graph
   generalize A.out = Ao, A'.out = A'o, B.out = Bo, B'.out = B'o;
   intro r s rfl rfl rfl rfl; simp only; trans; { apply Ifam.Bij.lift_mk_graph };
   rw [Ifam.Bij.prod_graph]; rfl
+
+/-- Membership for the graph of `Mset.Bij.prod` -/
+@[simp] protected lemma Mset.Bij.prod_graph_mem
+    {A : Mset α} {B : Mset β} {A' : Mset α'} {B' : Mset β'} (r : A ≃ᴹ A') (s : B ≃ᴹ B') a a' b b' :
+    (((a, b), (a', b')) ∈ (Mset.Bij.prod r s).graph) =
+      ((a, a') ∈ r.graph ∧ (b, b') ∈ s.graph) := by
+  simp only [Mset.Bij.prod_graph, Mset.map'_mem, Mset.prod_mem]; aesop

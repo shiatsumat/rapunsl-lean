@@ -288,3 +288,11 @@ protected lemma Mset.Bij.seq_graph
     (Mset.Bij.seq r s).graph =
       (fun (f, f') (a, a') => (f a, f' a')) <$>ᴹ r.graph <*>ᴹ s.graph := by
   trans; { apply Mset.Bij.map_graph }; simp only [Mset.Bij.prod_graph, ←Mset.comp_map]; rfl
+
+/-- Membership for the graph of `Mset.Bij.seq` -/
+@[simp] protected lemma Mset.Bij.seq_graph_mem
+    {A : Mset (α → β)} {B : Mset α} {A' : Mset (α' → β')} {B' : Mset α'}
+    (r : A ≃ᴹ A') (s : B ≃ᴹ B') b b' :
+    ((b, b') ∈ (Mset.Bij.seq r s).graph) =
+      ∃ f a f' a', b = f a ∧ b' = f' a' ∧ (f, f') ∈ r.graph ∧ (a, a') ∈ s.graph := by
+  simp only [Mset.Bij.seq_graph, Mset.seq'_mem, Mset.map'_mem]; grind only
