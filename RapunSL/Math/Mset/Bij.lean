@@ -100,36 +100,36 @@ protected noncomputable def Mset.Bij.graph {A : Mset α} {B : Mset β}
 
 /-! ### The graph of `refl` and `symm` -/
 
-/-- The graph of `refl` -/
+/-- The graph of `Ifam.Bij.refl` -/
 @[simp] protected lemma Ifam.Bij.refl_graph (A : Ifam α) :
     (Ifam.Bij.refl A).graph = (fun a => (a, a)) <$>ᴵ A := rfl
 
-/-- The graph of `refl` -/
+/-- The graph of `Mset.Bij.refl` -/
 @[simp] protected lemma Mset.Bij.refl_graph (A : Mset α) :
     (Mset.Bij.refl A).graph = (fun a => (a, a)) <$>ᴹ A := by
   rw (occs := [4]) [←A.out_eq]; rfl
 
-/-- The graph of `symm` -/
+/-- The graph of `Ifam.Bij.symm` -/
 @[simp] protected lemma Ifam.Bij.symm_graph {A : Ifam α} {B : Ifam β} (r : A ≃ᴵ B) :
     r.symm.graph ≈ (fun (a, b) => (b, a)) <$>ᴵ r.graph := by
   exists r.symm; intro i; simp only [Ifam.Bij.graph, Ifam.map]; congr; symm;
   apply Equiv.apply_symm_apply
 
-/-- The graph of `symm` -/
+/-- The graph of `Mset.Bij.symm` -/
 @[simp] protected lemma Mset.Bij.symm_graph {A : Mset α} {B : Mset β} (r : A ≃ᴹ B) :
     r.symm.graph = (fun (a, b) => (b, a)) <$>ᴹ r.graph := by
   apply Quotient.sound; apply Ifam.Bij.symm_graph
 
 /-! ### The graph of `trans` -/
 
-/-- Membership of the graph of `trans` -/
+/-- Membership of the graph of `Mset.Bij.trans` -/
 protected lemma Mset.Bij.trans_graph_mem {A : Mset α} {B : Mset β} {C : Mset γ}
     (r : A ≃ᴹ B) (s : B ≃ᴹ C) a c :
     (a, c) ∈ (r.trans s).graph → ∃ b, (a, b) ∈ r.graph ∧ (b, c) ∈ s.graph := by
   rintro ⟨i, _, _⟩; exists B.out.elem (r i); and_intros;
   { exists i; }; { exists r i }
 
-/-- The graph of `trans` with a bijection of a map-like graph -/
+/-- The graph of `Ifam.Bij.trans` with a bijection of a map-like graph -/
 protected lemma Ifam.Bij.trans_graph_map_l {A : Ifam α} {B B' : Ifam β} {C : Ifam γ}
     (r : A ≃ᴵ B) (s : B ≃ᴵ C) (f : β → α) :
     r.graph ≈ (fun b => (f b, b)) <$>ᴵ B' →
@@ -138,7 +138,7 @@ protected lemma Ifam.Bij.trans_graph_map_l {A : Ifam α} {B B' : Ifam β} {C : I
   simp only [Ifam.Bij.graph, Equiv.trans_apply, Ifam.map_elem] at *; congr;
   rcases Prod.ext_iff.mp (eq i) with ⟨eq, eq'⟩; simp only at *; rw [eq, ←eq']; rfl
 
-/-- The graph of `trans` with a bijection of a map-like graph -/
+/-- The graph of `Mset.Bij.trans` with a bijection of a map-like graph -/
 protected lemma Mset.Bij.trans_graph_map_l {A : Mset α} {B B' : Mset β} {C : Mset γ}
     (r : A ≃ᴹ B) (s : B ≃ᴹ C) (f : β → α) :
     r.graph = (fun b => (f b, b)) <$>ᴹ B' →
@@ -146,7 +146,7 @@ protected lemma Mset.Bij.trans_graph_map_l {A : Mset α} {B B' : Mset β} {C : M
   intro eq; apply Quotient.sound; cases B' using Quotient.ind;
   have eq := Quotient.exact eq; revert eq; apply Ifam.Bij.trans_graph_map_l
 
-/-- The graph of `trans` with a bijection of a map-like graph -/
+/-- The graph of `Ifam.Bij.trans` with a bijection of a map-like graph -/
 protected lemma Ifam.Bij.trans_graph_map_r {A : Ifam α} {B B' : Ifam β} {C : Ifam γ}
     (r : A ≃ᴵ B) (s : B ≃ᴵ C) (f : β → γ) :
     s.graph ≈ (fun b => (b, f b)) <$>ᴵ B' →
@@ -155,7 +155,7 @@ protected lemma Ifam.Bij.trans_graph_map_r {A : Ifam α} {B B' : Ifam β} {C : I
   simp only [Ifam.Bij.graph, Equiv.trans_apply, Ifam.map_elem] at *; congr;
   rcases Prod.ext_iff.mp (eq (r i)) with ⟨eq, eq'⟩; simp only at *; rw [eq', ←eq]
 
-/-- The graph of `trans` with a bijection of a map-like graph -/
+/-- The graph of `Mset.Bij.trans` with a bijection of a map-like graph -/
 protected lemma Mset.Bij.trans_graph_map_r {A : Mset α} {B : Mset β} {C : Mset γ}
     (r : A ≃ᴹ B) (s : B ≃ᴹ C) (f : β → γ) B' :
     s.graph = (fun b => (b, f b)) <$>ᴹ B' →
@@ -163,25 +163,25 @@ protected lemma Mset.Bij.trans_graph_map_r {A : Mset α} {B : Mset β} {C : Mset
   intro eq; apply congr_arg (Quotient.mk _); cases B' using Quotient.ind;
   have eq := Quotient.exact eq; revert eq; apply Ifam.Bij.trans_graph_map_r
 
-/-- The graph of `trans` with a bijection of an identity graph -/
+/-- The graph of `Ifam.Bij.trans` with a bijection of an identity graph -/
 protected lemma Ifam.Bij.trans_graph_id_l {A A' : Ifam α} {B : Ifam β}
     (r : A ≃ᴵ A') (s : A' ≃ᴵ B) A'' :
     r.graph ≈ (fun a => (a, a)) <$>ᴵ A'' → (r.trans s).graph ≈ s.graph := by
   rw [←Ifam.id_map s.graph]; apply Ifam.Bij.trans_graph_map_l
 
-/-- The graph of `trans` with a bijection of an identity graph -/
+/-- The graph of `Mset.Bij.trans` with a bijection of an identity graph -/
 protected lemma Mset.Bij.trans_graph_id_l {A A' : Mset α} {B : Mset β}
     (r : A ≃ᴹ A') (s : A' ≃ᴹ B) A'' :
     r.graph = (fun a => (a, a)) <$>ᴹ A'' → (r.trans s).graph = s.graph := by
   rw [←Mset.id_map s.graph]; apply Mset.Bij.trans_graph_map_l
 
-/-- The graph of `trans` with a bijection of an identity graph -/
+/-- The graph of `Ifam.Bij.trans` with a bijection of an identity graph -/
 protected lemma Ifam.Bij.trans_graph_id_r {A : Ifam α} {B B' : Ifam β}
     (r : A ≃ᴵ B) (s : B ≃ᴵ B') B'' :
     s.graph ≈ (fun b => (b, b)) <$>ᴵ B'' → (r.trans s).graph = r.graph := by
   rw [←Ifam.id_map r.graph]; apply Ifam.Bij.trans_graph_map_r
 
-/-- The graph of `trans` with a bijection of an identity graph -/
+/-- The graph of `Mset.Bij.trans` with a bijection of an identity graph -/
 protected lemma Mset.Bij.trans_graph_id_r {A : Mset α} {B B' : Mset β}
     (r : A ≃ᴹ B) (s : B ≃ᴹ B') B'' :
     s.graph = (fun b => (b, b)) <$>ᴹ B'' → (r.trans s).graph = r.graph := by
@@ -189,17 +189,17 @@ protected lemma Mset.Bij.trans_graph_id_r {A : Mset α} {B B' : Mset β}
 
 /-! ### The graph of lifting constructions -/
 
-/-- The graph of `lift_equiv` -/
+/-- The graph of `Ifam.Bij.lift_equiv` -/
 protected lemma Ifam.Bij.lift_equiv_graph {A B : Ifam α} (e : A ≈ B) :
     (Ifam.Bij.lift_equiv e).graph = (fun a => (a, a)) <$>ᴵ A := by
   apply congr_arg (Ifam.mk _); ext1 i; ext1; { rfl }; symm; apply Classical.choose_spec e
 
-/-- The graph of `mk_out` -/
+/-- The graph of `Ifam.Bij.mk_out` -/
 protected lemma Ifam.Bij.mk_out_graph (A : Ifam α) :
     (Ifam.Bij.mk_out A).graph = (fun a => (a, a)) <$>ᴵ (⟦ A ⟧ : Mset α).out := by
   rw [Ifam.Bij.mk_out, Ifam.Bij.lift_equiv_graph]
 
-/-- The graph of `lift_mk` -/
+/-- The graph of `Ifam.Bij.lift_mk` -/
 protected lemma Ifam.Bij.lift_mk_graph {A : Ifam α} {B : Ifam β} (r : A ≃ᴵ B) :
     r.lift_mk.graph = ⟦ r.graph ⟧ := by
   apply Quotient.sound; rw [Ifam.Bij.lift_mk];
