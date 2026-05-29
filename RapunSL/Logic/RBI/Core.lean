@@ -4,7 +4,7 @@ public import RapunSL.Util.Syntax
 public import Iris.BI
 public import RapunSL.Math.Algebra.Mseti
 public import RapunSL.Logic.BI
-open Iris OFE BI PCM PCMC PCMP ENNReal
+open Iris OFE BI PCM PCMC PCMP ENNReal Mset
 
 @[expose] public section
 
@@ -350,6 +350,61 @@ instance sep_instUnambig [Unambig P] [Unambig Q] :
     symm; apply PCMC.incomp_mul_l;
     { apply val; rw [Mseti.mem_mul]; grind only [Mset.pairmem_mem_r] };
     apply unambig P <;> tauto }
+
+/-! ## Coherence -/
+
+/-- Coherence of propositions -/
+def Coher (P Q : RProp ρ) : Prop :=
+  ∀ A B, A ∈ P → B ∈ Q → ∃ f : A.val.val ≃ᴹ B.val.val, ∀ a b, (a, b) ∈ f.graph → a ≎ b
+
+@[inherit_doc Coher]
+scoped macro:25 P:term:25 " ≎ᴿ " Q:term:25 : term => `(Coher iprop($P) iprop($Q))
+
+scoped delab_rules Coher
+  | `($_ $P $Q) => do ``($(← unpackIprop P) ≎ᴿ $(← unpackIprop Q))
+
+/-! ### Coherence lemmas -/
+
+/-- Coherence is symmetric -/
+@[symm] lemma coher_symm : (P ≎ᴿ Q) → Q ≎ᴿ P := by
+  intro coh _ _ elQ elP; rcases coh _ _ elP elQ with ⟨f, eq⟩; exists f.symm; intro _ _;
+  simp only [Mset.Bij.symm_graph, Mset.mem_map']; rintro ⟨_, _, _⟩; symm; grind only
+
+/-- Coherence is transitive, under satisfiability of the middle proposition -/
+@[trans] lemma coher_trans [Satis Q] : (P ≎ᴿ Q) → (Q ≎ᴿ R) → P ≎ᴿ R := by
+  intro coh coh' _ _ elP elR; have ⟨_, elQ⟩ := satis Q;
+  rcases coh _ _ elP elQ with ⟨f, coh⟩; rcases coh' _ _ elQ elR with ⟨g, coh'⟩;
+  exists f.trans g; intro _ _ mem;
+  rcases Mset.Bij.trans_graph_mem _ _ _ _ mem with ⟨_, _, _⟩;
+  apply PCMC.coher_trans; { apply coh; trivial }; { apply coh'; trivial }
+
+/-- Coherence is antitone -/
+lemma coher_anti : (P' ≎ᴿ Q') → (P ⊢ P') → (Q ⊢ Q') → P ≎ᴿ Q := by
+  intro coh PP' QQ' _ _ elP elQ; apply coh; { apply PP'; trivial }; { apply QQ'; trivial }
+
+/-- Coherence over `∃` -/
+lemma coher_exists (P : α → RProp ρ) : (∀ x, P x ≎ᴿ Q) → (∃ x, P x) ≎ᴿ Q := by
+  rewrite [exists_simple]; intro _ _ _ ⟨_, _⟩; tauto
+
+/-- Coherence over `∨` -/
+lemma coher_or : (P ≎ᴿ R) → (Q ≎ᴿ R) → (P ∨ Q) ≎ᴿ R := by
+  rintro _ _ _ _ (_ | _) <;> tauto
+
+/-- Coherence over `False` -/
+lemma coher_false : iprop(False) ≎ᴿ P := nofun
+
+/-- Coherence over `own` -/
+lemma coher_own : r ≎ s → own r ≎ᴿ own s := by
+  intro coh ⟨_, _⟩ ⟨_, _⟩ rfl rfl; exists Mset.Bij.pure _ _; intro _ _;
+  simp only [Mset.Bij.pure_graph, Mset.mem_pure]; rintro ⟨_, _⟩; trivial
+
+/-- Coherence over `∗` -/
+lemma coher_sep : (P ≎ᴿ P') → (Q ≎ᴿ Q') → iprop(P ∗ Q) ≎ᴿ iprop(P' ∗ Q') := by
+  rintro cohP cohQ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩;
+  rcases cohP _ _ elP elP' with ⟨r, _⟩; rcases cohQ _ _ elQ elQ' with ⟨s, _⟩;
+  exists Mseti.Bij.mul r s; intro _ _;
+  simp only [Mseti.Bij.mul_graph, Mset.mem_seq', Mset.mem_map'];
+  rintro ⟨_, ⟨_, _, rfl⟩, _, _, _, ⟨_, _⟩, _⟩; apply PCMC.coher_mul <;> tauto
 
 /-! ## Probability -/
 

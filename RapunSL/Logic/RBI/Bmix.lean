@@ -299,6 +299,23 @@ lemma bmix_unambig [Unambig P] [Unambig Q] :
   { rintro (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> trivial };
   rintro (_ | _) (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> tauto
 
+/-! ## Rules for `Coher` -/
+
+/-- Coherence over `⨁` -/
+lemma bigbmix_coher [Inhabited ι] (P : ι → RProp ρ) (Q : ι → RProp ρ) :
+    (∀ i, P i ≎ᴿ Q i) → (⨁ i, P i) ≎ᴿ ⨁ i, Q i := by
+  rintro coh ⟨_, _⟩ ⟨_, _⟩ ⟨_, elP, rfl⟩ ⟨_, elQ, rfl⟩;
+  rcases Classical.skolem.mp (fun i => coh i _ _ (elP i) (elQ i)) with ⟨r, coh⟩;
+  exists Mset.Bij.bigoplus r; intro _ _;
+  simp only [Mseti.bigoplus_val, Mset.Bij.bigoplus_graph, Mset.mem_bigoplus];
+  intro ⟨_, _⟩; tauto
+
+/-- Coherence over `⊕` -/
+lemma bmix_coher (P Q : RProp ρ) (R R' : RProp ρ) :
+    (P ≎ᴿ R) → (Q ≎ᴿ R') → P ⊕ Q ≎ᴿ R ⊕ R' := by
+  intro _ _; simp only [bmix_as_bigbmix]; apply bigbmix_coher;
+  rintro (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> trivial
+
 /-! ## Rules for `Prob` -/
 
 /-- Probability of `⨁` -/
