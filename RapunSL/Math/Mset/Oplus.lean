@@ -186,38 +186,38 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
 
 /-! ## Membership -/
 
-@[simp] protected lemma Ifam.mem_oplus (a : α) (A B : Ifam α) :
+@[simp] protected lemma Ifam.oplus_mem (a : α) (A B : Ifam α) :
     (a ∈ A ⊕ᴵ B) = (a ∈ A ∨ a ∈ B) := by
   ext1; constructor;
   · rintro ⟨i | j, rfl⟩; { left; exists i }; { right; exists j }
   · rintro (⟨i, rfl⟩ | ⟨i, rfl⟩); { exists .inl i }; { exists .inr i }
 
-@[simp] protected lemma Mset.mem_oplus (A B : Mset α) a :
+@[simp] protected lemma Mset.oplus_mem (A B : Mset α) a :
     (a ∈ A ⊕ᴹ B) = (a ∈ A ∨ a ∈ B) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
-  apply Ifam.mem_oplus
+  apply Ifam.oplus_mem
 
-@[simp] protected lemma Ifam.mem_bigoplus {ι : Type} (A : ι → Ifam α) a :
+@[simp] protected lemma Ifam.bigoplus_mem {ι : Type} (A : ι → Ifam α) a :
     (a ∈ ⨁ᴵ i, A i) = ∃ i, a ∈ A i := by
   ext1; constructor; { rintro ⟨⟨_, _⟩, rfl⟩; tauto }; { rintro ⟨_, ⟨_, rfl⟩⟩; tauto }
 
-@[simp] protected lemma Mset.mem_bigoplus {ι : Type} (A : ι → Mset α) a :
+@[simp] protected lemma Mset.bigoplus_mem {ι : Type} (A : ι → Mset α) a :
     (a ∈ ⨁ᴹ i, A i) = ∃ i, a ∈ A i := by
-  trans; { apply Ifam.mem_bigoplus }; congr; funext _; apply Mset.mem_out
+  trans; { apply Ifam.bigoplus_mem }; congr; funext _; apply Mset.out_mem
 
 /-! ## Inhabitedness -/
 
 @[simp] protected lemma Mset.inhab_oplus (A B : Mset α) :
     (A ⊕ᴹ B).inhab = (A.inhab ∨ B.inhab) := by
-  simp only [Mset.inhab, Mset.mem_oplus]; grind only
+  simp only [Mset.inhab, Mset.oplus_mem]; grind only
 
 @[simp] protected lemma Mset.inhab_bigoplus {ι : Type} (A : ι → Mset α) :
     (⨁ᴹ i, A i).inhab = ∃ i, (A i).inhab := by
-  simp only [Mset.inhab, Mset.mem_bigoplus]; grind only
+  simp only [Mset.inhab, Mset.bigoplus_mem]; grind only
 
 /-! ## Pair membership -/
 
-@[simp] protected lemma Ifam.pairmem_oplus (a b : α) (A B : Ifam α) :
+@[simp] protected lemma Ifam.oplus_pairmem (a b : α) (A B : Ifam α) :
     (A ⊕ᴵ B).pairmem a b =
       (A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b) := by
   ext1; constructor;
@@ -231,13 +231,13 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     { exists .inl i, .inl j; aesop }; { exists .inl i, .inr j; tauto }
     { exists .inr i, .inl j; tauto }; { exists .inr i, .inr j; aesop }
 
-@[simp] protected lemma Mset.pairmem_oplus (a b : α) (A B : Mset α) :
+@[simp] protected lemma Mset.oplus_pairmem (a b : α) (A B : Mset α) :
     (A ⊕ᴹ B).pairmem a b =
       (A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
-  apply Ifam.pairmem_oplus
+  apply Ifam.oplus_pairmem
 
-@[simp] protected lemma Ifam.pairmem_bigoplus {ι : Type} (A : ι → Ifam α) a b :
+@[simp] protected lemma Ifam.bigoplus_pairmem {ι : Type} (A : ι → Ifam α) a b :
     (⨁ᴵ i, A i).pairmem a b =
       ((∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i')) := by
   ext1; constructor;
@@ -247,10 +247,10 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
   · rintro (⟨i, j, j', ne, rfl, rfl⟩ | ⟨i, i', ne, ⟨j, rfl⟩, ⟨j', rfl⟩⟩);
     { exists ⟨i, j⟩, ⟨i, j'⟩; aesop }; { exists ⟨i, j⟩, ⟨i', j'⟩; aesop }
 
-@[simp] protected lemma Mset.pairmem_bigoplus {ι : Type} (A : ι → Mset α) a b :
+@[simp] protected lemma Mset.bigoplus_pairmem {ι : Type} (A : ι → Mset α) a b :
     (⨁ᴹ i, A i).pairmem a b =
       ((∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i')) := by
-  trans; { apply Ifam.pairmem_bigoplus }; simp only [Mset.pairmem_out, Mset.mem_out]
+  trans; { apply Ifam.bigoplus_pairmem }; simp only [Mset.out_pairmem, Mset.out_mem]
 
 /-! ## Bijection -/
 

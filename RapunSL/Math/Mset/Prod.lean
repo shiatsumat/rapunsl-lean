@@ -136,27 +136,27 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
 
 /-! ## Membership -/
 
-@[simp] protected lemma Ifam.mem_prod (A : Ifam α) (B : Ifam β) p :
+@[simp] protected lemma Ifam.prod_mem (A : Ifam α) (B : Ifam β) p :
     (p ∈ A ×ᴵ B) = (p.1 ∈ A ∧ p.2 ∈ B) := by
   cases p; ext1; constructor;
   · rintro ⟨⟨_, _⟩, eq⟩; have ⟨rfl, rfl⟩ := Prod.mk_inj.mp eq; tauto
   · rintro ⟨⟨_, rfl⟩, ⟨_, rfl⟩⟩; tauto
 
-@[simp] protected lemma Mset.mem_prod (A : Mset α) (B : Mset β) p :
+@[simp] protected lemma Mset.prod_mem (A : Mset α) (B : Mset β) p :
     (p ∈ A ×ᴹ B) = (p.1 ∈ A ∧ p.2 ∈ B) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
-  apply Ifam.mem_prod
+  apply Ifam.prod_mem
 
 /-! ## Inhabitedness -/
 
 @[simp] protected lemma Mset.inhab_prod (A : Mset α) (B : Mset β) :
     (A ×ᴹ B).inhab = (A.inhab ∧ B.inhab) := by
-  simp only [Mset.inhab, Mset.mem_prod]; ext1; constructor; { tauto };
+  simp only [Mset.inhab, Mset.prod_mem]; ext1; constructor; { tauto };
   intro ⟨⟨a, _⟩, ⟨b, _⟩⟩; exists (a, b)
 
 /-! ## Pair membership -/
 
-@[simp] protected lemma Ifam.pairmem_prod (A : Ifam α) (B : Ifam β) p q :
+@[simp] protected lemma Ifam.prod_pairmem (A : Ifam α) (B : Ifam β) p q :
     (A ×ᴵ B).pairmem p q =
       ((A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
        (p.1 = q.1 ∧ p.1 ∈ A ∧ B.pairmem p.2 q.2) ∨
@@ -174,13 +174,13 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
     { exists (i, j), (i', j'); aesop };
     { exists (i, j), (i, j'); aesop }; { exists (i, j), (i', j); aesop }
 
-@[simp] protected lemma Mset.pairmem_prod (A : Mset α) (B : Mset β) p q :
+@[simp] protected lemma Mset.prod_pairmem (A : Mset α) (B : Mset β) p q :
     (A ×ᴹ B).pairmem p q =
       ((A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
        (p.1 = q.1 ∧ p.1 ∈ A ∧ B.pairmem p.2 q.2) ∨
        (p.2 = q.2 ∧ p.2 ∈ B ∧ A.pairmem p.1 q.1)) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
-  apply Ifam.pairmem_prod
+  apply Ifam.prod_pairmem
 
 /-! ## Bijection -/
 

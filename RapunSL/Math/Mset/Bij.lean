@@ -245,27 +245,27 @@ protected lemma Ifam.Bij.eq_graph_no_pairmem {A : Ifam α} {B : Ifam β} (r s : 
 /-- Equality between `≃ᴹ`s by negation of pair membership -/
 protected lemma Mset.Bij.eq_graph_no_pairmem {A : Mset α} {B : Mset β} (r s : A ≃ᴹ B) :
     (∀ a b b', (a, b) ∈ r.graph → (a, b') ∈ s.graph → ¬ B.pairmem b b') → r = s := by
-  intro h; apply Ifam.Bij.eq_graph_no_pairmem; intro _ _ _; rw [Mset.pairmem_out B]; tauto
+  intro h; apply Ifam.Bij.eq_graph_no_pairmem; intro _ _ _; rw [Mset.out_pairmem B]; tauto
 
 /-- Uniqueness of `≃ᴵ` over `pure` -/
 protected lemma Ifam.Bij.unique_pure {A : Ifam α} {b : β} (r s : A ≃ᴵ pure b) :
     r = s := by
-  apply Ifam.Bij.eq_graph_no_pairmem; intro _ _ _; simp [Ifam.pairmem_pure]
+  apply Ifam.Bij.eq_graph_no_pairmem; intro _ _ _; simp [Ifam.pure_pairmem]
 
 /-- Uniqueness of `≃ᴹ` over `pure` -/
 protected lemma Mset.Bij.unique_pure {A : Mset α} {b : β} (r s : A ≃ᴹ pure b) :
     r = s := by
-  apply Mset.Bij.eq_graph_no_pairmem; intro _ _ _; simp [Mset.pairmem_pure]
+  apply Mset.Bij.eq_graph_no_pairmem; intro _ _ _; simp [Mset.pure_pairmem]
 
 /-- Uniqueness of `≃ᴵ` over `∅` -/
 protected lemma Ifam.Bij.unique_empty {A : Ifam α} (r s : A ≃ᴵ (∅ : Ifam β)) :
     r = s := by
-  apply Ifam.Bij.eq_graph_no_pairmem; intro _ _ _; simp [Ifam.pairmem_empty]
+  apply Ifam.Bij.eq_graph_no_pairmem; intro _ _ _; simp [Ifam.empty_pairmem]
 
 /-- Uniqueness of `≃ᴹ` over `∅` -/
 protected lemma Mset.Bij.unique_empty {A : Mset α} (r s : A ≃ᴹ (∅ : Mset β)) :
     r = s := by
-  apply Mset.Bij.eq_graph_no_pairmem; intro _ _ _; simp [Mset.pairmem_empty]
+  apply Mset.Bij.eq_graph_no_pairmem; intro _ _ _; simp [Mset.empty_pairmem]
 
 /-! ## Constructions for operators -/
 

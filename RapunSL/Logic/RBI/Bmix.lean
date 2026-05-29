@@ -116,9 +116,9 @@ lemma bigbmix_assoc {ι' : ι → Type} [Inhabited ι] [∀ i, Inhabited (ι' i)
     congr; ext1 i; rw [(el i).right]; rfl
   · rintro ⟨_, val⟩ ⟨A, el, rfl⟩;
     exists fun i => ⟨⨁ᴹⁱ j, A ⟨i, j⟩, by
-      intro _; simp only [Mseti.bigoplus_val, Mset.mem_bigoplus];
+      intro _; simp only [Mseti.bigoplus_val, Mset.bigoplus_mem];
       intro ⟨_, _⟩; apply val;
-      simp only [Mseti.bigoplus_val, Mset.mem_bigoplus]; tauto⟩;
+      simp only [Mseti.bigoplus_val, Mset.bigoplus_mem]; tauto⟩;
     and_intros; swap; { symm; ext; apply Mset.bigoplus_assoc };
     intro i; exists fun j => A ⟨i, j⟩; simp only [and_true]; intro _; apply el ⟨_, _⟩
 
@@ -191,9 +191,9 @@ lemma bigbmix_frame_l [Inhabited ι] (Q : ι → RProp ρ) :
     P ∗ (⨁ i, Q i) ⊢ ⨁ i, P ∗ Q i := by
   rintro ⟨_, val⟩ ⟨A, ⟨_, _⟩, _, ⟨B, _, rfl⟩, rfl⟩;
   exists fun i => ⟨A.val * (B i).val, by
-    intro _; simp only [Mseti.mem_mul]; rintro ⟨r, s, _, _, rfl⟩; apply val; simp only;
-    rw [Mseti.mem_mul]; exists r, s;
-    simp only [Mseti.bigoplus_val, Mset.mem_bigoplus]; tauto⟩;
+    intro _; simp only [Mseti.mul_mem]; rintro ⟨r, s, _, _, rfl⟩; apply val; simp only;
+    rw [Mseti.mul_mem]; exists r, s;
+    simp only [Mseti.bigoplus_val, Mset.bigoplus_mem]; tauto⟩;
   simp only; and_intros; { intro i; exists A, B i; tauto }; { rw [Mseti.mul_bigoplus_l] }
 
 lemma bigbmix_frame_r [Inhabited ι] (P : ι → RProp ρ) Q :
@@ -214,7 +214,7 @@ lemma bigbmix_unframe_l [Inhabited ι] P (Q : ι → RProp ρ) [Precise P] :
   have ⟨A, el⟩ := Classical.skolem.mp el; have ⟨B, el⟩ := Classical.skolem.mp el;
   have i0 : ι := Classical.choice inferInstance;
   exists A i0, ⟨⨁ᴹⁱ i, B i, by
-    intro _; simp only [Mseti.bigoplus_val, Mset.mem_bigoplus];
+    intro _; simp only [Mseti.bigoplus_val, Mset.bigoplus_mem];
     intro ⟨i, _⟩; apply (B i).prop; trivial⟩;
   and_intros; { apply (el i0).left };
   { exists B; and_intros; { intro i; exact (el i).right.left }; { rfl } };
@@ -258,7 +258,7 @@ lemma bigbmix_satis [Inhabited ι] (P : ι → RProp ρ) :
     (∀ i, Satis (P i)) → Satis iprop(⨁ i, P i) := by
   intro _; constructor; have ⟨A, el⟩ := Classical.skolem.mp (fun i => satis (P i));
   exists ⟨⨁ᴹⁱ i, A i, by
-    intro _; simp only [Mseti.bigoplus_val, Mset.mem_bigoplus]; intro ⟨i, _⟩;
+    intro _; simp only [Mseti.bigoplus_val, Mset.bigoplus_mem]; intro ⟨i, _⟩;
     apply (A i).prop; trivial⟩;
   exists A
 
@@ -274,7 +274,7 @@ instance bmix_instSatis [Satis P] [Satis Q] : Satis iprop(P ⊕ Q) := by
 /-- Incompatibility over `⨁` -/
 lemma incomp_bigbmix [Inhabited ι] (P : ι → RProp ρ) :
     (∀ i, P i #ᴿ Q) → (⨁ i, P i) #ᴿ Q := by
-  rintro inc ⟨_, val⟩ _ ⟨_, _, rfl⟩ _ _ _; simp only [Mseti.bigoplus_val, Mset.mem_bigoplus];
+  rintro inc ⟨_, val⟩ _ ⟨_, _, rfl⟩ _ _ _; simp only [Mseti.bigoplus_val, Mset.bigoplus_mem];
   intro ⟨i, _⟩; apply inc i <;> tauto
 
 /-- Incompatibility over `⊕` -/
@@ -288,7 +288,7 @@ lemma bigbmix_unambig [Inhabited ι] (P : ι → RProp ρ) :
     (∀ i, Unambig (P i)) → (∀ i j, i ≠ j → Incomp (P i) (P j)) →
     Unambig (ρ := ρ) iprop(⨁ i, P i) := by
   intro _ inc; constructor; rintro ⟨_, _⟩ ⟨_, _, rfl⟩ _ _;
-  rw [Mseti.bigoplus_val, Mset.pairmem_bigoplus];
+  rw [Mseti.bigoplus_val, Mset.bigoplus_pairmem];
   rintro (⟨i, _⟩ | ⟨_, _, _, _, _⟩);
   { apply unambig (P i) <;> tauto }; { apply inc <;> tauto }
 
@@ -307,7 +307,7 @@ lemma bigbmix_coher [Inhabited ι] (P : ι → RProp ρ) (Q : ι → RProp ρ) :
   rintro coh ⟨_, _⟩ ⟨_, _⟩ ⟨_, elP, rfl⟩ ⟨_, elQ, rfl⟩;
   rcases Classical.skolem.mp (fun i => coh i _ _ (elP i) (elQ i)) with ⟨r, coh⟩;
   exists Mset.Bij.bigoplus r; intro _ _;
-  simp only [Mseti.bigoplus_val, Mset.Bij.bigoplus_graph, Mset.mem_bigoplus];
+  simp only [Mseti.bigoplus_val, Mset.Bij.bigoplus_graph, Mset.bigoplus_mem];
   intro ⟨_, _⟩; tauto
 
 /-- Coherence over `⊕` -/

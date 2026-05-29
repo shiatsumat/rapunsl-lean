@@ -22,7 +22,7 @@ variable {ρ : Type u} [RM ρ] (P Q R : RProp ρ) (r s : ρ)
 protected instance instMembership : Membership (Msetiv ρ) (RProp ρ) where
   mem P A := P.car A
 
-lemma mem_unfold A : (A ∈ P) = P.car A := rfl
+lemma unfold_mem A : (A ∈ P) = P.car A := rfl
 
 lemma set_ext : (∀ A, A ∈ P ↔ A ∈ Q) → P = Q := by
   intro _; apply congrArg LeibnizO.mk; apply Set.ext; trivial
@@ -51,7 +51,7 @@ lemma emp_unfold A : (A ∈ emp (PROP := RProp ρ)) = (A.val = 1) := rfl
 lemma forall_simple :
     BIBase.forall = fun P : α → RProp ρ => .mk fun A => ∀ x, A ∈ P x := by
   funext; apply set_ext; intro _; constructor; { tauto };
-  simp only [mem_unfold]; rintro _ _ ⟨_, rfl⟩; tauto
+  simp only [unfold_mem]; rintro _ _ ⟨_, rfl⟩; tauto
 
 lemma exists_simple :
     BIBase.exists = fun P : α → RProp ρ => .mk fun A => ∃ x, A ∈ P x := by
@@ -285,13 +285,13 @@ lemma incomp_false : iprop(False) #ᴿ P := nofun
 
 /-- Incompatibility over `own` -/
 lemma incomp_own : r # s → own r #ᴿ own s := by
-  rintro inc ⟨_, _⟩ ⟨_, _⟩ rfl rfl _ _; simp only [Mseti.pure_val, Mset.mem_pure]; aesop
+  rintro inc ⟨_, _⟩ ⟨_, _⟩ rfl rfl _ _; simp only [Mseti.pure_val, Mset.pure_mem]; aesop
 
 /-- Incompatibility over `∗` -/
 lemma incomp_sep_l : (P #ᴿ Q) → P ∗ R #ᴿ Q := by
-  rintro inc ⟨_, val⟩ _ ⟨_, _, _, _, rfl⟩ _ _ _; simp only [Mseti.mem_mul];
+  rintro inc ⟨_, val⟩ _ ⟨_, _, _, _, rfl⟩ _ _ _; simp only [Mseti.mul_mem];
   rintro ⟨_, _, _, _, rfl⟩ _; apply PCMC.incomp_mul_l;
-  { apply val; simp only [Mseti.mem_mul]; tauto }; { apply inc <;> try trivial }
+  { apply val; simp only [Mseti.mul_mem]; tauto }; { apply inc <;> try trivial }
 
 /-- Incompatibility over `∗` -/
 lemma incomp_sep_r : (P #ᴿ Q) → R ∗ P #ᴿ Q := by
@@ -328,7 +328,7 @@ instance false_instUnambig : Unambig (ρ := ρ) iprop(False) := by
 
 /-- Unambiguity over `own` -/
 instance own_instUnambig (r : ρ) : Unambig (own r) := by
-  constructor; intro ⟨_, _⟩ rfl _ _; rw [Mseti.pure_val, Mset.pairmem_pure r]; tauto
+  constructor; intro ⟨_, _⟩ rfl _ _; rw [Mseti.pure_val, Mset.pure_pairmem r]; tauto
 
 /-- Unambiguity over `emp` -/
 instance emp_instUnambig : Unambig (ρ := ρ) emp := by apply own_instUnambig
@@ -336,19 +336,19 @@ instance emp_instUnambig : Unambig (ρ := ρ) emp := by apply own_instUnambig
 /-- Unambiguity over `∗` -/
 instance sep_instUnambig [Unambig P] [Unambig Q] :
     Unambig iprop(P ∗ Q) := by
-  constructor; rintro ⟨_, val⟩ ⟨_, _, elP, _, rfl⟩ _ _; simp only [Mseti.pairmem_mul];
+  constructor; rintro ⟨_, val⟩ ⟨_, _, elP, _, rfl⟩ _ _; simp only [Mseti.mul_pairmem];
   rintro ⟨_, _, _, _, rfl, rfl, (⟨_, _⟩ | ⟨rfl, _, _⟩ | ⟨rfl, _, _⟩)⟩;
   swap;
   { apply PCMC.incomp_mul_r;
-    { apply val; rw [Mseti.mem_mul]; grind only [Mset.pairmem_mem_l] };
+    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_l] };
     symm; apply PCMC.incomp_mul_r;
-    { apply val; rw [Mseti.mem_mul]; grind only [Mset.pairmem_mem_r] };
+    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_r] };
     apply unambig Q <;> tauto };
   all_goals
   { apply PCMC.incomp_mul_l;
-    { apply val; rw [Mseti.mem_mul]; grind only [Mset.pairmem_mem_l] };
+    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_l] };
     symm; apply PCMC.incomp_mul_l;
-    { apply val; rw [Mseti.mem_mul]; grind only [Mset.pairmem_mem_r] };
+    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_r] };
     apply unambig P <;> tauto }
 
 /-! ## Coherence -/
@@ -368,7 +368,7 @@ scoped delab_rules Coher
 /-- Coherence is symmetric -/
 @[symm] lemma coher_symm : (P ≎ᴿ Q) → Q ≎ᴿ P := by
   intro coh _ _ elQ elP; rcases coh _ _ elP elQ with ⟨f, eq⟩; exists f.symm; intro _ _;
-  simp only [Mset.Bij.symm_graph, Mset.mem_map']; rintro ⟨_, _, _⟩; symm; grind only
+  simp only [Mset.Bij.symm_graph, Mset.map'_mem]; rintro ⟨_, _, _⟩; symm; grind only
 
 /-- Coherence is transitive, under satisfiability of the middle proposition -/
 @[trans] lemma coher_trans [Satis Q] : (P ≎ᴿ Q) → (Q ≎ᴿ R) → P ≎ᴿ R := by
@@ -396,14 +396,14 @@ lemma coher_false : iprop(False) ≎ᴿ P := nofun
 /-- Coherence over `own` -/
 lemma coher_own : r ≎ s → own r ≎ᴿ own s := by
   intro coh ⟨_, _⟩ ⟨_, _⟩ rfl rfl; exists Mset.Bij.pure _ _; intro _ _;
-  simp only [Mset.Bij.pure_graph, Mset.mem_pure]; rintro ⟨_, _⟩; trivial
+  simp only [Mset.Bij.pure_graph, Mset.pure_mem]; rintro ⟨_, _⟩; trivial
 
 /-- Coherence over `∗` -/
 lemma coher_sep : (P ≎ᴿ P') → (Q ≎ᴿ Q') → iprop(P ∗ Q) ≎ᴿ iprop(P' ∗ Q') := by
   rintro cohP cohQ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩;
   rcases cohP _ _ elP elP' with ⟨r, _⟩; rcases cohQ _ _ elQ elQ' with ⟨s, _⟩;
   exists Mseti.Bij.mul r s; intro _ _;
-  simp only [Mseti.Bij.mul_graph, Mset.mem_seq', Mset.mem_map'];
+  simp only [Mseti.Bij.mul_graph, Mset.seq'_mem, Mset.map'_mem];
   rintro ⟨_, ⟨_, _, rfl⟩, _, _, _, ⟨_, _⟩, _⟩; apply PCMC.coher_mul <;> tauto
 
 /-! ## Probability -/
