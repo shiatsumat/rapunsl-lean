@@ -238,6 +238,56 @@ protected lemma Mset.Bij.trans_graph_id_r {A : Mset α} {B B' : Mset β}
     (p ∈ r.lift_mk.graph) = (p ∈ r.graph) := by
   rw [Ifam.Bij.lift_mk_graph]; rfl
 
+/-! ### Bijection for the graph -/
+
+/-- Bijection between the graph and the domain of a bijection -/
+protected def Ifam.Bij.graph_dom {A : Ifam α} {B : Ifam β}
+    (r : A ≃ᴵ B) : r.graph ≃ᴵ A := Equiv.refl _
+
+/-- Bijection between the graph and the domain of a bijection -/
+protected noncomputable def Mset.Bij.graph_dom {A : Mset α} {B : Mset β}
+    (r : A ≃ᴹ B) : r.graph ≃ᴹ A :=
+  (Ifam.Bij.mk_out _).trans (Ifam.Bij.graph_dom r)
+
+/-- Bijection between the graph and the codomain of a bijection -/
+protected def Ifam.Bij.graph_codom {A : Ifam α} {B : Ifam β}
+    (r : A ≃ᴵ B) : r.graph ≃ᴵ B := r
+
+/-- Bijection between the graph and the codomain of a bijection -/
+protected noncomputable def Mset.Bij.graph_codom {A : Mset α} {B : Mset β}
+    (r : A ≃ᴹ B) : r.graph ≃ᴹ B :=
+  (Ifam.Bij.mk_out _).trans (Ifam.Bij.graph_codom r)
+
+/-- The graph of `Ifam.Bij.graph_dom` -/
+@[simp] protected lemma Ifam.Bij.graph_dom_graph (A : Ifam α) (B : Ifam β) (r : A ≃ᴵ B) :
+    r.graph_dom.graph = (fun (a, b) => ((a, b), a)) <$>ᴵ r.graph := rfl
+
+/-- The graph of `Mset.Bij.graph_dom` -/
+@[simp] protected lemma Mset.Bij.graph_dom_graph (A : Mset α) (B : Mset β) (r : A ≃ᴹ B) :
+    r.graph_dom.graph = (fun (a, b) => ((a, b), a)) <$>ᴹ r.graph := by
+  apply Quotient.sound; rw [Mset.Bij.graph_dom, ←Ifam.Bij.graph_dom_graph];
+  apply Ifam.Bij.trans_graph_id_l; simp only [Mset.Bij.graph, Ifam.Bij.mk_out_graph_mem]; tauto
+
+/-- Membership for the graph of `Mset.Bij.graph_dom` -/
+@[simp] protected lemma Mset.Bij.graph_dom_graph_mem (A : Mset α) (B : Mset β) (r : A ≃ᴹ B) a b :
+    (((a, b), a') ∈ r.graph_dom.graph) = ((a, b) ∈ r.graph ∧ a' = a) := by
+  rw [Mset.Bij.graph_dom_graph, Mset.map'_mem]; grind only
+
+/-- The graph of `Ifam.Bij.graph_codom` -/
+@[simp] protected lemma Ifam.Bij.graph_codom_graph (A : Ifam α) (B : Ifam β) (r : A ≃ᴵ B) :
+    r.graph_codom.graph = (fun (a, b) => ((a, b), b)) <$>ᴵ r.graph := rfl
+
+/-- The graph of `Mset.Bij.graph_codom` -/
+@[simp] protected lemma Mset.Bij.graph_codom_graph (A : Mset α) (B : Mset β) (r : A ≃ᴹ B) :
+    r.graph_codom.graph = (fun (a, b) => ((a, b), b)) <$>ᴹ r.graph := by
+  apply Quotient.sound; rw [Mset.Bij.graph_codom, ←Ifam.Bij.graph_codom_graph];
+  apply Ifam.Bij.trans_graph_id_l; simp only [Mset.Bij.graph, Ifam.Bij.mk_out_graph_mem]; tauto
+
+/-- Membership for the graph of `Mset.Bij.graph_codom` -/
+@[simp] protected lemma Mset.Bij.graph_codom_graph_mem (A : Mset α) (B : Mset β) (r : A ≃ᴹ B) a b :
+    (((a, b), b') ∈ r.graph_codom.graph) = ((a, b) ∈ r.graph ∧ b' = b) := by
+  rw [Mset.Bij.graph_codom_graph, Mset.map'_mem]; grind only
+
 /-! ## Getting information from the graph -/
 
 /-- Get `<$>ᴵ` information from a map-like graph -/
