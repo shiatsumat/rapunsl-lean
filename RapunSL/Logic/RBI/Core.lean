@@ -290,8 +290,10 @@ lemma incomp_sep_r : (P #ᴿ Q) → R ∗ P #ᴿ Q := by
 
 /-- Unambiguity of a proposition -/
 class Unambig (P : RProp ρ) : Prop where
+  /-- Unambiguity condition -/
   unambig : ∀ A ∈ P, ∀ a b, A.val.val.pairmem a b → a # b
 
+/-- Unambiguity condition -/
 lemma unambig [Unambig P] : ∀ A ∈ P, ∀ a b, A.val.val.pairmem a b → a # b := by
   apply Unambig.unambig
 
@@ -328,31 +330,39 @@ instance sep_instUnambig [Unambig P] [Unambig Q] :
 
 /-! ## Probability -/
 
-/-- Probability -/
+/-- `P` entails the probability `p` -/
 class Prob (P : RProp ρ) (p : ℝ≥0∞) : Prop where
+  /-- Probability condition -/
   prob : ∀ A ∈ P, PCMP.prob A.val = p
 
+/-- Probability condition -/
 lemma prob (P : RProp ρ) (p : ℝ≥0∞) [Prob P p] : ∀ A ∈ P, PCMP.prob A.val = p := by
   apply Prob.prob
 
 /-! ### Rules for `Prob` -/
 
+/-- `Prob` is antitone -/
 lemma prob_anti [Prob Q p] : (P ⊢ Q) → Prob P p := by
   intro _; constructor; intro _ _; apply prob Q; tauto
 
+/-- Probability under preciseness -/
 lemma precise_prob [Precise P] : ∃ p, Prob P p := by
   rcases em (∃ A, A ∈ P) with ⟨A, el⟩ | _; swap; { exists 0; constructor; tauto };
   exists PCMP.prob A.val; constructor; intro _ el'; rw [precise P _ _ el el']
 
+/-- Probability of `False` -/
 instance false_instProb p : Prob (ρ := ρ) iprop(False) p := by
   constructor; nofun
 
+/-- Probability of `own` -/
 instance own_instProb : Prob (own r) (PCMP.prob r) := by
   constructor; rintro ⟨_, _⟩ rfl; apply Mseti.prob_pure
 
+/-- Probability of `emp` -/
 instance emp_instProb : Prob (ρ := ρ) emp 1 := by
   constructor; rintro ⟨_, _⟩ rfl; simp only [Mseti.one_unfold, Mseti.prob_pure, PCMP.prob_one]
 
+/-- Probability of `∗` -/
 instance sep_instProb [Prob P p] [Prob Q q] : Prob iprop(P ∗ Q) (p * q) := by
   constructor; rintro ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩;
   rw [PCMP.prob_mul, prob P p _ elP, prob Q q _ elQ]
