@@ -1,6 +1,7 @@
 module
 
 public import Iris.BI
+public import Mathlib.Order.Defs.Unbundled
 import Batteries.Tactic.Trans
 import Mathlib.Tactic.Gcongr
 import Iris.ProofMode
@@ -13,11 +14,18 @@ open Iris BI
 namespace Iris.BI
 variable {PROP} [BI PROP] (P Q R S : PROP)
 
+/-! ## `⊢` is a preorder -/
+
 @[refl] lemma entails_refl : P ⊢ P := by
   apply Std.refl
 
 @[trans] lemma entails_trans' : (P ⊢ Q) → (Q ⊢ R) → P ⊢ R := by
-  apply Std.trans
+  apply Trans.trans
+
+instance entails_instPreorder : IsPreorder PROP Entails where
+  refl := entails_refl
+
+/-! ## `⊣⊢` is an equivalence relation -/
 
 @[refl] lemma bi_entails_refl : P ⊣⊢ P := by
   constructor <;> rfl
@@ -26,7 +34,14 @@ variable {PROP} [BI PROP] (P Q R S : PROP)
   intro ⟨_, _⟩; constructor <;> trivial
 
 @[trans] lemma bi_entails_trans : P ⊣⊢ Q → Q ⊣⊢ R → P ⊣⊢ R := by
-  intro ⟨_, _⟩ ⟨_, _⟩; constructor <;> trans <;> assumption
+  apply Trans.trans
+
+instance bi_entails_instIsEquiv : IsEquiv PROP BiEntails where
+  refl := bi_entails_refl
+  symm := bi_entails_symm
+  trans := bi_entails_trans
+
+/-! ## Reinterpretation of connectives -/
 
 lemma or_as_exists : P ∨ Q ⊣⊢ ∃ b : Bool, if b then P else Q := by
   constructor;
