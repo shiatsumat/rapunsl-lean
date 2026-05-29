@@ -288,7 +288,7 @@ protected noncomputable def Mset.Bij.graph_codom {A : Mset α} {B : Mset β}
     (((a, b), b') ∈ r.graph_codom.graph) = ((a, b) ∈ r.graph ∧ b' = b) := by
   rw [Mset.Bij.graph_codom_graph, Mset.map'_mem]; grind only
 
-/-! ## Getting information from the graph -/
+/-! ### Getting information from the graph -/
 
 /-- Get `<$>ᴵ` information from a map-like graph -/
 protected lemma Ifam.Bij.graph_eq_map {A : Ifam α} {B : Ifam β} (r : A ≃ᴵ B) (f : α → β) :
