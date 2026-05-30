@@ -4,7 +4,7 @@ public import RapunSL.Util.Syntax
 public import Iris.BI
 public import RapunSL.Math.Algebra.Mseti
 public import RapunSL.Logic.BI
-open Iris OFE BI PCM PCMC PCMP ENNReal Mset
+open Iris OFE BI PCM PCMI PCMC PCMP ENNReal Mset
 
 @[expose] public section
 
@@ -293,7 +293,7 @@ lemma incomp_own : r # s → own r #ᴿ own s := by
 /-- Incompatibility over `∗` -/
 lemma incomp_sep_l : (P #ᴿ Q) → P ∗ R #ᴿ Q := by
   rintro inc ⟨_, val⟩ _ ⟨_, _, _, _, rfl⟩ _ _ _; simp only [Mseti.mul_mem];
-  rintro ⟨_, _, _, _, rfl⟩ _; apply PCMC.incomp_mul_l;
+  rintro ⟨_, _, _, _, rfl⟩ _; apply PCMI.incomp_mul_l;
   { apply val; simp only [Mseti.mul_mem]; tauto }; { apply inc <;> try trivial }
 
 /-- Incompatibility over `∗` -/
@@ -342,15 +342,15 @@ instance sep_instUnambig [Unambig P] [Unambig Q] :
   constructor; rintro ⟨_, val⟩ ⟨_, _, elP, _, rfl⟩ _ _; simp only [Mseti.mul_pairmem];
   rintro ⟨_, _, _, _, rfl, rfl, (⟨_, _⟩ | ⟨rfl, _, _⟩ | ⟨rfl, _, _⟩)⟩;
   swap;
-  { apply PCMC.incomp_mul_r;
+  { apply PCMI.incomp_mul_r;
     { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_l] };
-    symm; apply PCMC.incomp_mul_r;
+    symm; apply PCMI.incomp_mul_r;
     { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_r] };
     apply unambig Q <;> tauto };
   all_goals
-  { apply PCMC.incomp_mul_l;
+  { apply PCMI.incomp_mul_l;
     { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_l] };
-    symm; apply PCMC.incomp_mul_l;
+    symm; apply PCMI.incomp_mul_l;
     { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_r] };
     apply unambig P <;> tauto }
 
