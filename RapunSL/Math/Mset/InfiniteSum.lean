@@ -46,6 +46,17 @@ scoped[Mset] notation "∑ᴹ " a " ∈ᴹ " A ", " b:67 => Mset.tsum (fun a => 
 /-! ## Properties -/
 
 @[to_additive]
+protected lemma Mset.tprod_proper (k k' : α → κ) A :
+    (∀ a ∈ A, k a = k' a) → ∏ᴹ a ∈ᴹ A, k a = ∏ᴹ a ∈ᴹ A, k' a := by
+  intro eq; cases A using Quotient.ind; simp only [Mset.tprod, Quotient.lift_mk, Ifam.tprod];
+  congr; ext1 i; apply eq; exists i
+
+@[to_additive (attr := gcongr)]
+protected lemma Mset.tprod_proper' (k k' : α → κ) A B :
+    A = B → (∀ a ∈ A, k a = k' a) → ∏ᴹ a ∈ᴹ A, k a = ∏ᴹ a ∈ᴹ B, k' a := by
+  intro rfl; apply Mset.tprod_proper
+
+@[to_additive]
 protected lemma Mset.tprod_map' (f : α → β) (k : β → κ) A :
     Mset.tprod k (f <$>ᴹ A) = ∏ᴹ a ∈ᴹ A, k (f a) := by
   cases A using Quotient.ind; rfl
