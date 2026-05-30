@@ -19,7 +19,7 @@ def RProp ρ [RM ρ] := LeibnizO (Set (Msetiv ρ))
 
 variable {ρ : Type u} [RM ρ] (P Q R : RProp ρ) (r s : ρ)
 
-protected instance instMembership : Membership (Msetiv ρ) (RProp ρ) where
+instance RProp_instMembership : Membership (Msetiv ρ) (RProp ρ) where
   mem P A := P.car A
 
 lemma unfold_mem A : (A ∈ P) = P.car A := rfl
@@ -27,12 +27,12 @@ lemma unfold_mem A : (A ∈ P) = P.car A := rfl
 lemma set_ext : (∀ A, A ∈ P ↔ A ∈ Q) → P = Q := by
   intro _; apply congrArg LeibnizO.mk; apply Set.ext; trivial
 
-protected instance instCOFE : COFE (RProp ρ) := instCOFELeibnizO
+instance RProp_instCOFE : COFE (RProp ρ) := instCOFELeibnizO
 
 /-! ## BI structure -/
 
 /-- BI definitions for `RProp` -/
-protected instance instBIBase : BIBase (RProp ρ) where
+instance RProp_instBIBase : BIBase (RProp ρ) where
   Entails P Q := ∀ A ∈ P, A ∈ Q
   pure φ := .mk fun _ => φ
   and P Q := .mk fun A => A ∈ P ∧ A ∈ Q
@@ -70,12 +70,12 @@ lemma entails_antisymm :
     (P ⊢ Q) → (Q ⊢ P) → P = Q := by
   intro _ _; apply set_ext; intro _; constructor <;> tauto
 
-protected instance instPreorder_Entails : Std.Preorder (Entails (PROP := RProp ρ)) where
+instance RProp_entails_instPreorder : Std.Preorder (Entails (PROP := RProp ρ)) where
   refl := entails_refl _
   trans := entails_trans _ _ _
 
 /-- BI properties for `RProp` -/
-protected instance instBI : BI (RProp ρ) where
+instance RProp_instBI : BI (RProp ρ) where
   entails_preorder := inferInstance
   equiv_iff := by
     intro _ _; constructor; { intro rfl; constructor <;> rfl };
@@ -133,8 +133,11 @@ protected instance instBI : BI (RProp ρ) where
   later_persistently := by intro _; constructor <;> rfl
   later_false_em := by tauto
 
+instance RProp_entails_instPartialOrder : IsPartialOrder (RProp ρ) Entails where
+  antisymm := entails_antisymm
+
 @[ext] lemma bi_entails_eq : (P ⊣⊢ Q) → P = Q := by
-  intro ⟨_, _⟩; apply entails_antisymm <;> trivial
+  intro ⟨PQ, QP⟩; apply antisymm PQ QP
 
 /-! ### Extra properties -/
 
