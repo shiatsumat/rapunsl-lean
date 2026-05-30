@@ -289,7 +289,7 @@ class PCMP (α : Type u) extends PCM α where
   /-- `1` has probability `1` -/
   protected prob_one : prob 1 = 1
   /-- The probability of `*` is the product of the probabilities -/
-  protected prob_mul : ∀ a b : α, prob (a * b) = prob a * prob b
+  protected prob_mul : ∀ a b : α, ✓ a * b → prob (a * b) = prob a * prob b
 
 /-! ## RM, i.e., resource monoid -/
 

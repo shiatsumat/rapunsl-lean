@@ -453,7 +453,7 @@ instance emp_instProb : Prob (ρ := ρ) emp 1 := by
 
 /-- Probability of `∗` -/
 instance sep_instProb [Prob P p] [Prob Q q] : Prob iprop(P ∗ Q) (p * q) := by
-  constructor; rintro ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩;
-  rw [PCMP.prob_mul, prob P p _ elP, prob Q q _ elQ]
+  constructor; rintro ⟨_, val⟩ ⟨_, _, elP, elQ, rfl⟩;
+  rw [PCMP.prob_mul _ _ val, prob P p _ elP, prob Q q _ elQ]
 
 end RBI

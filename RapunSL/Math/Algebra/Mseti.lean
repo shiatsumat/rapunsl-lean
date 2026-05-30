@@ -108,8 +108,9 @@ protected noncomputable instance Mseti.instPCMP (α : Type u) [PCMP α] : PCMP (
   prob_one := by
     rw [Mseti.one_unfold, Mseti.pure_val, Mset.tsum_pure, PCMP.prob_one]
   prob_mul := by
-    intro _ _; rw [Mseti.mul_val, Mset.map_seq, Mset.tsum_map, ENNReal.Mset.tsum_mul_tsum];
-    congr; ext1 _; apply PCMP.prob_mul
+    intro _ _ val; rw [Mseti.mul_val, Mset.map_seq, Mset.tsum_map, ENNReal.Mset.tsum_mul_tsum];
+    apply Mset.tsum_proper; simp only [Mset.prod_mem]; intro ⟨a, b⟩ ⟨_, _⟩;
+    apply PCMP.prob_mul; apply val; simp only [Mseti.mul_mem]; exists a, b
 
 protected lemma Mseti.prob_unfold [PCMP α] (A : Mseti α) :
     PCMP.prob A = ∑ᴹ a ∈ᴹ A.val, PCMP.prob a := rfl
