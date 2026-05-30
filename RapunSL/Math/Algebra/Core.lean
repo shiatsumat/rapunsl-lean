@@ -126,7 +126,7 @@ class PCMC (α : Type u) extends PCM α where
   /-- Coherence relation -/
   protected coher : α → α → Prop
   /-- Coherence is an equivalence relation -/
-  protected coher_isEquiv : IsEquiv α coher
+  protected coher_IsEquiv : IsEquiv α coher
   /-- Coherence is compatible with `*` -/
   protected coher_mul_l : ∀ a b c, coher a b → coher (a * c) (b * c)
   /-- Coherence respects validity -/
@@ -134,17 +134,11 @@ class PCMC (α : Type u) extends PCM α where
   /-- Incompatibility relation -/
   protected incomp : α → α → Prop
   /-- Incompatibility is symmetric -/
-  protected incomp_symm : Std.Symm incomp
+  protected incomp_Symm : Std.Symm incomp
   /-- Incompatibility negates coherence -/
   protected incomp_neg_coher : ∀ a b, ✓ a → incomp a b → ¬ coher a b
   /-- Incompatibility is preserved by `*` under validity -/
   protected incomp_mul_l : ∀ a b c, ✓ a * c → incomp a b → incomp (a * c) b
-
-protected instance PCMC.coher_instIsEquiv (α : Type u) [PCMC α] :
-    IsEquiv α (PCMC.coher) := PCMC.coher_isEquiv
-
-protected instance PCMC.incomp_instSymm (α : Type u) [PCMC α] :
-    Std.Symm (α := α) PCMC.incomp := PCMC.incomp_symm
 
 open PCMC
 
@@ -157,17 +151,25 @@ scoped infix:50 " ≎ " => PCMC.coher
 @[inherit_doc]
 scoped infix:50 " # " => PCMC.incomp
 
+/-- Coherence is an equivalence relation -/
+protected instance coher_instIsEquiv (α : Type u) [PCMC α] :
+    IsEquiv α (PCMC.coher) := PCMC.coher_IsEquiv
+
+/-- Incompatibility is symmetric -/
+protected instance incomp_instSymm (α : Type u) [PCMC α] :
+    Std.Symm (α := α) PCMC.incomp := PCMC.incomp_Symm
+
 /-- Coherence is reflexive -/
 @[refl] protected lemma coher_refl (a : α) : a ≎ a := by
-  apply PCMC.coher_isEquiv.refl
+  apply refl
 
 /-- Coherence is symmetric -/
 @[symm] protected lemma coher_symm (a b : α) : a ≎ b → b ≎ a := by
-  apply PCMC.coher_isEquiv.symm
+  apply symm
 
 /-- Coherence is transitive -/
 @[trans] protected lemma coher_trans (a b c : α) : a ≎ b → b ≎ c → a ≎ c := by
-  apply PCMC.coher_isEquiv.trans
+  apply Trans.trans
 
 /-- Coherence is compatible with `*` -/
 protected lemma coher_mul_r (a b c : α) : a ≎ b → c * a ≎ c * b := by
@@ -184,8 +186,8 @@ protected lemma coher_valid' (a b : α) :
   constructor <;> apply PCMC.coher_valid; { trivial }; { symm; trivial }
 
 /-- Incompatibility is symmetric -/
-@[symm] protected lemma incomp_symm' (a b : α) : a # b → b # a := by
-  apply PCMC.incomp_symm.symm
+@[symm] protected lemma incomp_symm (a b : α) : a # b → b # a := by
+  apply PCMC.incomp_Symm.symm
 
 /-- Incompatibility is preserved by `*` under validity -/
 protected lemma incomp_mul_r (a b c : α) : ✓ c * a → a # b → c * a # b := by
@@ -199,11 +201,11 @@ end PCMC
 
 protected instance Excl.instPCMC : PCMC (Excl α) where
   coher := Eq
-  coher_isEquiv := by infer_instance
+  coher_IsEquiv := by infer_instance
   coher_mul_l := by intro _ _ _ rfl; rfl
   coher_valid := by intro _ _ rfl _; trivial
   incomp | .excl a, .excl b => a ≠ b | _, _ => False
-  incomp_symm := by constructor; intro a b; cases a <;> cases b <;> tauto
+  incomp_Symm := by constructor; intro a b; cases a <;> cases b <;> tauto
   incomp_neg_coher := by intro a b; cases a <;> cases b <;> grind only
   incomp_mul_l := by intro a b c; cases a <;> cases b <;> cases c <;> tauto
 
@@ -217,7 +219,7 @@ protected lemma Excl.incomp_unfold :
 protected instance Prod.instPCMC (α : Type u) (β : Type u') [PCMC α] [PCMC β] :
     PCMC (α × β) where
   coher p q := p.1 ≎ q.1 ∧ p.2 ≎ q.2
-  coher_isEquiv := {
+  coher_IsEquiv := {
     refl := by intros; and_intros <;> rfl
     symm := by intros; and_intros <;> symm <;> tauto
     trans := by intros; and_intros <;> trans <;> tauto
@@ -226,7 +228,7 @@ protected instance Prod.instPCMC (α : Type u) (β : Type u') [PCMC α] [PCMC β
   coher_valid := by
     intro _ _ _ ⟨_, _⟩; and_intros <;> apply PCMC.coher_valid <;> tauto
   incomp p q := p.1 # q.1 ∨ p.2 # q.2
-  incomp_symm := by
+  incomp_Symm := by
     constructor; rintro _ _ (inc | inc) <;> symm at inc <;> tauto
   incomp_neg_coher := by
     rintro _ _ ⟨_, _⟩ (inc | inc) <;> apply PCMC.incomp_neg_coher at inc <;> tauto
@@ -245,7 +247,7 @@ protected lemma Prod.incomp_unfold [PCMC α] [PCMC β] :
 protected instance Pi.instPCMC (ι : Type u) (α : ι → Type u') [∀ i, PCMC (α i)] :
     PCMC (∀ i, α i) where
   coher f g := ∀ i, f i ≎ g i
-  coher_isEquiv := {
+  coher_IsEquiv := {
     refl := by intros; rfl
     symm := by intros; symm; tauto
     trans := by intro _ f _ _ _ i; trans (f i) <;> tauto
@@ -253,7 +255,7 @@ protected instance Pi.instPCMC (ι : Type u) (α : ι → Type u') [∀ i, PCMC 
   coher_mul_l := by intro _ _ _ _ _; apply PCMC.coher_mul_l; tauto
   coher_valid := by intro _ _ coh _ i; apply PCMC.coher_valid _ _ (coh i); tauto
   incomp f g := ∃ i, f i # g i
-  incomp_symm := by constructor; intro _ _ ⟨i, _⟩; exists i; symm; trivial
+  incomp_Symm := by constructor; intro _ _ ⟨i, _⟩; exists i; symm; trivial
   incomp_neg_coher := by
     intro _ _ val ⟨i, inc⟩ _; apply PCMC.incomp_neg_coher _ _ (val i) at inc; tauto
   incomp_mul_l := by
