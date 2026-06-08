@@ -279,12 +279,9 @@ protected noncomputable def Mset.Bij.oplus
 @[simp] protected lemma Mset.Bij.oplus_graph
     {A A' : Mset α} {B B' : Mset β} (r : A ≃ᴹ B) (s : A' ≃ᴹ B') :
     (Mset.Bij.oplus r s).graph = r.graph ⊕ᴹ s.graph := by
-  rw [Mset.Bij.oplus];
-  generalize A.out_eq = eq₁, A'.out_eq = eq₂, B.out_eq = eq₃, B'.out_eq = eq₄;
-  revert r s eq₁ eq₂ eq₃ eq₄; unfold Mset.Bij Mset.Bij.graph;
-  generalize A.out = Ao, A'.out = A'o, B.out = Bo, B'.out = B'o;
-  intro r s rfl rfl rfl rfl; simp only; trans; { apply Ifam.Bij.lift_mk_graph };
-  rw [Ifam.Bij.oplus_graph]; rfl
+  rw [Mset.Bij.oplus]; revert r s; unfold Mset.Bij Mset.Bij.graph;
+  simp_out_eq A; simp_out_eq B; simp_out_eq A'; simp_out_eq B'; intro _ _;
+  trans; { apply Ifam.Bij.lift_mk_graph }; rw [Ifam.Bij.oplus_graph]; rfl
 
 /-! ### For `⨁` -/
 

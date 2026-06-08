@@ -43,8 +43,22 @@ protected instance Ifam.instSetoid α : Setoid (Ifam α) :=
 def Mset (α : Type u) : Type (max 1 u) :=
   Quotient (Ifam.instSetoid α)
 
+/-! ## Utility for working with `out` on `Mset` -/
+
 /-- `Quotient.out_eq` for `Mset` -/
 protected def Mset.out_eq (A : Mset α) := Quotient.out_eq A
+
+namespace Mset
+/-- `simp_out_eq A A'` discharges `A.out_eq`, generalizing `A.out` to `A'` -/
+scoped syntax "simp_out_eq" ident ident : tactic
+/-- `simp_out_eq A` discharges `A.out_eq`, generalizing `A.out` -/
+scoped syntax "simp_out_eq" ident : tactic
+macro_rules
+  | `(tactic| simp_out_eq $A $Ao) => `(tactic|
+        generalize Mset.out_eq $A = eq; revert eq;
+        generalize Quotient.out $A = $Ao; intro eq; subst eq; try simp only)
+  | `(tactic| simp_out_eq $A) => `(tactic| simp_out_eq $A Ao)
+end Mset
 
 /-! ## Functor -/
 

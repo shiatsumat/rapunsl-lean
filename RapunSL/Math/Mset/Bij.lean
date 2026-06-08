@@ -390,8 +390,7 @@ protected noncomputable def Mset.Bij.map (f : α → α') (g : β → β')
 /-- The graph of `Mset.Bij.map_l` -/
 @[simp] protected lemma Mset.Bij.map_l_graph (f : α → β) (A : Mset α) :
     (Mset.Bij.map_l f A).graph = (fun a => (f a, a)) <$>ᴹ A := by
-  rw [Mset.Bij.map_l]; generalize A.out_eq = eq; revert eq;
-  generalize A.out = A'; intro rfl; simp only; apply Ifam.Bij.lift_mk_graph
+  rw [Mset.Bij.map_l]; simp_out_eq A; apply Ifam.Bij.lift_mk_graph
 
 /-- Membership for the graph of `Mset.Bij.map_l` -/
 @[simp] protected lemma Mset.Bij.map_l_graph_mem (f : α → β) (A : Mset α) a b :
