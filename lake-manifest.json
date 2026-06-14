@@ -5,7 +5,7 @@
    "type": "git",
    "subDir": "Iris",
    "scope": "",
-   "rev": "6ddf890e97c4ea058aa962fcd7a951646475e1ba",
+   "rev": "b7161660991216899f212eb33a9da47418655404",
    "name": "iris",
    "manifestFile": "lake-manifest.json",
    "inputRev": "master",
