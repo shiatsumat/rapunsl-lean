@@ -84,3 +84,34 @@ lemma false_as_exists :
   apply later_mono
 
 end Iris.BI
+
+/-! ## BI with extensionality -/
+
+class Iris.BIE PROP extends Iris.BI PROP where
+  bi_ext : ∀ P Q : PROP, (P ⊣⊢ Q) → P = Q
+
+macro:25 P:term:29 " =ᴮᴵ " Q:term:29 : term => `(Eq iprop($P) iprop($Q))
+
+namespace Iris.BI
+
+variable {PROP} [BIE PROP] (P Q : PROP)
+
+@[ext]
+lemma bi_ext : (P ⊣⊢ Q) → P = Q := by apply Iris.BIE.bi_ext
+
+lemma or_as_exists' : P ∨ Q =ᴮᴵ ∃ b : Bool, if b then P else Q := by
+  ext1; apply or_as_exists
+
+lemma false_as_exists' : (False : PROP) =ᴮᴵ ∃ e : Empty, nomatch e := by
+  ext1; apply false_as_exists
+
+lemma sep_comm' : P ∗ Q =ᴮᴵ Q ∗ P := by
+  ext1; apply sep_comm
+
+lemma and_comm' : P ∧ Q =ᴮᴵ Q ∧ P := by
+  ext1; apply and_comm
+
+lemma and_assoc' : (P ∧ Q) ∧ R =ᴮᴵ P ∧ (Q ∧ R) := by
+  ext1; apply and_assoc
+
+end Iris.BI

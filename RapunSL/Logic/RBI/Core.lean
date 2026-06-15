@@ -62,10 +62,6 @@ lemma exists_simple :
 
 @[trans] lemma entails_trans : (P ⊢ Q) → (Q ⊢ R) → P ⊢ R := by tauto
 
-macro:25 P:term:29 " =ᴿ@{" ρ:term "} " Q:term:29 : term =>
-  `(Eq (α := RProp $ρ) iprop($P) iprop($Q))
-macro:25 P:term:29 " =ᴿ " Q:term:29 : term => `($P =ᴿ@{_} $Q)
-
 lemma entails_antisymm :
     (P ⊢ Q) → (Q ⊢ P) → P = Q := by
   intro _ _; apply set_ext; intro _; constructor <;> tauto
@@ -136,8 +132,9 @@ instance RProp_instBI : BI (RProp ρ) where
 instance RProp_entails_instPartialOrder : IsPartialOrder (RProp ρ) Entails where
   antisymm := entails_antisymm
 
-@[ext] lemma bi_entails_eq : (P ⊣⊢ Q) → P = Q := by
-  intro ⟨PQ, QP⟩; apply antisymm PQ QP
+/-- Extensionality for `RProp` -/
+instance RProp_instBIE : BIE (RProp ρ) where
+  bi_ext := by intro _ _ ⟨PQ, QP⟩; apply antisymm PQ QP
 
 /-! ### Extra properties -/
 
@@ -146,30 +143,13 @@ lemma not_contra : P ∧ ¬ P ⊢ Q := nofun
 lemma not_em : Q ⊢ P ∨ ¬ P := by tauto
 
 lemma choice {β : α → Sort*} (P : ∀ a, β a → RProp ρ) :
-    (∀ x, ∃ y, P x y) =ᴿ ∃ f : ∀ a, β a, ∀ x, P x (f x) := by
+    (∀ x, ∃ y, P x y) =ᴮᴵ ∃ f : ∀ a, β a, ∀ x, P x (f x) := by
   simp only [forall_simple, exists_simple];
   apply set_ext; intro _; apply Classical.skolem
 
-lemma persistently_emp_entails : <pers> P =ᴿ ⌜emp ⊢ P⌝ := by
+lemma persistently_emp_entails : <pers> P =ᴮᴵ ⌜emp ⊢ P⌝ := by
   apply set_ext; intro _; constructor; swap; { tauto };
   intro _ ⟨_, _⟩; rw [emp_unfold]; intro rfl; trivial
-
-/-! ### Utility -/
-
-lemma or_as_exists : P ∨ Q =ᴿ ∃ b : Bool, if b then P else Q := by
-  ext1; apply BI.or_as_exists
-
-lemma false_as_exists : False =ᴿ@{ρ} ∃ e : Empty, nomatch e := by
-  ext1; apply BI.false_as_exists
-
-lemma sep_comm : P ∗ Q =ᴿ Q ∗ P := by
-  ext1; apply BI.sep_comm
-
-lemma and_comm : P ∧ Q =ᴿ Q ∧ P := by
-  ext1; apply BI.and_comm
-
-lemma and_assoc : (P ∧ Q) ∧ R =ᴿ P ∧ (Q ∧ R) := by
-  ext1; apply BI.and_assoc
 
 /-! ## Ownership -/
 
@@ -182,7 +162,7 @@ lemma own_unfold r A : (A ∈ own (ρ := ρ) r) = (A.val = pure r) := rfl
 
 lemma emp_as_own : emp = own (ρ := ρ) 1 := rfl
 
-lemma own_sep : own (ρ := ρ) r ∗ own s =ᴿ own (r * s) := by
+lemma own_sep : own (ρ := ρ) r ∗ own s =ᴮᴵ own (r * s) := by
   apply set_ext; intro ⟨_, val⟩; constructor;
   · rintro ⟨⟨_, _⟩, ⟨_, _⟩, rfl, rfl, rfl⟩; simp only [own_unfold, Mseti.pure_mul]
   · intro rfl; revert val; rw [Mseti.pure_mul]; intro val;
@@ -230,7 +210,7 @@ lemma satis (P : RProp ρ) [Satis P] : ∃ A, A ∈ P := by
 lemma satis_ne_false : Satis P = (P ≠ iprop(False)) := by
   ext1; constructor; { intro ⟨_, _⟩ rfl; trivial }
   intro ne; constructor; apply Classical.not_forall_not.mp; intro el;
-  suffices P =ᴿ False by { tauto }; ext1; constructor <;> tauto
+  suffices P =ᴮᴵ False by { tauto }; ext1; constructor <;> tauto
 
 /-- Satisfiability is monotone -/
 lemma satis_mono [Satis P] : (P ⊢ Q) → Satis Q := by
@@ -298,7 +278,7 @@ lemma incomp_sep_l : (P #ᴿ Q) → P ∗ R #ᴿ Q := by
 
 /-- Incompatibility over `∗` -/
 lemma incomp_sep_r : (P #ᴿ Q) → R ∗ P #ᴿ Q := by
-  rw [sep_comm]; apply incomp_sep_l
+  rw [sep_comm']; apply incomp_sep_l
 
 /-! ## Unambiguity -/
 

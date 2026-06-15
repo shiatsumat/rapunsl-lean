@@ -53,7 +53,7 @@ scoped delab_rules RBI.pine
 
 /-! ### Reinterpretation -/
 
-lemma bmix_as_bigbmix : P ⊕ Q =ᴿ ⨁ (b : Bool), if b then P else Q := by
+lemma bmix_as_bigbmix : P ⊕ Q =ᴮᴵ ⨁ (b : Bool), if b then P else Q := by
   apply set_ext; intro ⟨_, _⟩; constructor;
   · rintro ⟨A, B, _, _, rfl⟩; exists fun b => if b then A else B;
     simp only; constructor; { grind only }; rw [Mseti.oplus_as_bigoplus];
@@ -61,7 +61,7 @@ lemma bmix_as_bigbmix : P ⊕ Q =ᴿ ⨁ (b : Bool), if b then P else Q := by
   · rintro ⟨A, el, rfl⟩; exists A true, A false, el true, el false;
     rw [Mseti.oplus_as_bigoplus]; grind only
 
-lemma unary_bigbmix : (⨁ (_ : Unit), P) =ᴿ P := by
+lemma unary_bigbmix : (⨁ (_ : Unit), P) =ᴮᴵ P := by
   apply set_ext; intro ⟨A, val⟩; constructor;
   · rintro ⟨A, el, rfl⟩;
     suffices eq : ⟨(⨁ᴹⁱ u, ↑(A u)), val⟩ = A () by { rw [eq]; apply el };
@@ -90,16 +90,16 @@ private lemma bigbmix_comm_bwd [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (
   grw [bigbmix_comm_fwd f.symm]; gcongr; rw [Equiv.apply_symm_apply]
 
 lemma bigbmix_comm [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
-    (⨁ i, P i) =ᴿ ⨁ j, P (f j) := by
+    (⨁ i, P i) =ᴮᴵ ⨁ j, P (f j) := by
   ext1; constructor; { apply bigbmix_comm_fwd }; { apply bigbmix_comm_bwd }
 
 lemma bigbmix_comm' [Inhabited ι] [Inhabited ι']
     (P : ι → RProp ρ) (Q : ι' → RProp ρ) (f : ι → ι') (g : ι' → ι) :
     (∀ i, P i = Q (f i)) → g.LeftInverse f → g.RightInverse f →
-    (⨁ i, P i) =ᴿ ⨁ j, Q j := by
+    (⨁ i, P i) =ᴮᴵ ⨁ j, Q j := by
   intro _ li ri; rw [bigbmix_comm ⟨f, g, li, ri⟩]; congr; ext1 _; tauto
 
-lemma bmix_comm : P ⊕ Q =ᴿ Q ⊕ P := by
+lemma bmix_comm : P ⊕ Q =ᴮᴵ Q ⊕ P := by
   simp only [bmix_as_bigbmix]; rw [bigbmix_comm Equiv.boolNot]; congr;
   simp only [Equiv.boolNot_apply]; grind only
 
@@ -107,7 +107,7 @@ lemma bmix_comm : P ⊕ Q =ᴿ Q ⊕ P := by
 
 lemma bigbmix_assoc {ι' : ι → Type} [Inhabited ι] [∀ i, Inhabited (ι' i)]
     (P : ∀ i, ι' i → RProp ρ) :
-    (⨁ i, ⨁ j, P i j) =ᴿ ⨁ (⟨i, j⟩ : Sigma ι'), P i j := by
+    (⨁ i, ⨁ j, P i j) =ᴮᴵ ⨁ (⟨i, j⟩ : Sigma ι'), P i j := by
   ext1; constructor;
   · rintro ⟨_, _⟩ ⟨_, el, rfl⟩; have ⟨A, el⟩ := Classical.skolem.mp el;
     exists fun ⟨i, j⟩ => A i j; simp only at *; and_intros; { grind only };
@@ -122,11 +122,11 @@ lemma bigbmix_assoc {ι' : ι → Type} [Inhabited ι] [∀ i, Inhabited (ι' i)
     and_intros; swap; { symm; ext; apply Mset.bigoplus_assoc };
     intro i; exists fun j => A ⟨i, j⟩; simp only [and_true]; intro _; apply el ⟨_, _⟩
 
-lemma bmix_assoc : (P ⊕ Q) ⊕ R =ᴿ P ⊕ (Q ⊕ R) := by
+lemma bmix_assoc : (P ⊕ Q) ⊕ R =ᴮᴵ P ⊕ (Q ⊕ R) := by
   have _ : ∀ b, Inhabited (match b with | true => Bool | false => Unit) := by
     rintro (_ | _) <;> apply inferInstance
   have eq : ∀ P Q R : RProp ρ,
-      (P ⊕ Q) ⊕ R =ᴿ ⨁ (b : Bool),
+      (P ⊕ Q) ⊕ R =ᴮᴵ ⨁ (b : Bool),
         ⨁ (i : match b with | true => Bool | false => Unit),
           match b with | true => if i then P else Q | false => R := by
     intro _ _ _; simp only [bmix_as_bigbmix]; congr; ext1 b; cases b <;> simp only;
@@ -158,28 +158,28 @@ lemma pine_adj : (P ⊕ Q ⊢ R) = (Q ⊢ P -⊕ R) := by
 /-! ### Interaction of `⊕` and `⨁` with disjunction -/
 
 lemma bmix_exists_l (Q : α → RProp ρ) :
-    P ⊕ (∃ a, Q a) =ᴿ ∃ a, P ⊕ Q a := by
+    P ⊕ (∃ a, Q a) =ᴮᴵ ∃ a, P ⊕ Q a := by
   ext1; constructor; swap; { apply exists_elim; intro a; grw [exists_intro (Ψ := Q) a] };
   rw [pine_adj]; apply exists_elim; intro a; rw [←pine_adj]; apply exists_intro a
 
 lemma bmix_exists_r (P : α → RProp ρ) Q :
-    (∃ a, P a) ⊕ Q =ᴿ ∃ a, P a ⊕ Q := by
+    (∃ a, P a) ⊕ Q =ᴮᴵ ∃ a, P a ⊕ Q := by
   rw [bmix_comm, bmix_exists_l]; congr; ext1 _; rw [bmix_comm]
 
-lemma bmix_or_l : P ⊕ (Q ∨ R) =ᴿ (P ⊕ Q) ∨ (P ⊕ R) := by
-  simp only [or_as_exists, bmix_exists_l]; congr; ext1 b; cases b <;> rfl
+lemma bmix_or_l : P ⊕ (Q ∨ R) =ᴮᴵ (P ⊕ Q) ∨ (P ⊕ R) := by
+  simp only [or_as_exists', bmix_exists_l]; congr; ext1 b; cases b <;> rfl
 
-lemma bmix_or_r : (P ∨ Q) ⊕ R =ᴿ (P ⊕ R) ∨ (Q ⊕ R) := by
+lemma bmix_or_r : (P ∨ Q) ⊕ R =ᴮᴵ (P ⊕ R) ∨ (Q ⊕ R) := by
   rw [bmix_comm, bmix_or_l, bmix_comm, bmix_comm R]
 
-lemma bmix_false_l : P ⊕ False =ᴿ False := by
-  simp only [false_as_exists, bmix_exists_l]; congr; ext1 _; trivial
+lemma bmix_false_l : P ⊕ False =ᴮᴵ False := by
+  simp only [false_as_exists', bmix_exists_l]; congr; ext1 _; trivial
 
-lemma bmix_false_r : False ⊕ P =ᴿ False := by
+lemma bmix_false_r : False ⊕ P =ᴮᴵ False := by
   rw [bmix_comm, bmix_false_l]
 
 lemma bigbmix_exists [Inhabited ι] {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
-    (⨁ i, ∃ a, P i a) =ᴿ ∃ f : (∀ i, α i), ⨁ i, P i (f i) := by
+    (⨁ i, ∃ a, P i a) =ᴮᴵ ∃ f : (∀ i, α i), ⨁ i, P i (f i) := by
   ext1; constructor; swap;
   { apply exists_elim; intro f; gcongr; apply exists_intro };
   simp only [exists_simple]; rintro ⟨_, _⟩ ⟨F, el, rfl⟩;
@@ -198,17 +198,17 @@ lemma bigbmix_frame_l [Inhabited ι] (Q : ι → RProp ρ) :
 
 lemma bigbmix_frame_r [Inhabited ι] (P : ι → RProp ρ) Q :
     (⨁ i, P i) ∗ Q ⊢ ⨁ i, P i ∗ Q := by
-  grw [sep_comm, bigbmix_frame_l]; gcongr 1; rw [sep_comm]
+  grw [sep_comm', bigbmix_frame_l]; gcongr 1; rw [sep_comm']
 
 lemma bmix_frame_l : P ∗ (Q ⊕ R) ⊢ (P ∗ Q) ⊕ (P ∗ R) := by
   grw [bmix_as_bigbmix, bmix_as_bigbmix, bigbmix_frame_l];
   gcongr with b; cases b <;> rfl
 
 lemma bmix_frame_r : (P ⊕ Q) ∗ R ⊢ (P ∗ R) ⊕ (Q ∗ R) := by
-  grw [sep_comm, bmix_frame_l, sep_comm, sep_comm R]
+  grw [sep_comm', bmix_frame_l, sep_comm', sep_comm' R]
 
 lemma bigbmix_unframe_l [Inhabited ι] P (Q : ι → RProp ρ) [Precise P] :
-    (⨁ i, P ∗ Q i) =ᴿ P ∗ ⨁ i, Q i := by
+    (⨁ i, P ∗ Q i) =ᴮᴵ P ∗ ⨁ i, Q i := by
   ext1; constructor; swap; { apply bigbmix_frame_l };
   rintro ⟨_, _⟩ ⟨_, el, rfl⟩;
   have ⟨A, el⟩ := Classical.skolem.mp el; have ⟨B, el⟩ := Classical.skolem.mp el;
@@ -222,17 +222,17 @@ lemma bigbmix_unframe_l [Inhabited ι] P (Q : ι → RProp ρ) [Precise P] :
   rw [precise P _ _ (el i0).left (el i).left]; grind only
 
 lemma bigbmix_unframe_r [Inhabited ι] (P : ι → RProp ρ) Q [Precise Q] :
-    (⨁ i, P i ∗ Q) =ᴿ ((⨁ i, P i) ∗ Q) := by
+    (⨁ i, P i ∗ Q) =ᴮᴵ ((⨁ i, P i) ∗ Q) := by
   ext1; constructor; swap; { apply bigbmix_frame_r };
-  grw [sep_comm, ←bigbmix_unframe_l _ _]; gcongr 1; rw [sep_comm]
+  grw [sep_comm', ←bigbmix_unframe_l _ _]; gcongr 1; rw [sep_comm']
 
-lemma bmix_unframe_l [Precise P] : (P ∗ Q) ⊕ (P ∗ R) =ᴿ P ∗ (Q ⊕ R) := by
+lemma bmix_unframe_l [Precise P] : (P ∗ Q) ⊕ (P ∗ R) =ᴮᴵ P ∗ (Q ⊕ R) := by
   ext1; constructor; swap; { apply bmix_frame_l };
   simp only [bmix_as_bigbmix]; grw [←bigbmix_unframe_l]; gcongr with b; cases b <;> rfl
 
-lemma bmix_unframe_r [Precise R] : (P ∗ R) ⊕ (Q ∗ R) =ᴿ (P ⊕ Q) ∗ R := by
+lemma bmix_unframe_r [Precise R] : (P ∗ R) ⊕ (Q ∗ R) =ᴮᴵ (P ⊕ Q) ∗ R := by
   ext1; constructor; swap; { apply bmix_frame_r };
-  grw [sep_comm iprop(P ⊕ Q), ←bmix_unframe_l, sep_comm, sep_comm Q]
+  grw [sep_comm' iprop(P ⊕ Q), ←bmix_unframe_l, sep_comm', sep_comm' Q]
 
 /-! ## Rules for `Precise` -/
 
