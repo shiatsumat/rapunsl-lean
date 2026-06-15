@@ -31,13 +31,19 @@ class PCM (α : Type u) extends CommMonoid' α where
   /-- Take the left-hand side of `*` in `✓` -/
   protected valid_mul_l : ∀ a b : α, valid (a * b) → valid a
 
-@[inherit_doc]
-scoped[PCM] prefix:55 "✓ " => PCM.valid
 open PCM
 
+namespace PCM
+variable [PCM α] (a b : α)
+
+@[inherit_doc]
+scoped prefix:55 "✓ " => PCM.valid
+
 /-- Take the right-hand side of `*` in `✓` -/
-protected lemma PCM.valid_mul_r [PCM α] (a b : α) : ✓ (a * b) → ✓ b := by
+protected lemma valid_mul_r : ✓ (a * b) → ✓ b := by
   rw [mul_comm]; apply PCM.valid_mul_l
+
+end PCM
 
 /-! ## PCM constructions -/
 
@@ -135,7 +141,7 @@ class PCMI (α : Type u) extends PCM α where
 open PCMI
 
 namespace PCMI
-variable [PCMI α]
+variable [PCMI α] (a b c : α)
 
 @[inherit_doc]
 scoped infix:50 " # " => PCMI.incomp
@@ -145,7 +151,7 @@ protected instance incomp_instIrrefl :
     Std.Irrefl (α := α) PCMI.incomp := PCMI.incomp_Irrefl
 
 /-- Incompatibility is irreflexive -/
-protected lemma incomp_irrefl (a : α) : ¬ a # a := by
+protected lemma incomp_irrefl : ¬ a # a := by
   apply irrefl
 
 /-- Incompatibility is symmetric -/
@@ -153,11 +159,11 @@ protected instance incomp_instSymm :
     Std.Symm (α := α) PCMI.incomp := PCMI.incomp_Symm
 
 /-- Incompatibility is symmetric -/
-@[symm] protected lemma incomp_symm (a b : α) : a # b → b # a := by
+@[symm] protected lemma incomp_symm : a # b → b # a := by
   apply symm
 
 /-- Incompatibility is preserved by `*` under validity -/
-protected lemma incomp_mul_r (a b c : α) : ✓ c * a → a # b → c * a # b := by
+protected lemma incomp_mul_r : ✓ c * a → a # b → c * a # b := by
   rw [mul_comm]; apply PCMI.incomp_mul_l
 
 end PCMI
@@ -219,7 +225,7 @@ class PCMC (α : Type u) extends PCMI α where
 open PCMC
 
 namespace PCMC
-variable [PCMC α]
+variable [PCMC α] (a a' b b' c : α)
 
 @[inherit_doc]
 scoped infix:50 " ≎ " => PCMC.coher
@@ -229,28 +235,27 @@ protected instance coher_instIsEquiv (α : Type u) [PCMC α] :
     IsEquiv α (PCMC.coher) := PCMC.coher_IsEquiv
 
 /-- Coherence is reflexive -/
-@[refl] protected lemma coher_refl (a : α) : a ≎ a := by
+@[refl] protected lemma coher_refl : a ≎ a := by
   apply refl
 
 /-- Coherence is symmetric -/
-@[symm] protected lemma coher_symm (a b : α) : a ≎ b → b ≎ a := by
+@[symm] protected lemma coher_symm : a ≎ b → b ≎ a := by
   apply symm
 
 /-- Coherence is transitive -/
-@[trans] protected lemma coher_trans (a b c : α) : a ≎ b → b ≎ c → a ≎ c := by
+@[trans] protected lemma coher_trans : a ≎ b → b ≎ c → a ≎ c := by
   apply Trans.trans
 
 /-- Coherence is compatible with `*` -/
-protected lemma coher_mul_r (a b c : α) : a ≎ b → c * a ≎ c * b := by
+protected lemma coher_mul_r : a ≎ b → c * a ≎ c * b := by
   rw [mul_comm c a, mul_comm c b]; apply PCMC.coher_mul_l
 
 /-- Coherence is compatible with `*` -/
-protected lemma coher_mul (a b a' b' : α) : a ≎ a' → b ≎ b' → a * b ≎ a' * b' := by
+protected lemma coher_mul : a ≎ a' → b ≎ b' → a * b ≎ a' * b' := by
   intro aa' _; trans; { apply PCMC.coher_mul_l; apply aa' }; apply PCMC.coher_mul_r; trivial
 
 /-- Coherence respects validity -/
-protected lemma coher_valid' (a b : α) :
-    a ≎ b → ✓ a = ✓ b := by
+protected lemma coher_valid' : a ≎ b → ✓ a = ✓ b := by
   intro _; ext1;
   constructor <;> apply PCMC.coher_valid; { trivial }; { symm; trivial }
 
