@@ -1,5 +1,6 @@
 module
 
+public import RapunSL.Util.Syntax
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Data.ENNReal.Basic
 public import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
@@ -353,7 +354,117 @@ class PCMP (α : Type u) extends PCM α where
   /-- The probability of `*` is the product of the probabilities -/
   protected prob_mul : ∀ a b : α, ✓ a * b → prob (a * b) = prob a * prob b
 
-/-! ## RM, i.e., resource monoid -/
+/-! ## RR, i.e., resource ring -/
 
-/-- RM, i.e., resource monoid -/
-class RM (α : Type u) extends PCMC α, PCMP α
+/-- RR, i.e., resource ring -/
+class RR (α : Type u) extends PCMC α, PCMP α where
+  /-- Addition, defined only for coherent elements -/
+  protected radd : ∀ a b : α, a ≎ b → α
+  /-- Addition preserves coherence -/
+  protected radd_coher_l : ∀ a b h, radd a b h ≎ a
+  /-- Addition is commutative -/
+  protected radd_comm : ∀ a b h₁ h₂, radd a b h₁ = radd b a h₂
+  /-- Addition is associative -/
+  protected radd_assoc : ∀ a b c h₁ h₂ h₃ h₄,
+    radd (radd a b h₁) c h₂ = radd a (radd b c h₃) h₄
+  /-- Product distributes over addition -/
+  protected radd_mul_l : ∀ a b c h₁ h₂, a * radd b c h₁ = radd (a * b) (a * c) h₂
+
+open RR
+
+/-! ### Utility -/
+
+namespace RR
+variable [RR α] (a b c : α)
+
+scoped macro:65 a:term:65 " +[" h:term "] " b:term:66 : term => `(RR.radd $a $b $h)
+
+scoped delab_rules RR.radd
+  | `($_ $a $b $h) => `($a +[$h] $b)
+
+/-- Addition is commutative -/
+protected lemma radd_comm' h : a +[h] b = b +[Std.Symm.symm _ _ h] a := by
+  apply RR.radd_comm
+
+/-- Addition preserves coherence -/
+protected lemma radd_coher_r h : a +[h] b ≎ b := by
+  rw [RR.radd_comm']; apply RR.radd_coher_l
+
+/-- Helper for `radd_assoc_l` -/
+protected lemma radd_assoc_l_aux h : a +[h] b ≎ c → b ≎ c := by
+  intro h'; trans; swap; { exact h' }; symm; apply RR.radd_coher_r
+
+/-- Helper for `radd_assoc_l` -/
+protected lemma radd_assoc_l_aux' h h' :
+    a ≎ b +[RR.radd_assoc_l_aux a b c h h'] c := by
+  trans; { exact h }; symm; apply RR.radd_coher_l
+
+/-- Addition is associative -/
+protected lemma radd_assoc_l h h' :
+    (a +[h] b) +[h'] c =
+      a +[RR.radd_assoc_l_aux' _ _ _ h h'] (b +[RR.radd_assoc_l_aux _ _ _ h h'] c) := by
+  apply RR.radd_assoc
+
+/-- Helper for `radd_assoc_r` -/
+protected lemma radd_assoc_r_aux h : a ≎ b +[h] c → a ≎ b := by
+  intro h'; trans; { exact h' }; apply RR.radd_coher_l
+
+/-- Helper for `radd_assoc_r` -/
+protected lemma radd_assoc_r_aux' h h' :
+    a +[RR.radd_assoc_r_aux a b c h h'] b ≎ c := by
+  trans; swap; { exact h }; apply RR.radd_coher_r
+
+/-- Addition is associative -/
+protected lemma radd_assoc_r h h' :
+    a +[h'] (b +[h] c) =
+      (a +[RR.radd_assoc_r_aux _ _ _ h h'] b) +[RR.radd_assoc_r_aux' _ _ _ h h'] c := by
+  symm; apply RR.radd_assoc
+
+/-- Product distributes over addition -/
+protected lemma radd_mul_r h₁ h₂ : (a +[h₁] b) * c = a * c +[h₂] b * c := by
+  simp only [mul_comm _ c]; apply RR.radd_mul_l
+
+/-- Product distributes over addition -/
+protected lemma radd_mul_l_fwd h :
+    a * (b +[h] c) = a * b +[PCMC.coher_mul_r _ _ _ h] a * c := by
+  apply RR.radd_mul_l
+
+/-- Product distributes over addition -/
+protected lemma radd_mul_l_bwd val h :
+    a * b +[h] a * c = a * (b +[PCMC.coher_mul_inv_r _ _ _ val h] c) := by
+  symm; apply RR.radd_mul_l
+
+/-- Product distributes over addition -/
+protected lemma radd_mul_r_fwd h :
+    (a +[h] b) * c = a * c +[PCMC.coher_mul_l _ _ _ h] b * c := by
+  apply RR.radd_mul_r
+
+/-- Product distributes over addition -/
+protected lemma radd_mul_r_bwd val h :
+    a * c +[h] b * c = (a +[PCMC.coher_mul_inv_l _ _ _ val h] b) * c := by
+  symm; apply RR.radd_mul_r
+
+end RR
+
+/-! ## Product RR -/
+
+/-- Product RR from an RR and a cancellative PCMI -/
+protected instance Prod.instRR (α : Type u) (β : Type u') [RR α] [PCMICan β] :
+    RR (α × β) where
+  prob p := PCMP.prob p.1
+  prob_one := by apply PCMP.prob_one
+  prob_mul := by intro _ _ ⟨_, _⟩; apply PCMP.prob_mul; trivial
+  radd p q h := (RR.radd p.1 q.1 h.1, p.2)
+  radd_coher_l := by
+    intro (_, _) (_, _) h; generalize h.1 = h1; rcases h with ⟨_, rfl⟩;
+    and_intros; swap; { rfl }; apply RR.radd_coher_l
+  radd_comm := by
+    intro (_, _) (_, _) h _; generalize h.1 = h1; rcases h with ⟨_, rfl⟩;
+    simp only; ext; { apply RR.radd_comm }; { rfl }
+  radd_assoc := by
+    intro (_, _) (_, _) (_, _) h; generalize h.1 = h1; rcases h with ⟨_, rfl⟩;
+    intro h; generalize h.1 = h1; rcases h with ⟨_, rfl⟩; simp only at *;
+    intro _ _; ext; { apply RR.radd_assoc }; { rfl }
+  radd_mul_l := by
+    intro (_, _) (_, _) (_, _) h _; generalize h.1 = h1; rcases h with ⟨_, rfl⟩;
+    ext; { apply RR.radd_mul_l }; { trivial }

@@ -10,7 +10,7 @@ open Iris BI RBI Mseti ENNReal
 
 namespace RBI
 
-variable {ρ : Type u} [RM ρ] (P P' Q Q' R : RProp ρ)
+variable {ρ : Type u} [RR ρ] (P P' Q Q' R : RProp ρ)
 
 /-! ## Bare mixing connectives -/
 
