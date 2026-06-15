@@ -125,6 +125,42 @@ protected lemma Pi.mul_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i
 protected lemma Pi.valid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     PCM.valid (α := ∀ i, α i) = fun f => ∀ i, ✓ f i := rfl
 
+/-! ## Cancellative PCM -/
+
+/-- Cancellative PCM -/
+class PCMCan (α : Type u) extends PCM α where
+  /-- Product is cancellative under validity -/
+  protected mul_cancel_l : ∀ a b c : α, ✓ a * c → a * c = b * c → a = b
+
+open PCMCan
+
+namespace PCMCan
+variable [PCMCan α] (a b c : α)
+
+/-- Product is cancellative under validity -/
+protected lemma mul_cancel_r : ✓ a * b → a * b = a * c → b = c := by
+  simp only [mul_comm a]; apply PCMCan.mul_cancel_l
+
+end PCMCan
+
+/-! ## Cancellative PCM constructions -/
+
+/-- Exclusive cancellative PCM -/
+instance Excl.instPCMCan : PCMCan (Excl α) where
+  mul_cancel_l := by intro a b c; cases a <;> cases b <;> cases c <;> tauto
+
+/-- Product cancellative PCM -/
+instance Prod.instPCMCan [PCMCan α] [PCMCan β] : PCMCan (α × β) where
+  mul_cancel_l := by
+    intro (_, _) (_, _) (_, _) ⟨_, _⟩; simp only [mk_mul_mk, mk.injEq] at *;
+    intro ⟨_, _⟩; and_intros <;> apply PCMCan.mul_cancel_l <;> trivial
+
+/-- Pi cancellative PCM -/
+instance Pi.instPCMCan {ι : Type*} {α : ι → Type*} [∀ i, PCMCan (α i)] :
+    PCMCan (∀ i, α i) where
+  mul_cancel_l := by
+    intro _ _ _ val eq; ext1 i; apply PCMCan.mul_cancel_l; { apply val }; apply congrFun eq
+
 /-! ## PCMI, i.e., PCM with incompatibility -/
 
 /-- PCM with incompatibility -/
@@ -206,6 +242,18 @@ protected instance Pi.instPCMI {ι : Type*} {α : ι → Type*} [∀ i, PCMI (α
   incomp_Symm := by constructor; intro _ _ ⟨i, _⟩; exists i; symm; trivial
   incomp_mul_l := by
     intro _ _ _ _ ⟨i, _⟩; exists i; apply PCMI.incomp_mul_l <;> tauto
+
+/-! ## Cancellable PCMI -/
+
+/-- Cancellable PCMI -/
+class PCMICan (α : Type u) extends PCMI α, PCMCan α
+
+protected instance Excl.instPCMICan : PCMICan (Excl α) where
+
+protected instance Prod.instPCMICan [PCMICan α] [PCMICan β] : PCMICan (α × β) where
+
+protected instance Pi.instPCMICan {ι : Type*} {α : ι → Type*} [∀ i, PCMICan (α i)] :
+    PCMICan (∀ i, α i) where
 
 /-! ## PCMC, i.e., PCM with coherence -/
 
