@@ -264,7 +264,7 @@ lemma incomp_or : (P #ᴿ R) → (Q #ᴿ R) → (P ∨ Q) #ᴿ R := by
   rintro _ _ _ _ (_ | _) <;> tauto
 
 /-- Incompatibility over `False` -/
-lemma incomp_false : iprop(False) #ᴿ P := nofun
+lemma incomp_false : False #ᴿ P := nofun
 
 /-- Incompatibility over `own` -/
 lemma incomp_own : r # s → own r #ᴿ own s := by
@@ -374,7 +374,7 @@ lemma coher_or : (P ≎ᴿ R) → (Q ≎ᴿ R) → (P ∨ Q) ≎ᴿ R := by
   rintro _ _ _ _ (_ | _) <;> tauto
 
 /-- Coherence over `False` -/
-lemma coher_false : iprop(False) ≎ᴿ P := nofun
+lemma coher_false : False ≎ᴿ P := nofun
 
 /-- Coherence over `own` -/
 lemma coher_own : r ≎ s → own r ≎ᴿ own s := by
@@ -382,7 +382,7 @@ lemma coher_own : r ≎ s → own r ≎ᴿ own s := by
   simp only [Mset.Bij.pure_graph, Mset.pure_mem]; rintro ⟨_, _⟩; trivial
 
 /-- Coherence over `∗` -/
-lemma coher_sep : (P ≎ᴿ P') → (Q ≎ᴿ Q') → iprop(P ∗ Q) ≎ᴿ iprop(P' ∗ Q') := by
+lemma coher_sep : (P ≎ᴿ P') → (Q ≎ᴿ Q') → P ∗ Q ≎ᴿ P' ∗ Q' := by
   rintro cohP cohQ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩;
   rcases cohP _ _ elP elP' with ⟨r, _⟩; rcases cohQ _ _ elQ elQ' with ⟨s, _⟩;
   exists Mseti.Bij.mul r s; intro _ _;
