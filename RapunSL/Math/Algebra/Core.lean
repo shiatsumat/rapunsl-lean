@@ -267,6 +267,8 @@ class PCMC (α : Type u) extends PCMI α where
   protected coher_valid : ∀ a b, coher a b → ✓ a → ✓ b
   /-- Coherence is compatible with `*` -/
   protected coher_mul_l : ∀ a b c, coher a b → coher (a * c) (b * c)
+  /-- Coherence is compatible with inverse of `*` under validity -/
+  protected coher_mul_inv_l : ∀ a b c, ✓ a * c → coher (a * c) (b * c) → coher a b
   /-- Incompatibility negates coherence -/
   protected incomp_neg_coher : ∀ a b, ✓ a → a # b → ¬ coher a b
 
@@ -307,12 +309,16 @@ protected lemma coher_mul_r : b ≎ c → a * b ≎ a * c := by
 protected lemma coher_mul : a ≎ a' → b ≎ b' → a * b ≎ a' * b' := by
   intro aa' _; trans; { apply PCMC.coher_mul_l; apply aa' }; apply PCMC.coher_mul_r; trivial
 
+/-- Coherence is compatible with inverse of `*` under validity -/
+protected lemma coher_mul_inv_r : ✓ a * b → a * b ≎ a * c → b ≎ c := by
+  simp only [mul_comm a]; apply PCMC.coher_mul_inv_l
+
 end PCMC
 
 /-! ## Product PCMC -/
 
-/-- Product PCMC from a PCMC and a PCMI -/
-protected instance Prod.instPCMC [PCMC α] [PCMI β] : PCMC (α × β) where
+/-- Product PCMC from a PCMC and a cancellative PCMI -/
+protected instance Prod.instPCMC [PCMC α] [PCMICan β] : PCMC (α × β) where
   coher p q := p.1 ≎ q.1 ∧ p.2 = q.2
   coher_IsEquiv := {
     refl := by intro ⟨_, _⟩; and_intros <;> rfl
@@ -328,6 +334,10 @@ protected instance Prod.instPCMC [PCMC α] [PCMI β] : PCMC (α × β) where
   coher_mul_l := by
     rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩; and_intros; swap; { rfl };
     apply PCMC.coher_mul_l; trivial
+  coher_mul_inv_l := by
+    intro (_, _) (_, _) (_, _) ⟨_, _⟩; simp only [mk_mul_mk] at *; intro ⟨_, _⟩;
+    and_intros; { apply PCMC.coher_mul_inv_l <;> trivial };
+    { apply PCMCan.mul_cancel_l <;> trivial }
   incomp_neg_coher := by
     rintro ⟨_, _⟩ ⟨_, _⟩ ⟨val, _⟩ (inc | inc) ⟨coh, rfl⟩;
     { apply PCMC.incomp_neg_coher _ _ val inc coh }; { apply irrefl _ inc }
