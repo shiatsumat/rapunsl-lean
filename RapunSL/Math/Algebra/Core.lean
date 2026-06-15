@@ -127,7 +127,7 @@ protected lemma Pi.valid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α
 
 /-! ## PCMI, i.e., PCM with incompatibility -/
 
-/-- PCM with coherence and incompatibility -/
+/-- PCM with incompatibility -/
 class PCMI (α : Type u) extends PCM α where
   /-- Incompatibility relation -/
   protected incomp : α → α → Prop
@@ -207,7 +207,7 @@ protected instance Pi.instPCMI {ι : Type*} {α : ι → Type*} [∀ i, PCMI (α
   incomp_mul_l := by
     intro _ _ _ _ ⟨i, _⟩; exists i; apply PCMI.incomp_mul_l <;> tauto
 
-/-! ## PCMC, i.e., PCM with coherence and incompatibility -/
+/-! ## PCMC, i.e., PCM with coherence -/
 
 /-- PCM with coherence -/
 class PCMC (α : Type u) extends PCMI α where
