@@ -16,7 +16,7 @@ class CommMonoid' (α : Type u) extends CommSemigroup α, One α where
   protected mul_one : ∀ a : α, a * 1 = a
 
 /-- `CommMonoid'` induces `CommMonoid` -/
-protected instance CommMonoid'.instCommMonoid (α : Type u) [CommMonoid' α] : CommMonoid α where
+protected instance CommMonoid'.instCommMonoid [CommMonoid' α] : CommMonoid α where
   mul_one := CommMonoid'.mul_one
   one_mul _ := by rw [mul_comm]; apply CommMonoid'.mul_one
 
@@ -81,7 +81,7 @@ protected lemma Excl.valid_unfold :
 /-! ### Product PCM -/
 
 /-- Product PCM -/
-protected instance Prod.instPCM (α : Type u) (β : Type u') [PCM α] [PCM β] : PCM (α × β) where
+protected instance Prod.instPCM [PCM α] [PCM β] : PCM (α × β) where
   one := (1, 1)
   mul p q := (p.1 * q.1, p.2 * q.2)
   mul_one _ := by ext1 <;> apply mul_one
@@ -104,7 +104,7 @@ protected lemma Prod.valid_unfold [PCM α] [PCM β] :
 /-! ### Pi PCM -/
 
 /-- Pi PCM -/
-protected instance Pi.instPCM (ι : Type u) (α : ι → Type u') [∀ i, PCM (α i)] :
+protected instance Pi.instPCM {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     PCM (∀ i, α i) where
   one i := 1
   mul f g i := f i * g i
@@ -183,7 +183,7 @@ protected lemma Excl.incomp_unfold :
 
 /-! ### Product PCMI -/
 
-protected instance Prod.instPCMI (α : Type u) (β : Type u') [PCMI α] [PCMI β] :
+protected instance Prod.instPCMI [PCMI α] [PCMI β] :
     PCMI (α × β) where
   incomp p q := p.1 # q.1 ∨ p.2 # q.2
   incomp_Irrefl := by
@@ -199,7 +199,7 @@ protected lemma Prod.incomp_unfold [PCMI α] [PCMI β] :
 
 /-! ### Pi PCMI -/
 
-protected instance Pi.instPCMI (ι : Type u) (α : ι → Type u') [∀ i, PCMI (α i)] :
+protected instance Pi.instPCMI {ι : Type*} {α : ι → Type*} [∀ i, PCMI (α i)] :
     PCMI (∀ i, α i) where
   incomp f g := ∃ i, f i # g i
   incomp_Irrefl := by constructor; intro _ ⟨_, inc⟩; apply irrefl _ inc
@@ -231,7 +231,7 @@ variable [PCMC α] (a a' b b' c : α)
 scoped infix:50 " ≎ " => PCMC.coher
 
 /-- Coherence is an equivalence relation -/
-protected instance coher_instIsEquiv (α : Type u) [PCMC α] :
+protected instance coher_instIsEquiv [PCMC α] :
     IsEquiv α (PCMC.coher) := PCMC.coher_IsEquiv
 
 /-- Coherence is reflexive -/
@@ -264,8 +264,7 @@ end PCMC
 /-! ## Product PCMC -/
 
 /-- Product PCMC from a PCMC and a PCMI -/
-protected instance Prod.instPCMC (α : Type u) (β : Type u') [PCMC α] [PCMI β] :
-    PCMC (α × β) where
+protected instance Prod.instPCMC [PCMC α] [PCMI β] : PCMC (α × β) where
   coher p q := p.1 ≎ q.1 ∧ p.2 = q.2
   coher_IsEquiv := {
     refl := by intro ⟨_, _⟩; and_intros <;> rfl
