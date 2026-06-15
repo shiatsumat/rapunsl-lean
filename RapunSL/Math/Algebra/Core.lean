@@ -253,7 +253,7 @@ protected lemma coher_valid' : a ≎ b → ✓ a = ✓ b := by
 
 /-- Coherence is compatible with `*` -/
 protected lemma coher_mul_r : a ≎ b → c * a ≎ c * b := by
-  rw [mul_comm c a, mul_comm c b]; apply PCMC.coher_mul_l
+  simp only [mul_comm c]; apply PCMC.coher_mul_l
 
 /-- Coherence is compatible with `*` -/
 protected lemma coher_mul : a ≎ a' → b ≎ b' → a * b ≎ a' * b' := by
