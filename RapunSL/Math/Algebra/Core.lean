@@ -215,10 +215,10 @@ class PCMC (α : Type u) extends PCMI α where
   protected coher : α → α → Prop
   /-- Coherence is an equivalence relation -/
   protected coher_IsEquiv : IsEquiv α coher
-  /-- Coherence is compatible with `*` -/
-  protected coher_mul_l : ∀ a b c, coher a b → coher (a * c) (b * c)
   /-- Coherence respects validity -/
   protected coher_valid : ∀ a b, coher a b → ✓ a → ✓ b
+  /-- Coherence is compatible with `*` -/
+  protected coher_mul_l : ∀ a b c, coher a b → coher (a * c) (b * c)
   /-- Incompatibility negates coherence -/
   protected incomp_neg_coher : ∀ a b, ✓ a → a # b → ¬ coher a b
 
@@ -246,6 +246,11 @@ protected instance coher_instIsEquiv (α : Type u) [PCMC α] :
 @[trans] protected lemma coher_trans : a ≎ b → b ≎ c → a ≎ c := by
   apply Trans.trans
 
+/-- Coherence respects validity -/
+protected lemma coher_valid' : a ≎ b → ✓ a = ✓ b := by
+  intro _; ext1;
+  constructor <;> apply PCMC.coher_valid; { trivial }; { symm; trivial }
+
 /-- Coherence is compatible with `*` -/
 protected lemma coher_mul_r : a ≎ b → c * a ≎ c * b := by
   rw [mul_comm c a, mul_comm c b]; apply PCMC.coher_mul_l
@@ -253,11 +258,6 @@ protected lemma coher_mul_r : a ≎ b → c * a ≎ c * b := by
 /-- Coherence is compatible with `*` -/
 protected lemma coher_mul : a ≎ a' → b ≎ b' → a * b ≎ a' * b' := by
   intro aa' _; trans; { apply PCMC.coher_mul_l; apply aa' }; apply PCMC.coher_mul_r; trivial
-
-/-- Coherence respects validity -/
-protected lemma coher_valid' : a ≎ b → ✓ a = ✓ b := by
-  intro _; ext1;
-  constructor <;> apply PCMC.coher_valid; { trivial }; { symm; trivial }
 
 end PCMC
 
@@ -275,12 +275,12 @@ protected instance Prod.instPCMC (α : Type u) (β : Type u') [PCMC α] [PCMI β
       rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩ ⟨_, rfl⟩;
       and_intros; swap; { rfl }; trans <;> assumption
   }
-  coher_mul_l := by
-    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩; and_intros; swap; { rfl };
-    apply PCMC.coher_mul_l; trivial
   coher_valid := by
     rintro ⟨_, _⟩ ⟨_, _⟩ ⟨coh, rfl⟩ ⟨val, _⟩; and_intros; swap; { trivial };
     apply PCMC.coher_valid _ _ coh val
+  coher_mul_l := by
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩; and_intros; swap; { rfl };
+    apply PCMC.coher_mul_l; trivial
   incomp_neg_coher := by
     rintro ⟨_, _⟩ ⟨_, _⟩ ⟨val, _⟩ (inc | inc) ⟨coh, rfl⟩;
     { apply PCMC.incomp_neg_coher _ _ val inc coh }; { apply irrefl _ inc }
