@@ -103,7 +103,7 @@ protected lemma Mset.prod_assoc_r (A : Mset α) (B : Mset β) (C : Mset γ) :
 /-! ## `*` distributes over `⊕` -/
 
 protected lemma Ifam.prod_bigoplus_l (A : Ifam α) (B : ι → Ifam β) :
-    (A ×ᴵ ⨁ᴵ i, B i) ≈ ⨁ᴵ i, A ×ᴵ B i := by
+    A ×ᴵ (⨁ᴵ i, B i) ≈ ⨁ᴵ i, A ×ᴵ B i := by
   exists { toFun := fun ⟨a, ⟨i, b⟩⟩ => ⟨i, (a, b)⟩,
            invFun := fun ⟨i, ⟨a, b⟩⟩ => ⟨a, ⟨i, b⟩⟩,
            left_inv := by tauto, right_inv := by tauto };
