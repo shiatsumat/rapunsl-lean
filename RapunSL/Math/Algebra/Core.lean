@@ -163,7 +163,7 @@ protected instance incomp_instSymm :
   apply symm
 
 /-- Incompatibility is preserved by `*` under validity -/
-protected lemma incomp_mul_r : ✓ c * a → a # b → c * a # b := by
+protected lemma incomp_mul_r : ✓ a * b → b # c → a * b # c := by
   rw [mul_comm]; apply PCMI.incomp_mul_l
 
 end PCMI
@@ -252,8 +252,8 @@ protected lemma coher_valid' : a ≎ b → ✓ a = ✓ b := by
   constructor <;> apply PCMC.coher_valid; { trivial }; { symm; trivial }
 
 /-- Coherence is compatible with `*` -/
-protected lemma coher_mul_r : a ≎ b → c * a ≎ c * b := by
-  simp only [mul_comm c]; apply PCMC.coher_mul_l
+protected lemma coher_mul_r : b ≎ c → a * b ≎ a * c := by
+  simp only [mul_comm a]; apply PCMC.coher_mul_l
 
 /-- Coherence is compatible with `*` -/
 protected lemma coher_mul : a ≎ a' → b ≎ b' → a * b ≎ a' * b' := by
