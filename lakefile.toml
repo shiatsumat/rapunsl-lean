@@ -6,13 +6,14 @@ defaultTargets = ["RapunSL"]
 [leanOptions]
 pp.unicode.fun = true                 # pretty-prints `fun a ↦ b`
 relaxedAutoImplicit = false
+weak.linter.style.header = false
 weak.linter.mathlibStandardSet = true
 maxSynthPendingDepth = 3
 
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "v4.30.0"
+rev = "v4.32.1"
 
 [[require]]
 name = "iris"

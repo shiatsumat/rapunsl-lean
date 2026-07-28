@@ -45,6 +45,7 @@ def Mset (α : Type u) : Type (max 1 u) :=
 
 /-! ## Utility for working with `out` on `Mset` -/
 
+set_option linter.defProp false in
 /-- `Quotient.out_eq` for `Mset` -/
 protected def Mset.out_eq (A : Mset α) := Quotient.out_eq A
 

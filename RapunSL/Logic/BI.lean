@@ -16,14 +16,14 @@ variable {PROP} [BI PROP] (P Q R S : PROP)
 
 /-! ## `⊢` is a preorder -/
 
-@[refl] lemma entails_refl : P ⊢ P := by
-  apply Std.refl
+@[refl] lemma entails_refl' : P ⊢ P := by
+  apply entails_refl
 
-@[trans] lemma entails_trans' : (P ⊢ Q) → (Q ⊢ R) → P ⊢ R := by
+@[trans] lemma entails_trans'' : (P ⊢ Q) → (Q ⊢ R) → P ⊢ R := by
   apply Trans.trans
 
 instance entails_instPreorder : IsPreorder PROP Entails where
-  refl := entails_refl
+  refl := entails_refl'
 
 /-! ## `⊣⊢` is an equivalence relation -/
 
@@ -45,8 +45,11 @@ instance bi_entails_instIsEquiv : IsEquiv PROP BiEntails where
 
 lemma or_as_exists : P ∨ Q ⊣⊢ ∃ b : Bool, if b then P else Q := by
   constructor;
-  · iintro (_ | _); { iexists true; trivial }; { iexists false; trivial }
-  · iintro ⟨%b, _⟩; cases b; { iright; trivial }; { ileft; trivial }
+  · iintro (_ | _);
+    { iexists true; simp only [reduceIte]; itrivial };
+    { iexists false; simp only [Bool.false_eq_true, reduceIte]; itrivial }
+  · iintro ⟨%b, _⟩; cases b <;> simp only [Bool.false_eq_true, reduceIte];
+    { iright; itrivial }; { ileft; itrivial }
 
 lemma false_as_exists :
     False ⊣⊢@{PROP} ∃ e : Empty, nomatch e := by

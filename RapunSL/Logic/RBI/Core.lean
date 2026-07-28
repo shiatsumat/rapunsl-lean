@@ -15,7 +15,7 @@ namespace RBI
 /-! ## RapunSL propositions -/
 
 /-- RapunSL proposition based on a multiset PCMP -/
-def RProp ρ [RR ρ] := LeibnizO (Set (Msetiv ρ))
+def RProp ρ [RR ρ] := DiscreteO (Set (Msetiv ρ))
 
 variable {ρ : Type u} [RR ρ] (P Q R : RProp ρ) (r s : ρ)
 
@@ -25,9 +25,9 @@ instance RProp_instMembership : Membership (Msetiv ρ) (RProp ρ) where
 lemma unfold_mem A : (A ∈ P) = P.car A := rfl
 
 lemma set_ext : (∀ A, A ∈ P ↔ A ∈ Q) → P = Q := by
-  intro _; apply congrArg LeibnizO.mk; apply Set.ext; trivial
+  intro _; apply congrArg DiscreteO.mk; apply Set.ext; trivial
 
-instance RProp_instCOFE : COFE (RProp ρ) := instCOFELeibnizO
+instance RProp_instCOFE : COFE (RProp ρ) := instCOFEDiscreteO
 
 /-! ## BI structure -/
 
@@ -66,13 +66,10 @@ lemma entails_antisymm :
     (P ⊢ Q) → (Q ⊢ P) → P = Q := by
   intro _ _; apply set_ext; intro _; constructor <;> tauto
 
-instance RProp_entails_instPreorder : Std.Preorder (Entails (PROP := RProp ρ)) where
-  refl := entails_refl _
-  trans := entails_trans _ _ _
-
 /-- BI properties for `RProp` -/
 instance RProp_instBI : BI (RProp ρ) where
-  entails_preorder := inferInstance
+  entails_refl := entails_refl _
+  entails_trans := entails_trans _ _ _
   equiv_iff := by
     intro _ _; constructor; { intro rfl; constructor <;> rfl };
     intro ⟨_, _⟩; apply entails_antisymm <;> trivial
