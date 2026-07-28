@@ -282,7 +282,7 @@ variable [PCMC α] (a a' b b' c : α)
 scoped infix:50 " ≎ " => PCMC.coher
 
 /-- Coherence is an equivalence relation -/
-protected instance coher_instIsEquiv [PCMC α] :
+protected instance coher_instIsEquiv :
     IsEquiv α (PCMC.coher) := PCMC.coher_IsEquiv
 
 /-- Coherence is reflexive -/
