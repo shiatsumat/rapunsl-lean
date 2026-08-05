@@ -170,7 +170,7 @@ protected lemma Mset.bind_map (F : Mset (α → β)) (A : Mset α) :
 
 protected lemma Mset.bind_assoc (A : Mset α) (K : α → Mset β) (L : β → Mset γ) :
     (A >>=ᴹ K) >>=ᴹ L = A >>=ᴹ fun a => K a >>=ᴹ L := by
-  have eq : (fun a => Mset.bind (K a) L) = Mset.join ∘ Mset.map L ∘ K := rfl; rw [eq];
+  have eq : (fun a => (K a).bind L) = Mset.join ∘ Mset.map L ∘ K := rfl; rw [eq];
   unfold Mset.bind; rw [Mset.comp_map, ←Mset.join_join, Mset.map_join, ←Mset.comp_map]
 
 /-- Monad laws for `Mset` -/
