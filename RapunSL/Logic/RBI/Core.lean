@@ -22,7 +22,7 @@ variable {ρ : Type u} [RR ρ] (P Q R : RProp ρ) (r s : ρ)
 instance RProp_instMembership : Membership (Msetiv ρ) (RProp ρ) where
   mem P A := P.car A
 
-lemma unfold_mem A : (A ∈ P) = P.car A := rfl
+lemma unfold_mem A : A ∈ P ↔ P.car A := by rfl
 
 lemma set_ext : (∀ A, A ∈ P ↔ A ∈ Q) → P = Q := by
   intro _; apply congrArg DiscreteO.mk; apply Set.ext; trivial
@@ -46,7 +46,7 @@ instance RProp_instBIBase : BIBase (RProp ρ) where
   persistently P := .mk fun _ => ⟨1, PCM.valid_one⟩ ∈ P
   later P := P
 
-lemma emp_unfold A : (A ∈ emp (PROP := RProp ρ)) = (A.val = 1) := rfl
+lemma emp_unfold A : A ∈ emp (PROP := RProp ρ) ↔ A.val = 1 := by rfl
 
 lemma forall_simple :
     BIBase.forall = fun P : α → RProp ρ => .mk fun A => ∀ x, A ∈ P x := by
@@ -153,7 +153,7 @@ lemma persistently_emp_entails : <pers> P =ᴮᴵ ⌜emp ⊢ P⌝ := by
 /-- Ownership of an element -/
 def own (r : ρ) : RProp ρ := .mk fun A => A.val = pure r
 
-lemma own_unfold r A : (A ∈ own (ρ := ρ) r) = (A.val = pure r) := rfl
+lemma own_unfold r A : A ∈ own (ρ := ρ) r ↔ A.val = pure r := by rfl
 
 /-! ### Rules for `own` -/
 
@@ -204,8 +204,8 @@ lemma satis (P : RProp ρ) [Satis P] : ∃ A, A ∈ P := by
 /-! ### Satisfiability lemmas -/
 
 /-- Satisfiability is the same as not being `False` -/
-lemma satis_ne_false : Satis P = (P ≠ iprop(False)) := by
-  ext1; constructor; { intro ⟨_, _⟩ rfl; trivial }
+lemma satis_ne_false : Satis P ↔ P ≠ iprop(False) := by
+  constructor; { intro ⟨_, _⟩ rfl; trivial }
   intro ne; constructor; apply Classical.not_forall_not.mp; intro el;
   suffices P =ᴮᴵ False by { tauto }; ext1; constructor <;> tauto
 

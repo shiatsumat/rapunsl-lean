@@ -106,7 +106,7 @@ protected noncomputable def Mset.Bij.graph {A : Mset α} {B : Mset β}
 
 /-- Membership for the graph of `Ifam.Bij.refl` -/
 @[simp] protected lemma Ifam.Bij.refl_graph_mem {A : Ifam α} (a b : α) :
-    ((a, b) ∈ (Ifam.Bij.refl A).graph) = (a = b ∧ a ∈ A) := by
+    (a, b) ∈ (Ifam.Bij.refl A).graph ↔ a = b ∧ a ∈ A := by
   simp only [Ifam.Bij.refl_graph, Ifam.map'_mem]; grind only
 
 /-- The graph of `Mset.Bij.refl` -/
@@ -116,7 +116,7 @@ protected noncomputable def Mset.Bij.graph {A : Mset α} {B : Mset β}
 
 /-- Membership for the graph of `Mset.Bij.refl` -/
 @[simp] protected lemma Mset.Bij.refl_graph_mem {A : Mset α} (a b : α) :
-    ((a, b) ∈ (Mset.Bij.refl A).graph) = (a = b ∧ a ∈ A) := by
+    (a, b) ∈ (Mset.Bij.refl A).graph ↔ a = b ∧ a ∈ A := by
   simp only [Mset.Bij.refl_graph, Mset.map'_mem]; grind only
 
 /-- The graph of `Ifam.Bij.symm` -/
@@ -127,7 +127,7 @@ protected noncomputable def Mset.Bij.graph {A : Mset α} {B : Mset β}
 
 /-- Membership for the graph of `Ifam.Bij.symm` -/
 @[simp] protected lemma Ifam.Bij.symm_graph_mem {A : Ifam α} {B : Ifam β} (r : A ≃ᴵ B) a b :
-    ((a, b) ∈ r.symm.graph) = ((b, a) ∈ r.graph) := by
+    (a, b) ∈ r.symm.graph ↔ (b, a) ∈ r.graph := by
   rw [Ifam.mem_proper _ _ (Ifam.Bij.symm_graph _), Ifam.map'_mem]; grind only
 
 /-- The graph of `Mset.Bij.symm` -/
@@ -137,7 +137,7 @@ protected noncomputable def Mset.Bij.graph {A : Mset α} {B : Mset β}
 
 /-- Membership for the graph of `Mset.Bij.symm` -/
 @[simp] protected lemma Mset.Bij.symm_graph_mem {A : Mset α} {B : Mset β} (r : A ≃ᴹ B) a b :
-    ((a, b) ∈ r.symm.graph) = ((b, a) ∈ r.graph) := by
+    (a, b) ∈ r.symm.graph ↔ (b, a) ∈ r.graph := by
   simp only [Mset.Bij.symm_graph, Mset.map'_mem]; grind only
 
 /-! ### The graph of `trans` -/
@@ -212,7 +212,7 @@ protected lemma Mset.Bij.trans_graph_id_r {A : Mset α} {B B' : Mset β}
 
 /-- Membership for the graph of `Ifam.Bij.lift_equiv` -/
 @[simp] protected lemma Ifam.Bij.lift_equiv_graph_mem {A B : Ifam α} (e : A ≈ B) (a a' : α) :
-    ((a, a') ∈ (Ifam.Bij.lift_equiv e).graph) = (a = a' ∧ a ∈ A) := by
+    (a, a') ∈ (Ifam.Bij.lift_equiv e).graph ↔ a = a' ∧ a ∈ A := by
   simp only [Ifam.Bij.lift_equiv_graph, Ifam.map'_mem]; grind only
 
 /-- The graph of `Ifam.Bij.mk_out` -/
@@ -222,7 +222,7 @@ protected lemma Mset.Bij.trans_graph_id_r {A : Mset α} {B B' : Mset β}
 
 /-- Membership for the graph of `Ifam.Bij.mk_out` -/
 @[simp] protected lemma Ifam.Bij.mk_out_graph_mem (A : Ifam α) (a b : α) :
-    ((a, b) ∈ (Ifam.Bij.mk_out A).graph) = (a = b ∧ a ∈ A) := by
+    (a, b) ∈ (Ifam.Bij.mk_out A).graph ↔ a = b ∧ a ∈ A := by
   trans; { apply Ifam.Bij.lift_equiv_graph_mem }; rw [Mset.out_mem]; rfl
 
 /-- The graph of `Ifam.Bij.lift_mk` -/
@@ -235,7 +235,7 @@ protected lemma Mset.Bij.trans_graph_id_r {A : Mset α} {B B' : Mset β}
 
 /-- Membership for the graph of `Ifam.Bij.lift_mk` -/
 @[simp] protected lemma Ifam.Bij.lift_mk_graph_mem {A : Ifam α} {B : Ifam β} (r : A ≃ᴵ B) p :
-    (p ∈ r.lift_mk.graph) = (p ∈ r.graph) := by
+    p ∈ r.lift_mk.graph ↔ p ∈ r.graph := by
   rw [Ifam.Bij.lift_mk_graph]; rfl
 
 /-! ### Bijection for the graph -/
@@ -270,7 +270,7 @@ protected noncomputable def Mset.Bij.graph_codom {A : Mset α} {B : Mset β}
 
 /-- Membership for the graph of `Mset.Bij.graph_dom` -/
 @[simp] protected lemma Mset.Bij.graph_dom_graph_mem (A : Mset α) (B : Mset β) (r : A ≃ᴹ B) a b :
-    (((a, b), a') ∈ r.graph_dom.graph) = ((a, b) ∈ r.graph ∧ a' = a) := by
+    ((a, b), a') ∈ r.graph_dom.graph ↔ (a, b) ∈ r.graph ∧ a' = a := by
   rw [Mset.Bij.graph_dom_graph, Mset.map'_mem]; grind only
 
 /-- The graph of `Ifam.Bij.graph_codom` -/
@@ -285,7 +285,7 @@ protected noncomputable def Mset.Bij.graph_codom {A : Mset α} {B : Mset β}
 
 /-- Membership for the graph of `Mset.Bij.graph_codom` -/
 @[simp] protected lemma Mset.Bij.graph_codom_graph_mem (A : Mset α) (B : Mset β) (r : A ≃ᴹ B) a b :
-    (((a, b), b') ∈ r.graph_codom.graph) = ((a, b) ∈ r.graph ∧ b' = b) := by
+    ((a, b), b') ∈ r.graph_codom.graph ↔ (a, b) ∈ r.graph ∧ b' = b := by
   rw [Mset.Bij.graph_codom_graph, Mset.map'_mem]; grind only
 
 /-! ### Getting information from the graph -/
@@ -394,7 +394,7 @@ protected noncomputable def Mset.Bij.map (f : α → α') (g : β → β')
 
 /-- Membership for the graph of `Mset.Bij.map_l` -/
 @[simp] protected lemma Mset.Bij.map_l_graph_mem (f : α → β) (A : Mset α) a b :
-    ((b, a) ∈ (Mset.Bij.map_l f A).graph) = (b = f a ∧ a ∈ A) := by
+    (b, a) ∈ (Mset.Bij.map_l f A).graph ↔ b = f a ∧ a ∈ A := by
   rw [Mset.Bij.map_l_graph, Mset.map'_mem]; grind only
 
 /-- The graph of `Mset.Bij.map_r` -/
@@ -404,7 +404,7 @@ protected noncomputable def Mset.Bij.map (f : α → α') (g : β → β')
 
 /-- Membership for the graph of `Mset.Bij.map_r` -/
 @[simp] protected lemma Mset.Bij.map_r_graph_mem (f : α → β) (A : Mset α) a b :
-    ((a, b) ∈ (Mset.Bij.map_r f A).graph) = (b = f a ∧ a ∈ A) := by
+    (a, b) ∈ (Mset.Bij.map_r f A).graph ↔ b = f a ∧ a ∈ A := by
   rw [Mset.Bij.map_r_graph, Mset.map'_mem]; grind only
 
 /-- The graph of `Mset.Bij.map` -/
@@ -420,7 +420,7 @@ protected noncomputable def Mset.Bij.map (f : α → α') (g : β → β')
 
 /-- Membership for the graph of `Mset.Bij.map` -/
 @[simp] protected lemma Mset.Bij.map_graph_mem (f : α → α') (g : β → β') {A B} (r : A ≃ᴹ B) a' b' :
-    ((a', b') ∈ (Mset.Bij.map f g r).graph) = ∃ a b, (a, b) ∈ r.graph ∧ a' = f a ∧ b' = g b := by
+    (a', b') ∈ (Mset.Bij.map f g r).graph ↔ ∃ a b, (a, b) ∈ r.graph ∧ a' = f a ∧ b' = g b := by
   rw [Mset.Bij.map_graph, Mset.map'_mem]; grind only
 
 /-! ### For `∅` -/
@@ -446,7 +446,7 @@ protected noncomputable def Mset.Bij.empty : (∅ : Mset α) ≃ᴹ (∅ : Mset 
 
 /-- Membership for the graph of `Mset.Bij.empty` -/
 @[simp] protected lemma Mset.Bij.empty_graph_mem (a b : α) :
-    ((a, b) ∈ Mset.Bij.empty.graph) = False := by
+    (a, b) ∈ Mset.Bij.empty.graph ↔ False := by
   rw [Mset.Bij.empty_graph, Mset.empty_mem]
 
 /-! ### For `pure` -/
@@ -470,5 +470,5 @@ protected noncomputable def Mset.Bij.pure (a : α) (b : β) : pure a ≃ᴹ pure
 
 /-- Membership for the graph of `Mset.Bij.pure` -/
 @[simp] protected lemma Mset.Bij.pure_graph_mem (a b a' b' : α) :
-    ((a', b') ∈ (Mset.Bij.pure a b).graph) = (a' = a ∧ b' = b) := by
+    (a', b') ∈ (Mset.Bij.pure a b).graph ↔ a' = a ∧ b' = b := by
   rw [Mset.Bij.pure_graph, Mset.pure_mem]; grind only

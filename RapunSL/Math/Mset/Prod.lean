@@ -137,31 +137,31 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
 /-! ## Membership -/
 
 @[simp] protected lemma Ifam.prod_mem (A : Ifam α) (B : Ifam β) p :
-    (p ∈ A ×ᴵ B) = (p.1 ∈ A ∧ p.2 ∈ B) := by
-  cases p; ext1; constructor;
+    p ∈ A ×ᴵ B ↔ p.1 ∈ A ∧ p.2 ∈ B := by
+  cases p; constructor;
   · rintro ⟨⟨_, _⟩, eq⟩; have ⟨rfl, rfl⟩ := Prod.mk_inj.mp eq; tauto
   · rintro ⟨⟨_, rfl⟩, ⟨_, rfl⟩⟩; tauto
 
 @[simp] protected lemma Mset.prod_mem (A : Mset α) (B : Mset β) p :
-    (p ∈ A ×ᴹ B) = (p.1 ∈ A ∧ p.2 ∈ B) := by
+    p ∈ A ×ᴹ B ↔ p.1 ∈ A ∧ p.2 ∈ B := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.prod_mem
 
 /-! ## Inhabitedness -/
 
 @[simp] protected lemma Mset.inhab_prod (A : Mset α) (B : Mset β) :
-    (A ×ᴹ B).inhab = (A.inhab ∧ B.inhab) := by
-  simp only [Mset.inhab, Mset.prod_mem]; ext1; constructor; { tauto };
+    (A ×ᴹ B).inhab ↔ A.inhab ∧ B.inhab := by
+  simp only [Mset.inhab, Mset.prod_mem]; constructor; { tauto };
   intro ⟨⟨a, _⟩, ⟨b, _⟩⟩; exists (a, b)
 
 /-! ## Pair membership -/
 
 @[simp] protected lemma Ifam.prod_pairmem (A : Ifam α) (B : Ifam β) p q :
-    (A ×ᴵ B).pairmem p q =
-      ((A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
+    (A ×ᴵ B).pairmem p q ↔
+      (A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
        (p.1 = q.1 ∧ p.1 ∈ A ∧ B.pairmem p.2 q.2) ∨
-       (p.2 = q.2 ∧ p.2 ∈ B ∧ A.pairmem p.1 q.1)) := by
-  ext1; constructor;
+       (p.2 = q.2 ∧ p.2 ∈ B ∧ A.pairmem p.1 q.1) := by
+  constructor;
   · rintro ⟨⟨i, j⟩, ⟨i', j'⟩, _, rfl, rfl⟩;
     rcases Classical.em (i = i') with rfl | _;
     { right; left; constructor; { rfl }; and_intros; { exists i }; exists j, j'; aesop };
@@ -175,10 +175,10 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
     { exists (i, j), (i, j'); aesop }; { exists (i, j), (i', j); aesop }
 
 @[simp] protected lemma Mset.prod_pairmem (A : Mset α) (B : Mset β) p q :
-    (A ×ᴹ B).pairmem p q =
-      ((A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
+    (A ×ᴹ B).pairmem p q ↔
+      (A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
        (p.1 = q.1 ∧ p.1 ∈ A ∧ B.pairmem p.2 q.2) ∨
-       (p.2 = q.2 ∧ p.2 ∈ B ∧ A.pairmem p.1 q.1)) := by
+       (p.2 = q.2 ∧ p.2 ∈ B ∧ A.pairmem p.1 q.1) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.prod_pairmem
 
@@ -212,6 +212,6 @@ protected lemma Mset.Bij.prod_graph
 /-- Membership for the graph of `Mset.Bij.prod` -/
 @[simp] protected lemma Mset.Bij.prod_graph_mem
     {A : Mset α} {B : Mset β} {A' : Mset α'} {B' : Mset β'} (r : A ≃ᴹ A') (s : B ≃ᴹ B') a a' b b' :
-    (((a, b), (a', b')) ∈ (Mset.Bij.prod r s).graph) =
-      ((a, a') ∈ r.graph ∧ (b, b') ∈ s.graph) := by
+    ((a, b), (a', b')) ∈ (Mset.Bij.prod r s).graph ↔
+      (a, a') ∈ r.graph ∧ (b, b') ∈ s.graph := by
   simp only [Mset.Bij.prod_graph, Mset.map'_mem, Mset.prod_mem]; aesop

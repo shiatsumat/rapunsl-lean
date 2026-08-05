@@ -196,11 +196,11 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
 /-! ## Membership -/
 
 @[simp] protected lemma Mset.seq'_mem (F : Mset (α → β)) (A : Mset α) b :
-    (b ∈ F <*>ᴹ A) = ∃ f ∈ F, ∃ a ∈ A, b = f a := by
+    b ∈ F <*>ᴹ A ↔ ∃ f ∈ F, ∃ a ∈ A, b = f a := by
   rw [Mset.seq]; simp only [Mset.map'_mem, Prod.exists, Mset.prod_mem]; grind only
 
 @[simp] protected lemma Mset.seq_mem (F : Mset (α → β)) (A : Mset α) b :
-    (b ∈ F <*> A) = ∃ f ∈ F, ∃ a ∈ A, b = f a := by apply Mset.seq'_mem
+    b ∈ F <*> A ↔ ∃ f ∈ F, ∃ a ∈ A, b = f a := by apply Mset.seq'_mem
 
 @[simp] protected lemma Mset.join_mem (A : Mset (Mset α)) a :
     (a ∈ Mset.join A) = ∃ B ∈ A, a ∈ B := by
@@ -208,36 +208,36 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
   ext1; constructor; { tauto }; intro ⟨_, ⟨_, rfl⟩, _⟩; tauto
 
 @[simp] protected lemma Mset.bind'_mem (A : Mset α) (K : α → Mset β) b :
-    (b ∈ A >>=ᴹ K) = ∃ a ∈ A, b ∈ K a := by
+    b ∈ A >>=ᴹ K ↔ ∃ a ∈ A, b ∈ K a := by
   rw [Mset.bind]; simp only [Mset.map'_mem, Mset.join_mem]; grind only
 
 @[simp] protected lemma Mset.bind_mem (A : Mset α) (K : α → Mset β) b :
-    (b ∈ A >>= K) = ∃ a ∈ A, b ∈ K a := by apply Mset.bind'_mem
+    b ∈ A >>= K ↔ ∃ a ∈ A, b ∈ K a := by apply Mset.bind'_mem
 
 /-! ## Inhabitedness -/
 
 @[simp] protected lemma Mset.inhab_seq' (F : Mset (α → β)) (A : Mset α) :
-    (F <*>ᴹ A).inhab = (F.inhab ∧ A.inhab) := by
+    (F <*>ᴹ A).inhab ↔ (F.inhab ∧ A.inhab) := by
   simp only [Mset.inhab, Mset.seq'_mem]; grind only
 
 @[simp] protected lemma Mset.inhab_seq (F : Mset (α → β)) (A : Mset α) :
-    (F <*> A).inhab = (F.inhab ∧ A.inhab) := by apply Mset.inhab_seq'
+    (F <*> A).inhab ↔ (F.inhab ∧ A.inhab) := by apply Mset.inhab_seq'
 
 @[simp] protected lemma Mset.inhab_join (A : Mset (Mset α)) :
-    A.join.inhab = (A.inhab ∧ ∃ a ∈ A, a.inhab) := by
+    A.join.inhab ↔ (A.inhab ∧ ∃ a ∈ A, a.inhab) := by
   simp only [Mset.inhab, Mset.join_mem]; grind only
 
 @[simp] protected lemma Mset.inhab_bind' (A : Mset α) (K : α → Mset β) :
-    (A >>=ᴹ K).inhab = (∃ a ∈ A, (K a).inhab) := by
+    (A >>=ᴹ K).inhab ↔ (∃ a ∈ A, (K a).inhab) := by
   simp only [Mset.inhab, Mset.bind'_mem]; grind only
 
 @[simp] protected lemma Mset.inhab_bind (A : Mset α) (K : α → Mset β) :
-    (A >>= K).inhab = (∃ a ∈ A, (K a).inhab) := by apply Mset.inhab_bind'
+    (A >>= K).inhab ↔ (∃ a ∈ A, (K a).inhab) := by apply Mset.inhab_bind'
 
 /-! ## Pair membership -/
 
 @[simp] protected lemma Mset.seq'_pairmem (F : Mset (α → β)) (A : Mset α) b b' :
-    (F <*>ᴹ A).pairmem b b' =
+    (F <*>ᴹ A).pairmem b b' ↔
       ∃ f g a a', b = f a ∧ b' = g a' ∧
         ((F.pairmem f g ∧ A.pairmem a a') ∨
          (f = g ∧ f ∈ F ∧ A.pairmem a a') ∨
@@ -245,32 +245,33 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
   simp only [Mset.seq, Mset.map'_pairmem, Mset.prod_pairmem]; aesop
 
 @[simp] protected lemma Mset.seq_pairmem (F : Mset (α → β)) (A : Mset α) b b' :
-    (F <*> A).pairmem b b' =
+    (F <*> A).pairmem b b' ↔
       ∃ f g a a', b = f a ∧ b' = g a' ∧
         ((F.pairmem f g ∧ A.pairmem a a') ∨
          (f = g ∧ f ∈ F ∧ A.pairmem a a') ∨
          (a = a' ∧ a ∈ A ∧ F.pairmem f g)) := by apply Mset.seq'_pairmem
 
 @[simp] protected lemma Mset.join_pairmem (A : Mset (Mset α)) a a' :
-    A.join.pairmem a a' =
+    A.join.pairmem a a' ↔
       ((∃ B ∈ A, B.pairmem a a') ∨
        ∃ B B', A.pairmem B B' ∧ a ∈ B ∧ a' ∈ B') := by
   revert A; apply Quotient.ind; intro A;
-  rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.bigoplus_pairmem]; congr <;> ext1;
+  rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.bigoplus_pairmem];
+  apply iff_of_eq; congr <;> ext1;
   { constructor; { tauto }; intro ⟨_, ⟨_, rfl⟩, _⟩; tauto }
   constructor; swap; { intro ⟨_, _, ⟨i, i', _, rfl, rfl⟩, _, _⟩; exists i, i' };
   intro ⟨i, i', _, el, el'⟩; exists A.elem i, A.elem i'; constructor; { exists i, i' }; { tauto }
 
 @[simp] protected lemma Mset.bind'_pairmem (A : Mset α) (K : α → Mset β) b b' :
-    (A >>=ᴹ K).pairmem b b' =
-      ((∃ a ∈ A, (K a).pairmem b b') ∨
-       (∃ a a', A.pairmem a a' ∧ b ∈ K a ∧ b' ∈ K a')) := by
+    (A >>=ᴹ K).pairmem b b' ↔
+      (∃ a ∈ A, (K a).pairmem b b') ∨
+       (∃ a a', A.pairmem a a' ∧ b ∈ K a ∧ b' ∈ K a') := by
   simp only [Mset.bind, Mset.map'_pairmem, Mset.join_pairmem]; aesop
 
 @[simp] protected lemma Mset.bind_pairmem (A : Mset α) (K : α → Mset β) b b' :
-    (A >>= K).pairmem b b' =
-      ((∃ a ∈ A, (K a).pairmem b b') ∨
-       (∃ a a', A.pairmem a a' ∧ b ∈ K a ∧ b' ∈ K a')) := by apply Mset.bind'_pairmem
+    (A >>= K).pairmem b b' ↔
+      (∃ a ∈ A, (K a).pairmem b b') ∨
+       (∃ a a', A.pairmem a a' ∧ b ∈ K a ∧ b' ∈ K a') := by apply Mset.bind'_pairmem
 
 /-! ## Bijection -/
 
@@ -293,6 +294,6 @@ protected lemma Mset.Bij.seq_graph
 @[simp] protected lemma Mset.Bij.seq_graph_mem
     {A : Mset (α → β)} {B : Mset α} {A' : Mset (α' → β')} {B' : Mset α'}
     (r : A ≃ᴹ A') (s : B ≃ᴹ B') b b' :
-    ((b, b') ∈ (Mset.Bij.seq r s).graph) =
+    (b, b') ∈ (Mset.Bij.seq r s).graph ↔
       ∃ f a f' a', b = f a ∧ b' = f' a' ∧ (f, f') ∈ r.graph ∧ (a, a') ∈ s.graph := by
   simp only [Mset.Bij.seq_graph, Mset.seq'_mem, Mset.map'_mem]; grind only

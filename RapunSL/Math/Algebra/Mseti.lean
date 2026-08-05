@@ -39,12 +39,11 @@ protected lemma Mseti.mul_oplus_r [Mul α] (A B C : Mseti α) :
   ext; simp only [Mseti.oplus_as_bigoplus, Mseti.mul_bigoplus_r]; grind only
 
 @[simp] protected lemma Mseti.mul_mem [Mul α] (A B : Mseti α) a :
-    (a ∈ (A * B).val) = ∃ b c, b ∈ A.val ∧ c ∈ B.val ∧ a = b * c := by
-  simp only [Mseti.mul_val, Mset.seq_mem, Mset.map_mem, existsAndEq];
-  ext1; tauto
+    a ∈ (A * B).val ↔ ∃ b c, b ∈ A.val ∧ c ∈ B.val ∧ a = b * c := by
+  simp only [Mseti.mul_val, Mset.seq_mem, Mset.map_mem, existsAndEq]; tauto
 
 @[simp] protected lemma Mseti.mul_pairmem [Mul α] (A B : Mseti α) c c' :
-    (A * B).val.pairmem c c' =
+    (A * B).val.pairmem c c' ↔
       ∃ a a' b b', c = a * b ∧ c' = a' * b' ∧
         ((A.val.pairmem a a' ∧ B.val.pairmem b b') ∨
          (a = a' ∧ a ∈ A.val ∧ B.val.pairmem b b') ∨
@@ -93,7 +92,7 @@ protected lemma Mseti.valid_unfold [PCM α] :
     PCM.valid (α := Mseti α) = fun A => ∀ a ∈ A.val, ✓ a := rfl
 
 protected lemma Mseti.valid_pure [PCM α] (a : α) :
-    (✓ (pure a : Mseti α)) = (✓ a) := by
+    ✓ (pure a : Mseti α) ↔ ✓ a := by
   simp only [Mseti.valid_unfold, Mseti.pure_val, Mset.pure_mem, forall_eq]
 
 /-- Valid inhabited multisets -/

@@ -151,8 +151,8 @@ lemma pine_elim_l : P ⊕ (P -⊕ Q) ⊢ Q := by
 lemma pine_elim_r : (P -⊕ Q) ⊕ P ⊢ Q := by
   rw [bmix_comm]; apply pine_elim_l
 
-lemma pine_adj : (P ⊕ Q ⊢ R) = (Q ⊢ P -⊕ R) := by
-  ext1; constructor; { apply pine_intro_l };
+lemma pine_adj : (P ⊕ Q ⊢ R) ↔ (Q ⊢ P -⊕ R) := by
+  constructor; { apply pine_intro_l };
   intro Qto; grw [Qto]; apply pine_elim_l
 
 /-! ### Interaction of `⊕` and `⨁` with disjunction -/

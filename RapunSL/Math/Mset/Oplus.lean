@@ -187,40 +187,40 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
 /-! ## Membership -/
 
 @[simp] protected lemma Ifam.oplus_mem (a : α) (A B : Ifam α) :
-    (a ∈ A ⊕ᴵ B) = (a ∈ A ∨ a ∈ B) := by
-  ext1; constructor;
+    a ∈ A ⊕ᴵ B ↔ a ∈ A ∨ a ∈ B := by
+  constructor;
   · rintro ⟨i | j, rfl⟩; { left; exists i }; { right; exists j }
   · rintro (⟨i, rfl⟩ | ⟨i, rfl⟩); { exists .inl i }; { exists .inr i }
 
 @[simp] protected lemma Mset.oplus_mem (A B : Mset α) a :
-    (a ∈ A ⊕ᴹ B) = (a ∈ A ∨ a ∈ B) := by
+    a ∈ A ⊕ᴹ B ↔ a ∈ A ∨ a ∈ B := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.oplus_mem
 
 @[simp] protected lemma Ifam.bigoplus_mem {ι : Type} (A : ι → Ifam α) a :
-    (a ∈ ⨁ᴵ i, A i) = ∃ i, a ∈ A i := by
-  ext1; constructor; { rintro ⟨⟨_, _⟩, rfl⟩; tauto }; { rintro ⟨_, ⟨_, rfl⟩⟩; tauto }
+    (a ∈ ⨁ᴵ i, A i) ↔ ∃ i, a ∈ A i := by
+  constructor; { rintro ⟨⟨_, _⟩, rfl⟩; tauto }; { rintro ⟨_, ⟨_, rfl⟩⟩; tauto }
 
 @[simp] protected lemma Mset.bigoplus_mem {ι : Type} (A : ι → Mset α) a :
-    (a ∈ ⨁ᴹ i, A i) = ∃ i, a ∈ A i := by
-  trans; { apply Ifam.bigoplus_mem }; congr; funext _; apply Mset.out_mem
+    a ∈ (⨁ᴹ i, A i) ↔ ∃ i, a ∈ A i := by
+  trans; { apply Ifam.bigoplus_mem }; simp only [Mset.out_mem]
 
 /-! ## Inhabitedness -/
 
 @[simp] protected lemma Mset.inhab_oplus (A B : Mset α) :
-    (A ⊕ᴹ B).inhab = (A.inhab ∨ B.inhab) := by
+    (A ⊕ᴹ B).inhab ↔ A.inhab ∨ B.inhab := by
   simp only [Mset.inhab, Mset.oplus_mem]; grind only
 
 @[simp] protected lemma Mset.inhab_bigoplus {ι : Type} (A : ι → Mset α) :
-    (⨁ᴹ i, A i).inhab = ∃ i, (A i).inhab := by
+    (⨁ᴹ i, A i).inhab ↔ ∃ i, (A i).inhab := by
   simp only [Mset.inhab, Mset.bigoplus_mem]; grind only
 
 /-! ## Pair membership -/
 
 @[simp] protected lemma Ifam.oplus_pairmem (a b : α) (A B : Ifam α) :
-    (A ⊕ᴵ B).pairmem a b =
+    (A ⊕ᴵ B).pairmem a b ↔
       (A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b) := by
-  ext1; constructor;
+  constructor;
   · rintro ⟨(i | i), (j | j), ne, rfl, rfl⟩;
     · left; exists i, j; tauto
     · right; left; and_intros; { exists i }; { exists j }
@@ -232,15 +232,15 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     { exists .inr i, .inl j; tauto }; { exists .inr i, .inr j; aesop }
 
 @[simp] protected lemma Mset.oplus_pairmem (a b : α) (A B : Mset α) :
-    (A ⊕ᴹ B).pairmem a b =
-      (A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b) := by
+    (A ⊕ᴹ B).pairmem a b ↔
+      A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.oplus_pairmem
 
 @[simp] protected lemma Ifam.bigoplus_pairmem {ι : Type} (A : ι → Ifam α) a b :
-    (⨁ᴵ i, A i).pairmem a b =
-      ((∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i')) := by
-  ext1; constructor;
+    (⨁ᴵ i, A i).pairmem a b ↔
+      (∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i') := by
+  constructor;
   · rintro ⟨⟨i, j⟩, ⟨i', j'⟩, ne, rfl, rfl⟩;
     rcases Classical.em (i = i') with rfl | ne; { left; exists i, j, j'; aesop }
     right; exists i, i'; constructor; { trivial }; and_intros; { exists j }; { exists j' }
@@ -248,8 +248,8 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     { exists ⟨i, j⟩, ⟨i, j'⟩; aesop }; { exists ⟨i, j⟩, ⟨i', j'⟩; aesop }
 
 @[simp] protected lemma Mset.bigoplus_pairmem {ι : Type} (A : ι → Mset α) a b :
-    (⨁ᴹ i, A i).pairmem a b =
-      ((∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i')) := by
+    (⨁ᴹ i, A i).pairmem a b ↔
+      (∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i') := by
   trans; { apply Ifam.bigoplus_pairmem }; simp only [Mset.out_pairmem, Mset.out_mem]
 
 /-! ## Bijection -/
@@ -311,5 +311,5 @@ protected noncomputable def Mset.Bij.bigoplus {A : ι → Mset α} {B : ι → M
 /-- Membership for the graph of `Mset.Bij.bigoplus` -/
 @[simp] protected lemma Mset.Bij.bigoplus_graph_mem
     {A : ι → Mset α} {B : ι → Mset β} (r : ∀ i, A i ≃ᴹ B i) a b :
-    ((a, b) ∈ (Mset.Bij.bigoplus r).graph) = ∃ i, (a, b) ∈ (r i).graph := by
+    (a, b) ∈ (Mset.Bij.bigoplus r).graph ↔ ∃ i, (a, b) ∈ (r i).graph := by
   rw [Mset.Bij.bigoplus_graph, Mset.bigoplus_mem]
