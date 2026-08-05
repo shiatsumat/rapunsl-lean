@@ -1,6 +1,6 @@
 module
 
-public import RapunSL.Math.Algebra.Core
+public import RapunSL.Math.Algebra.PCM
 public import RapunSL.Math.Mset
 open PCM PCMP Mset Mseti
 

@@ -2,6 +2,7 @@ module
 
 public import RapunSL.Util.Syntax
 public import Iris.BI
+public import RapunSL.Math.Algebra.RR
 public import RapunSL.Math.Algebra.Mseti
 public import RapunSL.Logic.BI
 open Iris OFE BI PCM PCMI PCMC PCMP ENNReal Mset
