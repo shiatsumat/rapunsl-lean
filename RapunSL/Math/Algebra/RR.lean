@@ -110,7 +110,7 @@ class PCMC (α : Type u) extends PCMI α where
   /-- Coherence is an equivalence relation -/
   protected coher_IsEquiv : IsEquiv α coher
   /-- Coherence respects validity -/
-  protected coher_valid : ∀ a b, coher a b → ✓ a → ✓ b
+  protected coher_valid' : ∀ a b, coher a b → ✓ a → ✓ b
   /-- Coherence is compatible with `*` -/
   protected coher_mul_l : ∀ a b c, coher a b → coher (a * c) (b * c)
   /-- Coherence is compatible with inverse of `*` under validity -/
@@ -143,9 +143,8 @@ protected instance coher_instIsEquiv :
   apply Trans.trans
 
 /-- Coherence respects validity -/
-protected lemma coher_valid' : a ≎ b → ✓ a = ✓ b := by
-  intro _; ext1;
-  constructor <;> apply PCMC.coher_valid; { trivial }; { symm; trivial }
+protected lemma coher_valid : a ≎ b → (✓ a ↔ ✓ b) := by
+  intro _; constructor <;> apply PCMC.coher_valid'; { trivial }; { symm; trivial }
 
 /-- Coherence is compatible with `*` -/
 protected lemma coher_mul_r : b ≎ c → a * b ≎ a * c := by
@@ -174,9 +173,9 @@ protected instance Prod.instPCMC [PCMC α] [PCMICan β] : PCMC (α × β) where
       rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩ ⟨_, rfl⟩;
       and_intros; swap; { rfl }; trans <;> assumption
   }
-  coher_valid := by
+  coher_valid' := by
     rintro ⟨_, _⟩ ⟨_, _⟩ ⟨coh, rfl⟩ ⟨val, _⟩; and_intros; swap; { trivial };
-    apply PCMC.coher_valid _ _ coh val
+    apply PCMC.coher_valid' _ _ coh val
   coher_mul_l := by
     rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩; and_intros; swap; { rfl };
     apply PCMC.coher_mul_l; trivial
