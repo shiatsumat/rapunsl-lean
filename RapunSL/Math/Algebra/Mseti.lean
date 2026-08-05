@@ -1,9 +1,8 @@
 module
 
-public import Mathlib.Algebra.Group.Defs
 public import RapunSL.Math.Algebra.Core
 public import RapunSL.Math.Mset
-open Mset Mseti PCM PCMP
+open PCM PCMP Mset Mseti
 
 @[expose] public section
 

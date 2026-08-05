@@ -3,7 +3,6 @@ module
 public import RapunSL.Util.Syntax
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Data.ENNReal.Basic
-public import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
 open ENNReal
 
 @[expose] public section
