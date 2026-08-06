@@ -272,6 +272,22 @@ protected noncomputable instance instAddCommMagma : AddCommMagma α where
 protected lemma radd_coher_r : a +ᴿ b =ᴿ c → b ≎ c := by
   rw [RR.radd_comm]; apply RR.radd_coher_l
 
+/-- `+` is coherent with the left argument -/
+protected lemma add_coher_l : a ≎ b → a + b ≎ a := by
+  intro coh; symm; apply RR.radd_coher_l; apply RR.add_radd; trivial
+
+/-- `+` is coherent with the right argument -/
+protected lemma add_coher_r : a ≎ b → a + b ≎ b := by
+  intro coh; symm; apply RR.radd_coher_r; apply RR.add_radd; trivial
+
+/-- `+` preserves the validity -/
+protected lemma add_valid_l : a ≎ b → (✓ (a + b) ↔ ✓ a) := by
+  intro coh; apply PCMC.coher_valid; apply RR.add_coher_l; trivial
+
+/-- `+` preserves the validity -/
+protected lemma add_valid_r : a ≎ b → (✓ (a + b) ↔ ✓ b) := by
+  intro coh; apply PCMC.coher_valid; apply RR.add_coher_r; trivial
+
 /-- `+ᴿ` is associative -/
 protected lemma radd_assoc_r :
     b +ᴿ c =ᴿ bc → a +ᴿ bc =ᴿ abc → ∃ ab, a +ᴿ b =ᴿ ab ∧ ab +ᴿ c =ᴿ abc := by
