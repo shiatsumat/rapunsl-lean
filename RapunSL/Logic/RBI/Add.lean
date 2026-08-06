@@ -62,6 +62,13 @@ lemma rmadd_inhab : A +ᴿᴹ B =ᴿᴹ C → A.inhab → C.inhab := by
   rintro ⟨r, _, rfl⟩ inh; rw [Mset.inhab_map'];
   rw [←Mset.Bij.graph_fst r, Mset.inhab_map'] at inh; exact inh
 
+/-- `+ᴿᴹ` transfers validity of the left-hand summand to the sum -/
+lemma rmadd_valid : A +ᴿᴹ B =ᴿᴹ C → (∀ a ∈ A, ✓ a) → ∀ c ∈ C, ✓ c := by
+  rintro ⟨r, coh, rfl⟩ val c elC;
+  rw [Mset.map'_mem] at elC; rcases elC with ⟨⟨a, b⟩, mem, rfl⟩;
+  refine (RR.add_valid_l _ _ (coh _ _ mem)).mpr ?_;
+  apply val; rw [←Mset.Bij.graph_fst r, Mset.map'_mem]; exact ⟨_, mem, rfl⟩
+
 /-- `+ᴿᴹ` transfers validity of the sum to the left-hand summand -/
 lemma rmadd_valid_l : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ a ∈ A, ✓ a := by
   rintro ⟨r, coh, rfl⟩ val a elA;
@@ -216,6 +223,17 @@ instance add_instPrecise [Precise P] [Precise Q] [Unambig P] : Precise (P + Q) :
   rcases precise P _ _ elP elP' with rfl; rcases precise Q _ _ elQ elQ' with rfl;
   apply Subtype.ext; apply Subtype.ext;
   exact rmadd_unique_l _ _ _ _ Av.prop (unambig P _ elP) hC hC'
+
+/-- Satisfiability of `+` -/
+lemma add_satis [Satis P] [Satis Q] : (P ≎ᴿ Q) → Satis iprop(P + Q) := by
+  intro cohPQ; constructor;
+  rcases satis P with ⟨Av, elP⟩; rcases satis Q with ⟨Bv, elQ⟩;
+  rcases cohPQ _ _ elP elQ with ⟨r, coh⟩;
+  have hadd : Av.val.val +ᴿᴹ Bv.val.val =ᴿᴹ (fun (a, b) ↦ a + b) <$>ᴹ r.graph :=
+    ⟨r, coh, rfl⟩;
+  have inh := rmadd_inhab _ _ _ hadd Av.val.prop;
+  have val := rmadd_valid _ _ _ hadd Av.prop;
+  exact ⟨⟨⟨_, inh⟩, val⟩, Av, Bv, elP, elQ, hadd⟩
 
 /-- Unambiguity of `+` -/
 instance add_instUnambig [Unambig P] : Unambig (P + Q) := by
