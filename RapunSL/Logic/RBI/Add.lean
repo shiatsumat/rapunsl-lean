@@ -8,7 +8,8 @@ open Iris BI RBI Mset Mseti PCMC RR
 /-! # Sum in RapunSL -/
 
 namespace RBI
-variable {ρ : Type u} [RR ρ] (P P' Q Q' R : RProp ρ) (A B C : Mset ρ)
+variable {ρ : Type u} [RR ρ] (P P' Q Q' R : RProp ρ)
+  (A B C AB ABC : Mset ρ)
 
 /-! ## Sum connectives -/
 
@@ -30,6 +31,11 @@ lemma add_unfold :
     (HAdd.hAdd : RProp ρ → RProp ρ → RProp ρ) =
       fun P Q => .mk fun C ↦ ∃ A B, A ∈ P ∧ B ∈ Q ∧
         A.val.val +ᴿᴹ B.val.val =ᴿᴹ C.val.val := rfl
+
+/-- `+` is monotone -/
+@[gcongr] lemma add_mono : (P ⊢ P') → (Q ⊢ Q') → P + Q ⊢ P' + Q' := by
+  intro PP' QQ' _ ⟨A, B, _, _, _⟩; exists A, B; and_intros;
+  { apply PP'; trivial }; { apply QQ'; trivial }; trivial
 
 /-- `+ᴿᴹ` is commutative -/
 lemma radd_comm' : A +ᴿᴹ B =ᴿᴹ C → B +ᴿᴹ A =ᴿᴹ C := by
