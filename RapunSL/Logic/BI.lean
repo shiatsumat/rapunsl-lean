@@ -3,7 +3,7 @@ module
 public import Iris.BI
 public import Mathlib.Order.Defs.Unbundled
 import Batteries.Tactic.Trans
-import Mathlib.Tactic.Gcongr
+import Mathlib.Tactic.GCongr
 import Iris.ProofMode
 open Iris BI
 
