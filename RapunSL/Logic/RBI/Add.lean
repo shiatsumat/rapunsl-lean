@@ -28,6 +28,10 @@ lemma rmadd_comm' : A +ᴿᴹ B =ᴿᴹ C → B +ᴿᴹ A =ᴿᴹ C := by
   · simp only [Bij.symm_graph, ←Mset.comp_map];
     congr; ext1 ⟨a, b⟩; rw [add_comm a b]; rfl
 
+/-- `+ᴿᴹ` is commutative -/
+lemma rmadd_comm : A +ᴿᴹ B =ᴿᴹ C ↔ B +ᴿᴹ A =ᴿᴹ C := by
+  constructor <;> (intro _; apply rmadd_comm'; trivial)
+
 /-- Construct `+ᴿᴹ` from a multiset of coherent pairs -/
 lemma pairs_rmadd (S : Mset (ρ × ρ)) :
     (∀ a b, (a, b) ∈ S → a ≎ b) →
