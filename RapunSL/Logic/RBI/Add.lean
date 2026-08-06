@@ -102,28 +102,25 @@ lemma rmadd_unique_l : (∀ a ∈ A, ✓ a) → (∀ a a', A.pairmem a a' → a 
 lemma rmadd_assoc_l :
     A +ᴿᴹ B =ᴿᴹ AB → AB +ᴿᴹ C =ᴿᴹ ABC → ∃ BC, B +ᴿᴹ C =ᴿᴹ BC ∧ A +ᴿᴹ BC =ᴿᴹ ABC := by
   rintro ⟨r₁, coh₁, rfl⟩ ⟨r₂, coh₂, rfl⟩;
-  rcases Mset.Bij.graph_unmap_l (fun ((a, b) : ρ × ρ) ↦ a + b) r₂ with ⟨S, hfst, hsnd, hgr⟩;
+  rcases Mset.Bij.graph_unmap_l (fun ((a, b) : ρ × ρ) ↦ a + b) r₂ with ⟨S, hS1, hS2, hgr⟩;
   have pw : ∀ a b c, ((a, b), c) ∈ S → b ≎ c ∧ a ≎ b + c ∧ (a + b) + c = a + (b + c) := by
     intro a b c mem;
-    have h₁ : a ≎ b := by
-      apply coh₁; rw [←hfst, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩
-    have h₂ : a + b ≎ c := by
+    have ahb : a ≎ b := by
+      apply coh₁; rw [←hS1, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩
+    have abhc : a + b ≎ c := by
       apply coh₂; rw [←hgr, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩
-    have hbc := PCMC.coher_trans _ _ _ (PCMC.coher_symm' _ _ (RR.add_coher_r _ _ h₁)) h₂;
-    exact ⟨hbc, PCMC.coher_trans _ _ _ h₁ (PCMC.coher_symm' _ _ (RR.add_coher_l _ _ hbc)),
-      RR.add_assoc _ _ _ h₁ hbc⟩
-  refine ⟨(fun ((a, b), c) ↦ b + c) <$>ᴹ S, ?_, ?_⟩
-  · apply rmadd_map S (fun ((a, b), c) ↦ b) Prod.snd;
-    · rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).1
-    · rw [←Mset.Bij.graph_snd r₁, ←hfst, ←Mset.comp_map]; rfl
-    · exact hsnd
-    · rfl
+    have _ : b ≎ c := by grw [←abhc]; symm; apply RR.add_coher_r; trivial
+    and_intros; { trivial };
+    { grw [ahb]; symm; apply RR.add_coher_l; trivial }; { apply RR.add_assoc <;> trivial }
+  exists (fun ((a, b), c) ↦ b + c) <$>ᴹ S; simp only; and_intros;
+  · apply rmadd_map S (fun ((a, b), c) ↦ b) Prod.snd _ _ hS2 rfl;
+    { rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).1 };
+    { rw [←Mset.Bij.graph_snd r₁, ←hS1, ←Mset.comp_map]; rfl }
   · apply rmadd_map S (fun ((a, b), c) ↦ a) (fun ((a, b), c) ↦ b + c);
-    · rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.1
-    · rw [←Mset.Bij.graph_fst r₁, ←hfst, ←Mset.comp_map]; rfl
-    · rfl
-    · rw [←hgr, ←Mset.comp_map]; apply Mset.map_congr;
-      rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.2.symm
+    { rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.1 };
+    { rw [←Mset.Bij.graph_fst r₁, ←hS1, ←Mset.comp_map]; rfl }; { rfl };
+    { rw [←hgr, ←Mset.comp_map]; apply Mset.map_congr;
+      rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.2.symm }
 
 /-! ## Sum connectives -/
 
