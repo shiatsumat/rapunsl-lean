@@ -16,15 +16,19 @@ protected def Ifam.oplus {α} (A B : Ifam α) : Ifam α :=
 @[inherit_doc]
 scoped[Ifam] infixr:60 " ⊕ᴵ " => Ifam.oplus
 
+/-- The index domain of `⊕ᴵ` -/
 @[simp] protected lemma Ifam.oplus_dom (A B : Ifam α) :
   (A ⊕ᴵ B).dom = (A.dom ⊕ B.dom) := rfl
 
+/-- The left-hand elements of `⊕ᴵ` -/
 @[simp] protected lemma Ifam.oplus_elem_inl (A B : Ifam α) {i} :
   (A ⊕ᴵ B).elem (.inl i) = A.elem i := rfl
 
+/-- The right-hand elements of `⊕ᴵ` -/
 @[simp] protected lemma Ifam.oplus_elem_inr (A B : Ifam α) {i} :
   (A ⊕ᴵ B).elem (.inr i) = B.elem i := rfl
 
+/-- `⊕ᴵ` respects `≈` -/
 @[gcongr] protected lemma Ifam.oplus_proper (A A' B B' : Ifam α) :
     A ≈ A' → B ≈ B' → A ⊕ᴵ B ≈ A' ⊕ᴵ B' :=
   fun ⟨f, AB⟩ ⟨g, A'B'⟩ => by
@@ -41,23 +45,28 @@ scoped[Mset] infixr:60 " ⊕ᴹ " => Mset.oplus
 
 /-! ### `map` over `⊕` -/
 
+/-- `<$>ᴵ` distributes over `⊕ᴵ` -/
 protected lemma Ifam.oplus_map' (f : α → β) (A B : Ifam α) :
     f <$>ᴵ (A ⊕ᴵ B) ≈ f <$>ᴵ A ⊕ᴵ f <$>ᴵ B := by
   exists Equiv.refl _; rintro (_ | _) <;> rfl
 
+/-- `<$>ᴹ` distributes over `⊕ᴹ` -/
 protected lemma Mset.oplus_map' (f : α → β) (A B : Mset α) :
     f <$>ᴹ (A ⊕ᴹ B) = f <$>ᴹ A ⊕ᴹ f <$>ᴹ B := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Quotient.sound; apply Ifam.oplus_map'
 
+/-- `<$>` distributes over `⊕ᴹ` -/
 protected lemma Mset.oplus_map (f : α → β) (A B : Mset α) :
     f <$> (A ⊕ᴹ B) = f <$> A ⊕ᴹ f <$> B := by apply Mset.oplus_map'
 
 /-! ### `⊕` is commutative -/
 
+/-- `⊕ᴵ` is commutative -/
 protected lemma Ifam.oplus_comm (A B : Ifam α) : A ⊕ᴵ B ≈ B ⊕ᴵ A := by
   exists Equiv.sumComm _ _; rintro (_ | _) <;> rfl
 
+/-- `⊕ᴹ` is commutative -/
 protected instance Mset.oplus_Commutative :
     Std.Commutative (Mset.oplus (α := α)) where
   comm A B := by
@@ -66,9 +75,11 @@ protected instance Mset.oplus_Commutative :
 
 /-! ### `⊕` is unital -/
 
+/-- `∅` is a right identity for `⊕ᴵ` -/
 protected lemma Ifam.oplus_id_r (A : Ifam α) : A ⊕ᴵ ∅ ≈ A := by
   exists Equiv.sumEmpty _ _; rintro (_ | _) <;> tauto
 
+/-- `∅` is an identity for `⊕ᴹ` -/
 protected instance Mset.oplus_LawfulCommIdentity :
     Std.LawfulCommIdentity (Mset.oplus (α := α)) ∅ where
   right_id A := by
@@ -76,9 +87,11 @@ protected instance Mset.oplus_LawfulCommIdentity :
 
 /-! ### `⊕` is associative -/
 
+/-- `⊕ᴵ` is associative -/
 protected lemma Ifam.oplus_assoc (A B C : Ifam α) : (A ⊕ᴵ B) ⊕ᴵ C ≈ A ⊕ᴵ (B ⊕ᴵ C) := by
   exists Equiv.sumAssoc _ _ _; rintro ((_ | _) | _) <;> rfl
 
+/-- `⊕ᴹ` is associative -/
 protected instance Mset.oplus_Associative :
     Std.Associative (Mset.oplus (α := α)) where
   assoc A B C := by
@@ -94,14 +107,17 @@ protected def Ifam.bigoplus {ι : Type} (A : ι → Ifam α) : Ifam α :=
 @[inherit_doc]
 scoped[Ifam] notation "⨁ᴵ " i ", " A => Ifam.bigoplus (fun i => A)
 
+/-- `⨁ᴵ` respects `≈` -/
 @[gcongr] protected lemma Ifam.bigoplus_proper (A A' : ι → Ifam α) :
     (∀ i, A i ≈ A' i) → Ifam.bigoplus A ≈ Ifam.bigoplus A' := by
   intro AA'; have ⟨f, AA'⟩ := Classical.skolem.mp AA';
   exists Equiv.sigmaCongrRight f; tauto
 
+/-- The index domain of `⨁ᴵ` -/
 @[simp] protected lemma Ifam.bigoplus_dom (A : ι → Ifam α) :
     (Ifam.bigoplus (α := α) (ι := ι) A).dom = Σ i, (A i).dom := rfl
 
+/-- The elements of `⨁ᴵ` -/
 @[simp] protected lemma Ifam.bigoplus_elem (A : ι → Ifam α) (i j) :
     (Ifam.bigoplus (α := α) (ι := ι) A).elem ⟨i, j⟩ = (A i).elem j := rfl
 
@@ -114,33 +130,40 @@ scoped[Mset] notation "⨁ᴹ " i ", " A => Mset.bigoplus (fun i => A)
 
 /-! ### `map` over `bigoplus` -/
 
+/-- `<$>ᴵ` distributes over `⨁ᴵ` -/
 protected lemma Ifam.bigoplus_map' (f : α → β) (A : ι → Ifam α) :
     f <$>ᴵ Ifam.bigoplus A = ⨁ᴵ i, f <$>ᴵ A i := rfl
 
+/-- `<$>ᴹ` distributes over `⨁ᴹ` -/
 protected lemma Mset.bigoplus_map' (f : α → β) (A : ι → Mset α) :
     f <$>ᴹ Mset.bigoplus A = ⨁ᴹ i, f <$>ᴹ A i := by
   apply Quotient.sound; rw [Ifam.bigoplus_map']; gcongr with i; simp only;
   cases A i using Quotient.ind; grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
+/-- `<$>` distributes over `⨁ᴹ` -/
 protected lemma Mset.bigoplus_map (f : α → β) (A : ι → Mset α) :
     f <$> Mset.bigoplus A = ⨁ᴹ i, f <$> A i := by apply Mset.bigoplus_map'
 
 /-! ### `bigoplus` is commutative -/
 
+/-- `⨁ᴵ` is invariant under reindexing along an equivalence -/
 protected lemma Ifam.bigoplus_comm {ι ι' : Type} (f : ι ≃ ι') (A : ι' → Ifam α) :
     Ifam.bigoplus A ≈ ⨁ᴵ i, A (f i) := by
   symm; exists Equiv.sigmaCongrLeft (β := fun j => (A j).dom) f; intro _; rfl
 
+/-- `⨁ᴹ` is invariant under reindexing along an equivalence -/
 protected lemma Mset.bigoplus_comm {ι ι' : Type} (f : ι ≃ ι') (A : ι' → Mset α) :
     Mset.bigoplus A = ⨁ᴹ i, A (f i) := by
   apply Quotient.sound; apply Ifam.bigoplus_comm
 
 /-! ### `bigoplus` is associative -/
 
+/-- `⨁ᴵ` is associative: a nested `⨁ᴵ` is a `⨁ᴵ` over the `Sigma` type -/
 protected lemma Ifam.bigoplus_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Ifam α) :
     (⨁ᴵ i, Ifam.bigoplus (A i)) ≈ ⨁ᴵ (⟨i, j⟩ : Sigma ι'), A i j := by
   exists (Equiv.sigmaAssoc _).symm; tauto
 
+/-- `⨁ᴹ` is associative: a nested `⨁ᴹ` is a `⨁ᴹ` over the `Sigma` type -/
 protected lemma Mset.bigoplus_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Mset α) :
     (⨁ᴹ i, Mset.bigoplus (A i)) = ⨁ᴹ (⟨i, j⟩ : Sigma ι'), A i j := by
   apply Quotient.sound; trans;
@@ -149,27 +172,33 @@ protected lemma Mset.bigoplus_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι,
 
 /-! ### `empty` as `bigoplus` -/
 
+/-- The index domain of `⨁ᴵ` over `Empty` is empty -/
 private instance Ifam.Empty_bigoplus_IsEmpty :
     IsEmpty (Ifam.bigoplus (ι := Empty) A).dom where
   false := nofun
 
+/-- `∅` as a `⨁ᴵ` over `Empty` -/
 protected lemma Ifam.empty_as_bigoplus : ∅ ≈ Ifam.bigoplus (ι := Empty) A := by
   exists Equiv.equivOfIsEmpty _ _; nofun
 
+/-- `∅` as a `⨁ᴹ` over `Empty` -/
 protected lemma Mset.empty_as_bigoplus : ∅ = Mset.bigoplus (ι := Empty) (α := α) nofun := by
   apply Quotient.sound; apply Ifam.empty_as_bigoplus
 
 /-! ### Unary `bigoplus` -/
 
+/-- `⨁ᴵ` over `Unit` is trivial -/
 protected lemma Ifam.unary_bigoplus (A : Unit → Ifam α) : Ifam.bigoplus A ≈ A () := by
   exists Equiv.uniqueSigma _; intro _; rfl
 
+/-- `⨁ᴹ` over `Unit` is trivial -/
 protected lemma Mset.unary_bigoplus (A : Unit → Mset α) : Mset.bigoplus A = A () := by
   cases eq : A () using Quotient.ind; apply Quotient.sound;
   grw [Ifam.unary_bigoplus, eq, Quotient.mk_out]
 
 /-! ### `⊕` as `bigoplus` -/
 
+/-- `⊕ᴵ` as a `⨁ᴵ` over `Bool` -/
 protected lemma Ifam.oplus_as_bigoplus (A B : Ifam α) :
     F true = A → F false = B → A ⊕ᴵ B ≈ Ifam.bigoplus F := by
   intro rfl rfl;
@@ -179,6 +208,7 @@ protected lemma Ifam.oplus_as_bigoplus (A B : Ifam α) :
            right_inv := by rintro ⟨_ | _, _⟩ <;> rfl };
   rintro (_ | _) <;> rfl
 
+/-- `⊕ᴹ` as a `⨁ᴹ` over `Bool` -/
 protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     A ⊕ᴹ B = ⨁ᴹ (b : Bool), if b then A else B := by
   rw (occs := [1]) [←A.out_eq, ←B.out_eq];
@@ -186,37 +216,44 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
 
 /-! ## Membership -/
 
+/-- Membership for `⊕ᴵ` -/
 @[simp] protected lemma Ifam.oplus_mem (a : α) (A B : Ifam α) :
     a ∈ A ⊕ᴵ B ↔ a ∈ A ∨ a ∈ B := by
   constructor;
   · rintro ⟨i | j, rfl⟩; { left; exists i }; { right; exists j }
   · rintro (⟨i, rfl⟩ | ⟨i, rfl⟩); { exists .inl i }; { exists .inr i }
 
+/-- Membership for `⊕ᴹ` -/
 @[simp] protected lemma Mset.oplus_mem (A B : Mset α) a :
     a ∈ A ⊕ᴹ B ↔ a ∈ A ∨ a ∈ B := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.oplus_mem
 
+/-- Membership for `⨁ᴵ` -/
 @[simp] protected lemma Ifam.bigoplus_mem {ι : Type} (A : ι → Ifam α) a :
     (a ∈ ⨁ᴵ i, A i) ↔ ∃ i, a ∈ A i := by
   constructor; { rintro ⟨⟨_, _⟩, rfl⟩; tauto }; { rintro ⟨_, ⟨_, rfl⟩⟩; tauto }
 
+/-- Membership for `⨁ᴹ` -/
 @[simp] protected lemma Mset.bigoplus_mem {ι : Type} (A : ι → Mset α) a :
     a ∈ (⨁ᴹ i, A i) ↔ ∃ i, a ∈ A i := by
   trans; { apply Ifam.bigoplus_mem }; simp only [Mset.out_mem]
 
 /-! ## Inhabitedness -/
 
+/-- Inhabitedness for `⊕ᴹ` -/
 @[simp] protected lemma Mset.inhab_oplus (A B : Mset α) :
     (A ⊕ᴹ B).inhab ↔ A.inhab ∨ B.inhab := by
   simp only [Mset.inhab, Mset.oplus_mem]; grind only
 
+/-- Inhabitedness for `⨁ᴹ` -/
 @[simp] protected lemma Mset.inhab_bigoplus {ι : Type} (A : ι → Mset α) :
     (⨁ᴹ i, A i).inhab ↔ ∃ i, (A i).inhab := by
   simp only [Mset.inhab, Mset.bigoplus_mem]; grind only
 
 /-! ## Pair membership -/
 
+/-- Pair membership for `⊕ᴵ` -/
 @[simp] protected lemma Ifam.oplus_pairmem (a b : α) (A B : Ifam α) :
     (A ⊕ᴵ B).pairmem a b ↔
       (A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b) := by
@@ -231,12 +268,14 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     { exists .inl i, .inl j; aesop }; { exists .inl i, .inr j; tauto }
     { exists .inr i, .inl j; tauto }; { exists .inr i, .inr j; aesop }
 
+/-- Pair membership for `⊕ᴹ` -/
 @[simp] protected lemma Mset.oplus_pairmem (a b : α) (A B : Mset α) :
     (A ⊕ᴹ B).pairmem a b ↔
       A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b := by
   cases A using Quotient.ind; cases B using Quotient.ind;
   apply Ifam.oplus_pairmem
 
+/-- Pair membership for `⨁ᴵ` -/
 @[simp] protected lemma Ifam.bigoplus_pairmem {ι : Type} (A : ι → Ifam α) a b :
     (⨁ᴵ i, A i).pairmem a b ↔
       (∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i') := by
@@ -247,6 +286,7 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
   · rintro (⟨i, j, j', ne, rfl, rfl⟩ | ⟨i, i', ne, ⟨j, rfl⟩, ⟨j', rfl⟩⟩);
     { exists ⟨i, j⟩, ⟨i, j'⟩; aesop }; { exists ⟨i, j⟩, ⟨i', j'⟩; aesop }
 
+/-- Pair membership for `⨁ᴹ` -/
 @[simp] protected lemma Mset.bigoplus_pairmem {ι : Type} (A : ι → Mset α) a b :
     (⨁ᴹ i, A i).pairmem a b ↔
       (∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i') := by

@@ -15,33 +15,41 @@ protected instance Mseti.instMul (α : Type u) [Mul α] : Mul (Mseti α) where
   mul A B := ⟨HMul.hMul <$> A.val <*> B.val, by
     simp only [Mset.inhab_seq, Mset.inhab_map]; grind only⟩
 
+/-- The underlying multiset of `*` -/
 protected lemma Mseti.mul_val [Mul α] (A B : Mseti α) :
     (A * B).val = HMul.hMul <$> A.val <*> B.val := rfl
 
+/-- `pure` respects `*` -/
 protected lemma Mseti.pure_mul [Mul α] (a b : α) :
     pure (f := Mseti) (a * b) = pure a * pure b := by
   ext; simp only [Mseti.mul_val, Mseti.pure_val, functor_norm]
 
+/-- `*` distributes over `⨁ᴹⁱ` from the left -/
 protected lemma Mseti.mul_bigoplus_l [Mul α] [Inhabited ι] A (B : ι → Mseti α) :
     A * (⨁ᴹⁱ i, B i) = ⨁ᴹⁱ i, A * B i := by
   ext; simp only [Mseti.mul_val, Mseti.bigoplus_val, Mset.seq_bigoplus_l]
 
+/-- `*` distributes over `⨁ᴹⁱ` from the right -/
 protected lemma Mseti.mul_bigoplus_r [Mul α] [Inhabited ι] (A : ι → Mseti α) B :
     (⨁ᴹⁱ i, A i) * B = ⨁ᴹⁱ i, A i * B := by
   ext; simp only [Mseti.mul_val, Mseti.bigoplus_val, Mset.bigoplus_map, Mset.seq_bigoplus_r]
 
+/-- `*` distributes over `⊕ᴹⁱ` from the left -/
 protected lemma Mseti.mul_oplus_l [Mul α] (A B C : Mseti α) :
     A * (B ⊕ᴹⁱ C) = A * B ⊕ᴹⁱ A * C := by
   ext; simp only [Mseti.oplus_as_bigoplus, Mseti.mul_bigoplus_l]; grind only
 
+/-- `*` distributes over `⊕ᴹⁱ` from the right -/
 protected lemma Mseti.mul_oplus_r [Mul α] (A B C : Mseti α) :
     (A ⊕ᴹⁱ B) * C = A * C ⊕ᴹⁱ B * C := by
   ext; simp only [Mseti.oplus_as_bigoplus, Mseti.mul_bigoplus_r]; grind only
 
+/-- Membership for `*` -/
 @[simp] protected lemma Mseti.mul_mem [Mul α] (A B : Mseti α) a :
     a ∈ (A * B).val ↔ ∃ b c, b ∈ A.val ∧ c ∈ B.val ∧ a = b * c := by
   simp only [Mseti.mul_val, Mset.seq_mem, Mset.map_mem, existsAndEq]; tauto
 
+/-- Pair membership for `*` -/
 @[simp] protected lemma Mseti.mul_pairmem [Mul α] (A B : Mseti α) c c' :
     (A * B).val.pairmem c c' ↔
       ∃ a a' b b', c = a * b ∧ c' = a' * b' ∧
@@ -50,10 +58,12 @@ protected lemma Mseti.mul_oplus_r [Mul α] (A B C : Mseti α) :
          (b = b' ∧ b ∈ B.val ∧ A.val.pairmem a a')) := by
   simp only [Mseti.mul_val, Mset.map_seq, Mset.map_pairmem, Mset.prod_pairmem]; aesop
 
+/-- Bijection for `*` -/
 protected noncomputable def Mseti.Bij.mul [Mul α] {A A' B B' : Mseti α}
     (r : A.val ≃ᴹ A'.val) (s : B.val ≃ᴹ B'.val) : (A * B).val ≃ᴹ (A' * B').val :=
   Mset.Bij.seq (Mset.Bij.map HMul.hMul HMul.hMul r) s
 
+/-- The graph of `Mseti.Bij.mul` -/
 @[simp] protected lemma Mseti.Bij.mul_graph [Mul α] {A A' B B' : Mseti α}
     (r : A.val ≃ᴹ A'.val) (s : B.val ≃ᴹ B'.val) :
     (Mseti.Bij.mul r s).graph =
@@ -66,6 +76,7 @@ protected noncomputable def Mseti.Bij.mul [Mul α] {A A' B B' : Mseti α}
 protected instance Mseti.instOne (α : Type u) [One α] : One (Mseti α) where
   one := pure 1
 
+/-- Unfold `1` for `Mseti` -/
 protected lemma Mseti.one_unfold [PCM α] : (1 : Mseti α) = pure 1 := rfl
 
 /-! ## Inhabited multiset PCM -/
@@ -88,9 +99,11 @@ protected instance Mseti.instPCM (α : Type u) [PCM α] : PCM (Mseti α) where
     intro A ⟨B, ⟨b, _⟩⟩ val a _; apply PCM.valid_mul_l _ b;
     apply val; simp only [Mseti.mul_mem]; exists a, b
 
+/-- Unfold `✓` for `Mseti` -/
 protected lemma Mseti.valid_unfold [PCM α] :
     PCM.valid (α := Mseti α) = fun A => ∀ a ∈ A.val, ✓ a := rfl
 
+/-- Validity for `pure` -/
 protected lemma Mseti.valid_pure [PCM α] (a : α) :
     ✓ (pure a : Mseti α) ↔ ✓ a := by
   simp only [Mseti.valid_unfold, Mseti.pure_val, Mset.pure_mem, forall_eq]
@@ -110,17 +123,21 @@ protected noncomputable instance Mseti.instPCMP (α : Type u) [PCMP α] : PCMP (
     apply Mset.tsum_proper; simp only [Mset.prod_mem]; intro ⟨a, b⟩ ⟨_, _⟩;
     apply PCMP.prob_mul; apply val; simp only [Mseti.mul_mem]; exists a, b
 
+/-- Unfold `PCMP.prob` for `Mseti` -/
 protected lemma Mseti.prob_unfold [PCMP α] (A : Mseti α) :
     PCMP.prob A = ∑ᴹ a ∈ᴹ A.val, PCMP.prob a := rfl
 
+/-- The probability of `pure` -/
 protected lemma Mseti.prob_pure [PCMP α] (a : α) :
     PCMP.prob (pure a : Mseti α) = PCMP.prob a := by
   rw [Mseti.prob_unfold, Mseti.pure_val, Mset.tsum_pure]
 
+/-- The probability of `⨁ᴹⁱ` is the sum of the probabilities -/
 protected lemma Mseti.prob_bigoplus [Inhabited ι] [PCMP α] (A : ι → Mseti α) :
     PCMP.prob (⨁ᴹⁱ i, A i) = ∑' i, PCMP.prob (A i) := by
   rw [Mseti.prob_unfold, Mseti.bigoplus_val, ENNReal.Mset.tsum_bigoplus]; rfl
 
+/-- The probability of `⊕ᴹⁱ` is the sum of the probabilities -/
 protected lemma Mseti.prob_oplus [PCMP α] (A B : Mseti α) :
     PCMP.prob (A ⊕ᴹⁱ B) = PCMP.prob A + PCMP.prob B := by
   rw [Mseti.prob_unfold, Mseti.oplus_val, ENNReal.Mset.tsum_oplus]; rfl

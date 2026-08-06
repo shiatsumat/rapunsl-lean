@@ -69,12 +69,15 @@ protected instance Excl.instPCM : PCM (Excl α) where
   valid_one := trivial
   valid_mul_l a b := by cases a <;> cases b <;> tauto
 
+/-- Unfold `1` for `Excl` -/
 protected lemma Excl.one_unfold : (1 : Excl α) = .unit := rfl
 
+/-- Unfold `*` for `Excl` -/
 protected lemma Excl.mul_unfold :
     (HMul.hMul : Excl α → Excl α → _) =
       fun | a, .unit => a | .unit, b => b | _, _ => .bot := rfl
 
+/-- Unfold `✓` for `Excl` -/
 protected lemma Excl.valid_unfold :
     PCM.valid (α := Excl α) = fun | .bot => False | _ => True := rfl
 
@@ -93,11 +96,14 @@ protected instance Prod.instPCM [PCM α] [PCM β] : PCM (α × β) where
     intro _ _ ⟨val, val'⟩; and_intros;
     { apply PCM.valid_mul_l _ _ val }; { apply PCM.valid_mul_l _ _ val' }
 
+/-- Unfold `1` for products -/
 protected lemma Prod.one_unfold [PCM α] [PCM β] : (1 : α × β) = (1, 1) := rfl
 
+/-- Unfold `*` for products -/
 protected lemma Prod.mul_unfold [PCM α] [PCM β] :
     (HMul.hMul : α × β → α × β → _) = fun p q => (p.1 * q.1, p.2 * q.2) := rfl
 
+/-- Unfold `✓` for products -/
 protected lemma Prod.valid_unfold [PCM α] [PCM β] :
     PCM.valid (α := α × β) = fun p => ✓ p.1 ∧ ✓ p.2 := rfl
 
@@ -115,13 +121,16 @@ protected instance Pi.instPCM {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i
   valid_one := by intro i; apply PCM.valid_one
   valid_mul_l := by intro _ _ val i; apply PCM.valid_mul_l _ _ (val i)
 
+/-- Unfold `1` for functions -/
 protected lemma Pi.one_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     (1 : ∀ i, α i) = fun _ => 1 := rfl
 
+/-- Unfold `*` for functions -/
 protected lemma Pi.mul_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     (HMul.hMul : (∀ i, α i) → (∀ i, α i) → (∀ i, α i)) =
       fun f g i => f i * g i := rfl
 
+/-- Unfold `✓` for functions -/
 protected lemma Pi.valid_unfold {ι : Type*} {α : ι → Type*} [∀ i, PCM (α i)] :
     PCM.valid (α := ∀ i, α i) = fun f => ∀ i, ✓ f i := rfl
 

@@ -16,12 +16,15 @@ protected def Ifam.prod {α β} (A : Ifam α) (B : Ifam β) : Ifam (α × β) :=
 @[inherit_doc]
 scoped[Ifam] infixr:69 " ×ᴵ " => Ifam.prod
 
+/-- The index domain of `×ᴵ` -/
 @[simp] protected lemma Ifam.prod_dom (A : Ifam α) (B : Ifam β) :
     (A ×ᴵ B).dom = (A.dom × B.dom) := rfl
 
+/-- The elements of `×ᴵ` -/
 @[simp] protected lemma Ifam.prod_elem (A : Ifam α) (B : Ifam β) i j :
   (A ×ᴵ B).elem (i, j) = (A.elem i, B.elem j) := rfl
 
+/-- `×ᴵ` respects `≈` -/
 @[gcongr] protected lemma Ifam.prod_proper (A A' : Ifam α) (B B' : Ifam β) :
     A ≈ A' → B ≈ B' → A ×ᴵ B ≈ A' ×ᴵ B' := by
   intro ⟨f, AA'⟩ ⟨g, BB'⟩; exists Equiv.prodCongr f g; intro (_, _);
@@ -37,34 +40,42 @@ scoped[Mset] infixr:69 " ×ᴹ " => Mset.prod
 
 /-! ## `×` over `map` -/
 
+/-- Pull `<$>ᴹ` out of both operands of `×ᴹ` -/
 protected lemma Mset.prod_map'
     (f : α → α') (g : β → β') (A : Mset α) (B : Mset β) :
     (f <$>ᴹ A) ×ᴹ (g <$>ᴹ B) = Prod.map f g <$>ᴹ (A ×ᴹ B) := by
   cases A using Quotient.ind; cases B using Quotient.ind; rfl
 
+/-- Pull `<$>` out of both operands of `×ᴹ` -/
 protected lemma Mset.prod_map (f : α → α') (g : β → β') (A : Mset α) (B : Mset β) :
     (f <$> A) ×ᴹ (g <$> B) = Prod.map f g <$> (A ×ᴹ B) := by apply Mset.prod_map'
 
+/-- Pull `<$>ᴹ` out of the left operand of `×ᴹ` -/
 protected lemma Mset.prod_map'_l (f : α → α') (A : Mset α) (B : Mset β) :
     (f <$>ᴹ A) ×ᴹ B = Prod.map f id <$>ᴹ (A ×ᴹ B) := by
   rw [←Mset.prod_map', Mset.id_map]
 
+/-- Pull `<$>` out of the left operand of `×ᴹ` -/
 protected lemma Mset.prod_map_l (f : α → α') (A : Mset α) (B : Mset β) :
     (f <$> A) ×ᴹ B = Prod.map f id <$> (A ×ᴹ B) := by apply Mset.prod_map'_l
 
+/-- Pull `<$>ᴹ` out of the right operand of `×ᴹ` -/
 protected lemma Mset.prod_map'_r (g : β → β') (A : Mset α) (B : Mset β) :
     A ×ᴹ (g <$>ᴹ B) = Prod.map id g <$>ᴹ (A ×ᴹ B) := by
   rw [←Mset.prod_map', Mset.id_map]
 
+/-- Pull `<$>` out of the right operand of `×ᴹ` -/
 protected lemma Mset.prod_map_r (g : β → β') (A : Mset α) (B : Mset β) :
     A ×ᴹ (g <$> B) = Prod.map id g <$> (A ×ᴹ B) := by apply Mset.prod_map'_r
 
 /-! ## `×` is commutative -/
 
+/-- `×ᴵ` is commutative up to `Prod.swap` -/
 protected lemma Ifam.prod_comm (A : Ifam α) (B : Ifam β) :
     A ×ᴵ B ≈ Prod.swap <$>ᴵ (B ×ᴵ A) := by
   exists Equiv.prodComm _ _; tauto
 
+/-- `×ᴹ` is commutative up to `Prod.swap` -/
 protected lemma Mset.prod_comm (A : Mset α) (B : Mset β) :
     A ×ᴹ B = Prod.swap <$>ᴹ (B ×ᴹ A) := by
   cases A using Quotient.ind; cases B using Quotient.ind;
@@ -72,36 +83,43 @@ protected lemma Mset.prod_comm (A : Mset α) (B : Mset β) :
 
 /-! ## `*` is unital -/
 
+/-- `pure` is a right identity for `×ᴵ`, up to `<$>ᴵ` -/
 protected lemma Ifam.prod_id_r (A : Ifam α) (b : β) :
     A ×ᴵ pure b ≈ (·, b) <$>ᴵ A := by
   exists Equiv.prodPUnit _; intro _; rfl
 
+/-- `pure` is a right identity for `×ᴹ`, up to `<$>ᴹ` -/
 protected lemma Mset.prod_id_r (A : Mset α) (b : β) :
     A ×ᴹ pure b = (·, b) <$>ᴹ A := by
   cases A using Quotient.ind; apply Quotient.sound;
   apply Ifam.prod_id_r
 
+/-- `pure` is a left identity for `×ᴹ`, up to `<$>ᴹ` -/
 protected lemma Mset.prod_id_l (a : α) (B : Mset β) :
     pure a ×ᴹ B = (a, ·) <$>ᴹ B := by
   rw [Mset.prod_comm, Mset.prod_id_r, ←Mset.comp_map]; rfl
 
 /-! ## `*` is associative -/
 
+/-- `×ᴵ` is associative, up to `<$>ᴵ`: left-nested from right-nested -/
 protected lemma Ifam.prod_assoc_l (A : Ifam α) (B : Ifam β) (C : Ifam γ) :
     (A ×ᴵ B) ×ᴵ C ≈ (fun (a, (b, c)) => ((a, b), c)) <$>ᴵ (A ×ᴵ (B ×ᴵ C)) := by
   exists Equiv.prodAssoc _ _ _; intro _; rfl
 
+/-- `×ᴹ` is associative, up to `<$>ᴹ`: left-nested from right-nested -/
 protected lemma Mset.prod_assoc_l (A : Mset α) (B : Mset β) (C : Mset γ) :
     (A ×ᴹ B) ×ᴹ C = (fun (a, (b, c)) => ((a, b), c)) <$>ᴹ (A ×ᴹ (B ×ᴹ C)) := by
   cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
   apply Quotient.sound; apply Ifam.prod_assoc_l
 
+/-- `×ᴹ` is associative, up to `<$>ᴹ`: right-nested from left-nested -/
 protected lemma Mset.prod_assoc_r (A : Mset α) (B : Mset β) (C : Mset γ) :
     A ×ᴹ (B ×ᴹ C) = (fun ((a, b), c) => (a, b, c)) <$>ᴹ ((A ×ᴹ B) ×ᴹ C) := by
   rw [Mset.prod_assoc_l, ←Mset.comp_map]; rw (occs := [1]) [←Mset.id_map (_ ×ᴹ _)]; rfl
 
 /-! ## `*` distributes over `⊕` -/
 
+/-- `×ᴵ` distributes over `⨁ᴵ` from the left -/
 protected lemma Ifam.prod_bigoplus_l (A : Ifam α) (B : ι → Ifam β) :
     A ×ᴵ (⨁ᴵ i, B i) ≈ ⨁ᴵ i, A ×ᴵ B i := by
   exists { toFun := fun ⟨a, ⟨i, b⟩⟩ => ⟨i, (a, b)⟩,
@@ -109,39 +127,47 @@ protected lemma Ifam.prod_bigoplus_l (A : Ifam α) (B : ι → Ifam β) :
            left_inv := by tauto, right_inv := by tauto };
   intro _; rfl
 
+/-- `×ᴹ` distributes over `⨁ᴹ` from the left -/
 protected lemma Mset.prod_bigoplus_l (A : Mset α) (B : ι → Mset β) :
     A ×ᴹ (⨁ᴹ i, B i) = ⨁ᴹ i, A ×ᴹ B i := by
   cases A using Quotient.ind; apply Quotient.sound; grw [Ifam.prod_bigoplus_l];
   gcongr with i; simp only; cases B i using Quotient.ind;
   grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
+/-- `×ᴹ` distributes over `⨁ᴹ` from the right -/
 protected lemma Mset.prod_bigoplus_r (A : ι → Mset α) (B : Mset β) :
     (⨁ᴹ i, A i) ×ᴹ B = ⨁ᴹ i, A i ×ᴹ B := by
   rw [Mset.prod_comm, Mset.prod_bigoplus_l, Mset.bigoplus_map'];
   congr; ext1 _; rw [←Mset.prod_comm]
 
+/-- `×ᴹ` distributes over `⊕ᴹ` from the left -/
 protected lemma Mset.prod_oplus_l (A : Mset α) (B C : Mset β) :
     A ×ᴹ (B ⊕ᴹ C) = A ×ᴹ B ⊕ᴹ A ×ᴹ C := by
   simp only [Mset.oplus_as_bigoplus, Mset.prod_bigoplus_l]; grind only
 
+/-- `×ᴹ` distributes over `⊕ᴹ` from the right -/
 protected lemma Mset.prod_oplus_r (A B : Mset α) (C : Mset β) :
     (A ⊕ᴹ B) ×ᴹ C = A ×ᴹ C ⊕ᴹ B ×ᴹ C := by
   simp only [Mset.oplus_as_bigoplus, Mset.prod_bigoplus_r]; grind only
 
+/-- `∅` annihilates `×ᴹ` in the right operand -/
 protected lemma Mset.prod_empty_l (A : Mset α) : A ×ᴹ (∅ : Mset β) = ∅ := by
   simp only [Mset.empty_as_bigoplus, Mset.prod_bigoplus_l]; congr; ext1 _; trivial
 
+/-- `∅` annihilates `×ᴹ` in the left operand -/
 protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ := by
   simp only [Mset.empty_as_bigoplus, Mset.prod_bigoplus_r]; congr; ext1 _; trivial
 
 /-! ## Membership -/
 
+/-- Membership for `×ᴵ` -/
 @[simp] protected lemma Ifam.prod_mem (A : Ifam α) (B : Ifam β) p :
     p ∈ A ×ᴵ B ↔ p.1 ∈ A ∧ p.2 ∈ B := by
   cases p; constructor;
   · rintro ⟨⟨_, _⟩, eq⟩; have ⟨rfl, rfl⟩ := Prod.mk_inj.mp eq; tauto
   · rintro ⟨⟨_, rfl⟩, ⟨_, rfl⟩⟩; tauto
 
+/-- Membership for `×ᴹ` -/
 @[simp] protected lemma Mset.prod_mem (A : Mset α) (B : Mset β) p :
     p ∈ A ×ᴹ B ↔ p.1 ∈ A ∧ p.2 ∈ B := by
   cases A using Quotient.ind; cases B using Quotient.ind;
@@ -149,6 +175,7 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
 
 /-! ## Inhabitedness -/
 
+/-- Inhabitedness for `×ᴹ` -/
 @[simp] protected lemma Mset.inhab_prod (A : Mset α) (B : Mset β) :
     (A ×ᴹ B).inhab ↔ A.inhab ∧ B.inhab := by
   simp only [Mset.inhab, Mset.prod_mem]; constructor; { tauto };
@@ -156,6 +183,7 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
 
 /-! ## Pair membership -/
 
+/-- Pair membership for `×ᴵ` -/
 @[simp] protected lemma Ifam.prod_pairmem (A : Ifam α) (B : Ifam β) p q :
     (A ×ᴵ B).pairmem p q ↔
       (A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
@@ -174,6 +202,7 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
     { exists (i, j), (i', j'); aesop };
     { exists (i, j), (i, j'); aesop }; { exists (i, j), (i', j); aesop }
 
+/-- Pair membership for `×ᴹ` -/
 @[simp] protected lemma Mset.prod_pairmem (A : Mset α) (B : Mset β) p q :
     (A ×ᴹ B).pairmem p q ↔
       (A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨

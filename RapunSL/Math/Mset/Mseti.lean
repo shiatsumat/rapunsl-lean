@@ -20,6 +20,7 @@ protected def Mseti.map {α β : Type*} (f : α → β) (A : Mseti α) : Mseti �
 scoped[Mseti] infixr:100 " <$>ᴹⁱ " => Mseti.map
 open Mseti
 
+/-- The underlying multiset of `<$>ᴹⁱ` -/
 @[simp] lemma Mseti.map'_val (f : α → β) (A : Mseti α) :
     (f <$>ᴹⁱ A).val = f <$>ᴹ A.val := rfl
 
@@ -29,14 +30,18 @@ open Mseti
 protected instance Mseti.instFunctor : Functor Mseti where
   map := Mseti.map
 
+/-- Unfold `<$>` into `<$>ᴹⁱ` -/
 protected lemma Mseti.map_unfold : Functor.map = Mseti.map (α := α) (β := β) := rfl
 
+/-- The underlying multiset of `<$>` -/
 @[simp] lemma Mseti.map_val (f : α → β) (A : Mseti α) :
     (f <$> A).val = f <$> A.val := rfl
 
+/-- `<$>ᴹⁱ` preserves the identity -/
 protected lemma Mseti.id_map (A : Mseti α) : id <$>ᴹⁱ A = A := by
   cases A; simp only [Mseti.map, Mset.id_map]
 
+/-- `<$>ᴹⁱ` respects function composition -/
 protected lemma Mseti.comp_map (f : α → β) (g : β → γ) (A : Mseti α) :
     (g ∘ f) <$>ᴹⁱ A = g <$>ᴹⁱ (f <$>ᴹⁱ A) := by
   cases A; simp only [Mseti.map, Mset.comp_map]
@@ -53,6 +58,7 @@ protected instance Mseti.instLawfulFunctor : LawfulFunctor Mseti where
 protected instance Mseti.instPure : Pure Mseti where
   pure a := ⟨pure a, by simp only [Mset.inhab_pure]⟩
 
+/-- The underlying multiset of `pure` -/
 @[simp] protected lemma Mseti.pure_val (a : α) :
     (pure a : Mseti α).val = pure a := rfl
 
@@ -65,6 +71,7 @@ protected def Mseti.oplus (A B : Mseti α) : Mseti α :=
 @[inherit_doc]
 scoped[Mseti] infixr:60 " ⊕ᴹⁱ " => Mseti.oplus
 
+/-- The underlying multiset of `⊕ᴹⁱ` -/
 @[simp] protected lemma Mseti.oplus_val (A B : Mseti α) :
     (A ⊕ᴹⁱ B).val = A.val ⊕ᴹ B.val := rfl
 
@@ -76,9 +83,11 @@ protected noncomputable def Mseti.bigoplus {ι} [Inhabited ι] (A : ι → Mseti
 @[inherit_doc]
 scoped[Mseti] notation "⨁ᴹⁱ " i ", " A => Mseti.bigoplus (fun i => A)
 
+/-- The underlying multiset of `⨁ᴹⁱ` -/
 @[simp] protected lemma Mseti.bigoplus_val {ι} [Inhabited ι] (A : ι → Mseti α) :
     (⨁ᴹⁱ i, A i).val = ⨁ᴹ i, (A i).val := rfl
 
+/-- `⊕ᴹⁱ` as a `⨁ᴹⁱ` over `Bool` -/
 lemma Mseti.oplus_as_bigoplus (A B : Mseti α) :
     A ⊕ᴹⁱ B = ⨁ᴹⁱ (b : Bool), if b then A else B := by
   ext1; simp only [Mseti.oplus_val, Mseti.bigoplus_val, Mset.oplus_as_bigoplus];
@@ -93,6 +102,7 @@ protected def Mseti.prod (A : Mseti α) (B : Mseti β) : Mseti (α × β) :=
 @[inherit_doc]
 scoped[Mseti] infixr:69 " ×ᴹⁱ " => Mseti.prod
 
+/-- The underlying multiset of `×ᴹⁱ` -/
 lemma Mseti.prod_val (A : Mseti α) (B : Mseti β) :
     (A ×ᴹⁱ B).val = A.val ×ᴹ B.val := rfl
 
@@ -105,6 +115,7 @@ protected def Mseti.seq {α β : Type*} (F : Mseti (α → β)) (A : Mseti α) :
 @[inherit_doc]
 scoped[Mseti] infixl:60 " <*>ᴹⁱ " => Mseti.seq
 
+/-- The underlying multiset of `<*>ᴹⁱ` -/
 @[simp] protected lemma Mseti.seq'_val (F : Mseti (α → β)) (A : Mseti α) :
     (F <*>ᴹⁱ A).val = F.val <*>ᴹ A.val := rfl
 
@@ -112,6 +123,7 @@ scoped[Mseti] infixl:60 " <*>ᴹⁱ " => Mseti.seq
 protected instance Mseti.instApplicative : Applicative Mseti where
   seq F A := F <*>ᴹⁱ A ()
 
+/-- The underlying multiset of `<*>` -/
 @[simp] protected lemma Mseti.seq_val (F : Mseti (α → β)) (A : Mseti α) :
     (F <*> A).val = F.val <*> A.val := rfl
 
@@ -125,6 +137,7 @@ protected noncomputable def Mseti.bind {α β : Type*} (A : Mseti α) (K : α �
 @[inherit_doc]
 scoped[Mseti] infixl:55 " >>=ᴹⁱ " => Mseti.bind
 
+/-- The underlying multiset of `>>=ᴹⁱ` -/
 @[simp] protected lemma Mseti.bind'_val (A : Mseti α) (K : α → Mseti β) :
     (A >>=ᴹⁱ K).val = A.val >>=ᴹ (fun a => (K a).val) := rfl
 
@@ -132,6 +145,7 @@ scoped[Mseti] infixl:55 " >>=ᴹⁱ " => Mseti.bind
 protected noncomputable instance Mseti.instMonad : Monad Mseti where
   bind A K := A >>=ᴹⁱ K
 
+/-- The underlying multiset of `>>=` -/
 @[simp] protected lemma Mseti.bind_val (A : Mseti α) (K : α → Mseti β) :
     (A >>= K).val = A.val >>= (fun a => (K a).val) := rfl
 

@@ -19,6 +19,7 @@ variable {PROP} [BI PROP] (P Q R S : PROP)
 attribute [refl] entails_refl
 attribute [trans] entails_trans
 
+/-- `⊢` is a preorder -/
 instance entails_instPreorder : IsPreorder PROP Entails where
   refl := by intro _; rfl
 
@@ -28,6 +29,7 @@ attribute [refl] BIBase.BiEntails.rfl
 attribute [symm] BIBase.BiEntails.symm
 attribute [trans] BIBase.BiEntails.trans
 
+/-- `⊣⊢` is an equivalence relation -/
 instance bi_entails_instIsEquiv : IsEquiv PROP BiEntails where
   refl := by intro _; rfl
   symm := by intro _ _ _; symm; trivial
@@ -35,6 +37,7 @@ instance bi_entails_instIsEquiv : IsEquiv PROP BiEntails where
 
 /-! ## Reinterpretation of connectives -/
 
+/-- `∨` as an `∃` over `Bool` -/
 lemma or_as_exists : P ∨ Q ⊣⊢ ∃ b : Bool, if b then P else Q := by
   constructor;
   · iintro (_ | _);
@@ -43,6 +46,7 @@ lemma or_as_exists : P ∨ Q ⊣⊢ ∃ b : Bool, if b then P else Q := by
   · iintro ⟨%b, _⟩; cases b <;> simp only [Bool.false_eq_true, reduceIte];
     { iright; itrivial }; { ileft; itrivial }
 
+/-- `False` as an `∃` over `Empty` -/
 lemma false_as_exists :
     False ⊣⊢@{PROP} ∃ e : Empty, nomatch e := by
   constructor; { iintro %_; trivial }; { iintro ⟨%_, _⟩; trivial }
@@ -56,7 +60,9 @@ end Iris.BI
 
 /-! ## BI with extensionality -/
 
+/-- BI with extensionality: `⊣⊢` implies equality -/
 class Iris.BIE PROP extends Iris.BI PROP where
+  /-- `⊣⊢` implies equality -/
   bi_ext : ∀ P Q : PROP, (P ⊣⊢ Q) → P = Q
 
 attribute [ext] Iris.BIE.bi_ext
@@ -66,18 +72,23 @@ macro:25 P:term:29 " =ᴮᴵ " Q:term:29 : term => `(Eq iprop($P) iprop($Q))
 namespace Iris.BI
 variable {PROP} [BIE PROP] (P Q : PROP)
 
+/-- `∨` as an `∃` over `Bool`, as an equality -/
 lemma or_as_exists' : P ∨ Q =ᴮᴵ ∃ b : Bool, if b then P else Q := by
   ext1; apply or_as_exists
 
+/-- `False` as an `∃` over `Empty`, as an equality -/
 lemma false_as_exists' : (False : PROP) =ᴮᴵ ∃ e : Empty, nomatch e := by
   ext1; apply false_as_exists
 
+/-- `∗` is commutative, as an equality -/
 lemma sep_comm' : P ∗ Q =ᴮᴵ Q ∗ P := by
   ext1; apply sep_comm
 
+/-- `∧` is commutative, as an equality -/
 lemma and_comm' : P ∧ Q =ᴮᴵ Q ∧ P := by
   ext1; apply and_comm
 
+/-- `∧` is associative, as an equality -/
 lemma and_assoc' : (P ∧ Q) ∧ R =ᴮᴵ P ∧ (Q ∧ R) := by
   ext1; apply and_assoc
 

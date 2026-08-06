@@ -58,17 +58,20 @@ end PCMI
 
 /-! ### Exclusive PCMI -/
 
+/-- Exclusive PCMI -/
 protected instance Excl.instPCMI : PCMI (Excl α) where
   incomp | .excl a, .excl b => a ≠ b | _, _ => False
   incomp_Irrefl := by constructor; intro a; cases a <;> grind only
   incomp_Symm := by constructor; intro a b; cases a <;> cases b <;> tauto
   incomp_mul_l := by intro a b c; cases a <;> cases b <;> cases c <;> tauto
 
+/-- Unfold `#` for `Excl` -/
 protected lemma Excl.incomp_unfold :
     PCMI.incomp (α := Excl α) = fun | .excl a, .excl b => a ≠ b | _, _ => False := rfl
 
 /-! ### Product PCMI -/
 
+/-- Product PCMI -/
 protected instance Prod.instPCMI [PCMI α] [PCMI β] :
     PCMI (α × β) where
   incomp p q := p.1 # q.1 ∨ p.2 # q.2
@@ -80,11 +83,13 @@ protected instance Prod.instPCMI [PCMI α] [PCMI β] :
     rintro _ _ _ ⟨_, _⟩ (_ | _); (on_goal 1 => left); (on_goal 2 => right);
       any_goals apply PCMI.incomp_mul_l <;> tauto
 
+/-- Unfold `#` for products -/
 protected lemma Prod.incomp_unfold [PCMI α] [PCMI β] :
     PCMI.incomp (α := α × β) = fun p q => p.1 # q.1 ∨ p.2 # q.2 := rfl
 
 /-! ### Pi PCMI -/
 
+/-- Pi PCMI -/
 protected instance Pi.instPCMI {ι : Type*} {α : ι → Type*} [∀ i, PCMI (α i)] :
     PCMI (∀ i, α i) where
   incomp f g := ∃ i, f i # g i
@@ -98,10 +103,13 @@ protected instance Pi.instPCMI {ι : Type*} {α : ι → Type*} [∀ i, PCMI (α
 /-- Cancellative PCMI -/
 class PCMICan (α : Type u) extends PCMI α, PCMCan α
 
+/-- Exclusive cancellative PCMI -/
 protected instance Excl.instPCMICan : PCMICan (Excl α) where
 
+/-- Product cancellative PCMI -/
 protected instance Prod.instPCMICan [PCMICan α] [PCMICan β] : PCMICan (α × β) where
 
+/-- Pi cancellative PCMI -/
 protected instance Pi.instPCMICan {ι : Type*} {α : ι → Type*} [∀ i, PCMICan (α i)] :
     PCMICan (∀ i, α i) where
 

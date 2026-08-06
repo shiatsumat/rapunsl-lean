@@ -26,7 +26,8 @@ scoped[Ifam] notation "∏ᴵ " a " ∈ᴵ " A ", " b:67 => Ifam.tprod (fun a =>
 @[inherit_doc Ifam.tsum]
 scoped[Ifam] notation "∑ᴵ " a " ∈ᴵ " A ", " b:67 => Ifam.tsum (fun a => b) A
 
-@[to_additive]
+/-- `∏ᴵ` respects `≈` -/
+@[to_additive /-- `∑ᴵ` respects `≈` -/]
 protected lemma Ifam.tprod_proper {α} (k : α → κ) A B :
     A ≈ B → ∏ᴵ a ∈ᴵ A, k a = ∏ᴵ b ∈ᴵ B, k b := by
   have ⟨ι, A⟩ := A; have ⟨ι', B⟩ := B; rintro ⟨ιι', AB⟩; simp only at *;
@@ -45,32 +46,39 @@ scoped[Mset] notation "∑ᴹ " a " ∈ᴹ " A ", " b:67 => Mset.tsum (fun a => 
 
 /-! ## Properties -/
 
-@[to_additive]
+/-- `∏ᴹ` respects functions that agree on all members -/
+@[to_additive /-- `∑ᴹ` respects functions that agree on all members -/]
 protected lemma Mset.tprod_proper (k k' : α → κ) A :
     (∀ a ∈ A, k a = k' a) → ∏ᴹ a ∈ᴹ A, k a = ∏ᴹ a ∈ᴹ A, k' a := by
   intro eq; cases A using Quotient.ind; simp only [Mset.tprod, Quotient.lift_mk, Ifam.tprod];
   congr; ext1 i; apply eq; exists i
 
-@[to_additive (attr := gcongr)]
+/-- `∏ᴹ` respects functions that agree on all members, `gcongr` form -/
+@[to_additive (attr := gcongr) /-- `∑ᴹ` respects functions that agree on all members,
+  `gcongr` form -/]
 protected lemma Mset.tprod_proper' (k k' : α → κ) A B :
     A = B → (∀ a ∈ A, k a = k' a) → ∏ᴹ a ∈ᴹ A, k a = ∏ᴹ a ∈ᴹ B, k' a := by
   intro rfl; apply Mset.tprod_proper
 
-@[to_additive]
+/-- `∏ᴹ` over `<$>ᴹ` -/
+@[to_additive /-- `∑ᴹ` over `<$>ᴹ` -/]
 protected lemma Mset.tprod_map' (f : α → β) (k : β → κ) A :
     Mset.tprod k (f <$>ᴹ A) = ∏ᴹ a ∈ᴹ A, k (f a) := by
   cases A using Quotient.ind; rfl
 
-@[to_additive]
+/-- `∏ᴹ` over `<$>` -/
+@[to_additive /-- `∑ᴹ` over `<$>` -/]
 protected lemma Mset.tprod_map (f : α → β) (k : β → κ) A :
     Mset.tprod k (f <$> A) = ∏ᴹ a ∈ᴹ A, k (f a) := by
   cases A using Quotient.ind; rfl
 
-@[to_additive]
+/-- `∏ᴹ` over `∅` -/
+@[to_additive /-- `∑ᴹ` over `∅` -/]
 protected lemma Mset.tprod_empty (k : α → κ) :
     Mset.tprod k ∅ = 1 := by apply tprod_empty
 
-@[to_additive]
+/-- `∏ᴹ` over `pure` -/
+@[to_additive /-- `∑ᴹ` over `pure` -/]
 protected lemma Mset.tprod_pure (k : α → κ) a :
     Mset.tprod k (pure a) = k a := by
   apply tprod_eq_mulSingle; { intro (); tauto }
@@ -78,14 +86,16 @@ protected lemma Mset.tprod_pure (k : α → κ) a :
 section ContinuousMul
 variable [ContinuousMul κ]
 
-@[to_additive]
+/-- `∏ᴹ` distributes over `⊕ᴹ` -/
+@[to_additive /-- `∑ᴹ` distributes over `⊕ᴹ` -/]
 protected lemma Mset.tprod_oplus [T2Space κ] (k : α → κ) A B :
     (∀ ι : Type, ∀ k : ι → κ, Multipliable k) →
     Mset.tprod k (A ⊕ᴹ B) = Mset.tprod k A * Mset.tprod k B := by
   intro mul; cases A using Quotient.ind; cases B using Quotient.ind;
   apply Multipliable.tprod_sum <;> apply mul
 
-@[to_additive]
+/-- `∏ᴹ` distributes over `⨁ᴹ` -/
+@[to_additive /-- `∑ᴹ` distributes over `⨁ᴹ` -/]
 protected lemma Mset.tprod_bigoplus [T3Space κ] (k : α → κ) (A : ι → Mset α) :
     (∀ ι : Type, ∀ k : ι → κ, Multipliable k) →
     Mset.tprod k (Mset.bigoplus A) = ∏' i, Mset.tprod k (A i) := by
@@ -94,7 +104,8 @@ protected lemma Mset.tprod_bigoplus [T3Space κ] (k : α → κ) (A : ι → Mse
   simp only [Ifam.bigoplus_elem]; congr; ext1 i; cases A i using Quotient.ind;
   apply Ifam.tprod_proper; apply Quotient.mk_out
 
-@[to_additive tsum_prod]
+/-- `∏ᴹ` over `×ᴹ` as an iterated product -/
+@[to_additive tsum_prod /-- `∑ᴹ` over `×ᴹ` as an iterated sum -/]
 protected lemma Mset.tprod_prod [T3Space κ] (k : α × β → κ) A B :
     (∀ ι : Type, ∀ k : ι → κ, Multipliable k) →
     Mset.tprod k (A ×ᴹ B) = ∏ᴹ a ∈ᴹ A, ∏ᴹ b ∈ᴹ B, k (a, b) := by
@@ -109,16 +120,19 @@ section TopologicalSemiring
 variable {κ} [NonUnitalNonAssocSemiring κ] [TopologicalSpace κ]
   [IsTopologicalSemiring κ]
 
+/-- Pull a constant left factor out of `∑ᴹ` -/
 protected lemma Mset.tsum_mul_left [T2Space κ] (k : α → κ) A l :
     (∀ ι : Type, ∀ k : ι → κ, Summable k) →
     ∑ᴹ a ∈ᴹ A, l * k a = l * Mset.tsum k A := by
   intro sum; cases A using Quotient.ind; apply Summable.tsum_mul_left; apply sum
 
+/-- Pull a constant right factor out of `∑ᴹ` -/
 protected lemma Mset.tsum_mul_right [T2Space κ] (k : α → κ) A l :
     (∀ ι : Type, ∀ k : ι → κ, Summable k) →
     ∑ᴹ a ∈ᴹ A, k a * l = Mset.tsum k A * l := by
   intro sum; cases A using Quotient.ind; apply Summable.tsum_mul_right; apply sum
 
+/-- The product of two `∑ᴹ`s as a `∑ᴹ` over `×ᴹ` -/
 protected lemma Mset.tsum_mul_tsum [T3Space κ] (k : α → κ) (l : β → κ) A B :
     (∀ ι : Type, ∀ k : ι → κ, Summable k) →
     Mset.tsum k A * Mset.tsum l B = ∑ᴹ (a, b) ∈ᴹ A ×ᴹ B, k a * l b := by
@@ -129,26 +143,32 @@ end TopologicalSemiring
 
 section ENNReal
 
+/-- `∑ᴹ` distributes over `⨁ᴹ`, for `ℝ≥0∞` -/
 protected lemma ENNReal.Mset.tsum_bigoplus (k : α → ℝ≥0∞) (A : ι → Mset α) :
     Mset.tsum k (Mset.bigoplus A) = ∑' i, Mset.tsum k (A i) := by
   apply _root_.Mset.tsum_bigoplus; intros; apply ENNReal.summable
 
+/-- `∑ᴹ` distributes over `⊕ᴹ`, for `ℝ≥0∞` -/
 protected lemma ENNReal.Mset.tsum_oplus (k : α → ℝ≥0∞) A B :
     Mset.tsum k (A ⊕ᴹ B) = Mset.tsum k A + Mset.tsum k B := by
   apply _root_.Mset.tsum_oplus; intros; apply ENNReal.summable
 
+/-- `∑ᴹ` over `×ᴹ` as an iterated sum, for `ℝ≥0∞` -/
 protected lemma ENNReal.Mset.tsum_prod (k : α × β → ℝ≥0∞) A B :
     Mset.tsum k (A ×ᴹ B) = ∑ᴹ a ∈ᴹ A, ∑ᴹ b ∈ᴹ B, k (a, b) := by
   apply _root_.Mset.tsum_prod; intros; apply ENNReal.summable
 
+/-- Pull a constant left factor out of `∑ᴹ`, for `ℝ≥0∞` -/
 protected lemma ENNReal.Mset.tsum_mul_left (k : α → ℝ≥0∞) A l :
     ∑ᴹ a ∈ᴹ A, l * k a = l * Mset.tsum k A := by
   cases A using Quotient.ind; apply ENNReal.tsum_mul_left
 
+/-- Pull a constant right factor out of `∑ᴹ`, for `ℝ≥0∞` -/
 protected lemma ENNReal.Mset.tsum_mul_right (k : α → ℝ≥0∞) A l :
     ∑ᴹ a ∈ᴹ A, k a * l = Mset.tsum k A * l := by
   cases A using Quotient.ind; apply ENNReal.tsum_mul_right
 
+/-- The product of two `∑ᴹ`s as a `∑ᴹ` over `×ᴹ`, for `ℝ≥0∞` -/
 protected lemma ENNReal.Mset.tsum_mul_tsum (k : α → ℝ≥0∞) (l : β → ℝ≥0∞) A B :
     Mset.tsum k A * Mset.tsum l B = ∑ᴹ (a, b) ∈ᴹ A ×ᴹ B, k a * l b := by
   rw [ENNReal.Mset.tsum_prod, ←ENNReal.Mset.tsum_mul_right];
