@@ -423,6 +423,27 @@ protected noncomputable def Mset.Bij.map (f : α → α') (g : β → β')
     (a', b') ∈ (Mset.Bij.map f g r).graph ↔ ∃ a b, (a, b) ∈ r.graph ∧ a' = f a ∧ b' = g b := by
   rw [Mset.Bij.map_graph, Mset.map'_mem]; grind only
 
+/-- `<$>ᴹ` respects functions that agree on all members -/
+protected lemma Mset.map_congr {A : Mset α} {f g : α → β} :
+    (∀ a ∈ A, f a = g a) → f <$>ᴹ A = g <$>ᴹ A := by
+  intro h; apply Mset.Bij.graph_eq_map (Mset.Bij.map_r f A) g;
+  intro _ _ mem; rw [Mset.Bij.map_r_graph_mem] at mem;
+  rcases mem with ⟨rfl, _⟩; apply h; trivial
+
+/-- Unpack the graph of a bijection out of a mapped multiset into a multiset of pairs -/
+protected lemma Mset.Bij.graph_unmap_l {T : Mset α} {C : Mset β} (f : α → γ)
+    (r : f <$>ᴹ T ≃ᴹ C) :
+    ∃ S : Mset (α × β), Prod.fst <$>ᴹ S = T ∧ Prod.snd <$>ᴹ S = C ∧
+      (fun (a, c) ↦ (f a, c)) <$>ᴹ S = r.graph := by
+  refine ⟨((Mset.Bij.map_r f T).trans r).graph,
+    Mset.Bij.graph_fst _, Mset.Bij.graph_snd _, ?_⟩;
+  have e : r = (Mset.Bij.map_r f T).symm.trans ((Mset.Bij.map_r f T).trans r) := by
+    ext1 i; simp only [Equiv.trans_apply, Equiv.apply_symm_apply]
+  conv_rhs => rw [e]
+  symm; apply Mset.Bij.trans_graph_map_l;
+  intro _ _ mem; rw [Mset.Bij.symm_graph_mem, Mset.Bij.map_r_graph_mem] at mem;
+  exact mem.1
+
 /-! ### For `∅` -/
 
 /-- Bijection for `∅` -/
