@@ -199,7 +199,7 @@ protected instance Prod.instPCMC [PCMC α] [PCMICan β] : PCMC (α × β) where
 
 /-- RR, i.e., resource ring -/
 class RR (α : Type u) extends PCMC α, PCMP α where
-  /-- Addition relation `· +ᴿ · =ᴿ ·` -/
+  /-- Partial addition over `RR`, formulated as a ternary relation -/
   protected radd : α → α → α → Prop
   /-- `+ᴿ` is unique -/
   protected radd_unique : ∀ a b c c', radd a b c → radd a b c' → c = c'
@@ -225,6 +225,7 @@ open RR
 namespace RR
 variable [RR α] (a b c ab bc abc : α)
 
+@[inherit_doc RR.radd]
 scoped macro:50 a:term:50 " +ᴿ " b:term " =ᴿ " c:term:50 : term => `(RR.radd $a $b $c)
 
 scoped delab_rules RR.radd
