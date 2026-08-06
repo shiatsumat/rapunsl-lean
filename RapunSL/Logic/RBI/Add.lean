@@ -82,12 +82,9 @@ lemma radd_valid_r : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ b �
 private lemma add_pointwise {a b c : ρ} :
     a ≎ b → a + b ≎ c → b ≎ c ∧ a ≎ b + c ∧ (a + b) + c = a + (b + c) := by
   intro h₁ h₂;
-  rcases RR.radd_assoc_l _ _ _ _ _ (RR.add_radd _ _ h₁) (RR.add_radd _ _ h₂)
-    with ⟨bc, e₃, e₄⟩;
-  have hbc := RR.radd_coher _ _ _ e₃;
-  rcases RR.radd_add _ _ _ hbc e₃ with rfl;
-  have habc := RR.radd_coher _ _ _ e₄;
-  exact ⟨hbc, habc, (RR.radd_add _ _ _ habc e₄).symm⟩
+  have hbc := PCMC.coher_trans _ _ _ (RR.radd_coher_r _ _ _ (RR.add_radd _ _ h₁)) h₂;
+  exact ⟨hbc, PCMC.coher_trans _ _ _ h₁ (RR.radd_coher_l _ _ _ (RR.add_radd _ _ hbc)),
+    RR.add_assoc _ _ _ h₁ hbc⟩
 
 /-- `+ᴿᴹ` is associative -/
 lemma radd_assoc_l :
