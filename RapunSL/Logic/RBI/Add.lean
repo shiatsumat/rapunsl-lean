@@ -17,7 +17,7 @@ variable {ρ : Type u} [RR ρ] (P P' Q Q' R : RProp ρ)
 def Mset.radd (A B C : Mset ρ) : Prop :=
   ∃ AB : A ≃ᴹ B,
     (∀ a b, (a, b) ∈ AB.graph → a ≎ b) ∧
-    C = (fun (a, b) ↦ a + b) <$> AB.graph
+    C = (fun (a, b) ↦ a + b) <$>ᴹ AB.graph
 
 scoped macro:50 A:term:50 " +ᴿᴹ " B:term " =ᴿᴹ " C:term:50 : term => `(RBI.Mset.radd $A $B $C)
 
@@ -41,7 +41,7 @@ lemma add_unfold :
 lemma radd_comm' : A +ᴿᴹ B =ᴿᴹ C → B +ᴿᴹ A =ᴿᴹ C := by
   rintro ⟨AB, coh, rfl⟩; exists AB.symm; and_intros;
   · intro _ _; rw [Bij.symm_graph_mem]; intro _; symm; apply coh; trivial
-  · simp only [Bij.symm_graph, Mset.map_unfold, ←Mset.comp_map];
+  · simp only [Bij.symm_graph, ←Mset.comp_map];
     congr; ext1 ⟨a, b⟩; rw [add_comm a b]; rfl
 
 /-- `+` is commutative -/
@@ -63,11 +63,11 @@ lemma pairs_radd (T : Mset (ρ × ρ)) :
       Prod.fst (by intro _ _ mem; rw [Mset.Bij.map_l_graph_mem] at mem; exact mem.1)];
     rw [Mset.Bij.map_r_graph, ←Mset.comp_map]; exact Mset.id_map T
   exists (Mset.Bij.map_l Prod.fst T).trans (Mset.Bij.map_r Prod.snd T); and_intros;
-  { rw [hg]; exact coh }; { rw [Mset.map_unfold, hg] }
+  { rw [hg]; exact coh }; { rw [hg] }
 
 /-- `+ᴿᴹ` preserves inhabitedness -/
 lemma radd_inhab : A +ᴿᴹ B =ᴿᴹ C → A.inhab → C.inhab := by
-  rintro ⟨r, _, rfl⟩ inh; rw [Mset.inhab_map];
+  rintro ⟨r, _, rfl⟩ inh; rw [Mset.inhab_map'];
   rw [←Mset.Bij.graph_fst r, Mset.inhab_map'] at inh; exact inh
 
 /-- `+ᴿᴹ` transfers validity of the sum to the right-hand summand -/
@@ -76,7 +76,7 @@ lemma radd_valid_r : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ b �
   rw [←Mset.Bij.graph_snd r, Mset.map'_mem] at elB;
   rcases elB with ⟨⟨a, b'⟩, mem, rfl⟩;
   refine (PCMC.coher_valid _ _ (RR.radd_coher_r _ _ _ (RR.add_radd _ _ (coh _ _ mem)))).mpr ?_;
-  apply val; rw [Mset.map_mem]; exact ⟨_, mem, rfl⟩
+  apply val; rw [Mset.map'_mem]; exact ⟨_, mem, rfl⟩
 
 /-- Pointwise consequences of `a ≎ b` and `a + b ≎ c` for associativity -/
 private lemma add_pointwise {a b c : ρ} :
@@ -92,7 +92,7 @@ private lemma add_pointwise {a b c : ρ} :
 /-- `+ᴿᴹ` is associative -/
 lemma radd_assoc_l :
     A +ᴿᴹ B =ᴿᴹ AB → AB +ᴿᴹ C =ᴿᴹ ABC → ∃ BC, B +ᴿᴹ C =ᴿᴹ BC ∧ A +ᴿᴹ BC =ᴿᴹ ABC := by
-  rintro ⟨r₁, coh₁, rfl⟩ ⟨r₂, coh₂, rfl⟩; simp only [Mset.map_unfold];
+  rintro ⟨r₁, coh₁, rfl⟩ ⟨r₂, coh₂, rfl⟩;
   rcases Mset.Bij.graph_unmap_l (fun ((a, b) : ρ × ρ) ↦ a + b) r₂ with ⟨S, hfst, hsnd, hgr⟩;
   have mem_S : ∀ a b c, ((a, b), c) ∈ S → a ≎ b ∧ a + b ≎ c := by
     intro a b c mem; and_intros;
