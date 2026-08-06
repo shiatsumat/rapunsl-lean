@@ -70,6 +70,8 @@ The library root is `RapunSL.lean` → `RapunSL.Math` + `RapunSL.Logic`. The lay
    `CommMonoid'` → `PCM` (partial commutative monoid with validity `✓`) → `PCMI` (adds incompatibility `#`) → `PCMC` (coherence) and `PCMP` (probability/weights via `ENNReal`) → `RR` (resource ring, combining `PCMC` and `PCMP`).
    `Algebra/Mseti.lean` lifts algebra structure to inhabited multisets and defines `Msetiv α = { A : Mseti α // ✓ A }` (valid inhabited multisets), the carrier of the model.
 
+   **Caution — for `RR`, work with `+`, not `radd`.** The relation `radd` (`+ᴿ`) is only the primitive underlying the total addition `+`. Downstream proofs should stay in the `+` world and use its lemmas (`RR.add_assoc`, `RR.add_coher_l`/`r`, `RR.add_valid_l`/`r`, …). When a fact about `+` is missing, add it as a lemma in `Algebra/RR.lean` (where proving it via `radd` is fine) rather than reaching for `radd` at the use site.
+
 3. **`RapunSL/Logic/`** — the logic itself:
    - `BI.lean`: utilities over iris-lean's `BI` type class (preorder/equivalence instances for `⊢`/`⊣⊢`, connective reinterpretations).
    - `RBI/Core.lean`: RapunSL's model — `RProp ρ [RR ρ] = DiscreteO (Set (Msetiv ρ))` with its `BIBase`/`BI` instances (entailment is set inclusion, separating conjunction via the PCM).
