@@ -241,7 +241,7 @@ lemma satis_mono [Satis P] : (P ⊢ Q) → Satis Q := by
   intro PQ; constructor; rcases satis P with ⟨A, _⟩; exists A; apply PQ; trivial
 
 /-- Satisfiability of `own` -/
-lemma own_instSatis : ✓ r → Satis (own r) := by
+lemma own_satis : ✓ r → Satis (own r) := by
   intro val; constructor; exists ⟨pure r, by rw [Mseti.valid_pure]; trivial⟩
 
 /-- Satisfiability of `emp` -/
@@ -249,12 +249,12 @@ instance emp_instSatis : Satis (ρ := ρ) emp := by
   constructor; exists ⟨1, PCM.valid_one⟩
 
 /-- Satisfiability of `pure` -/
-lemma pure_instSatis (φ : Prop) : φ → Satis (ρ := ρ) (pure φ) := by
+lemma pure_satis (φ : Prop) : φ → Satis (ρ := ρ) (pure φ) := by
   intro h; constructor; exists ⟨1, PCM.valid_one⟩
 
 /-- Satisfiability of `True` -/
 instance true_instSatis : Satis (ρ := ρ) iprop(True) := by
-  apply pure_instSatis; trivial
+  apply pure_satis; trivial
 
 /-! ## Incompatibility -/
 
