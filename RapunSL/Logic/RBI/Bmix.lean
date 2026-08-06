@@ -211,7 +211,7 @@ lemma bigbmix_exists [Inhabited ι] {α : ι → Sort*} (P : ∀ i, α i → RPr
   simp only [exists_simple]; rintro ⟨_, _⟩ ⟨F, el, rfl⟩;
   have ⟨f, el⟩ := Classical.skolem.mp el; exists f; exists F
 
-/-! ## Rules for interaction of `⊕` and `⨁` with `∗` -/
+/-! ## Interaction of `⊕` and `⨁` with `∗` -/
 
 /-- Frame a proposition from the left into `⨁` -/
 lemma bigbmix_frame_l [Inhabited ι] (Q : ι → RProp ρ) :
