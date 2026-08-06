@@ -52,6 +52,7 @@ scoped delab_rules RBI.pine
 
 /-! ### Reinterpretation -/
 
+/-- `⊕` as a `⨁` over `Bool` -/
 lemma bmix_as_bigbmix : P ⊕ Q =ᴮᴵ ⨁ (b : Bool), if b then P else Q := by
   apply set_ext; intro ⟨_, _⟩; constructor;
   · rintro ⟨A, B, _, _, rfl⟩; exists fun b => if b then A else B;
@@ -60,6 +61,7 @@ lemma bmix_as_bigbmix : P ⊕ Q =ᴮᴵ ⨁ (b : Bool), if b then P else Q := by
   · rintro ⟨A, el, rfl⟩; exists A true, A false, el true, el false;
     rw [Mseti.oplus_as_bigoplus]; grind only
 
+/-- `⨁` over `Unit` is trivial -/
 lemma unary_bigbmix : (⨁ (_ : Unit), P) =ᴮᴵ P := by
   apply set_ext; intro ⟨A, val⟩; constructor;
   · rintro ⟨A, el, rfl⟩;
@@ -70,40 +72,48 @@ lemma unary_bigbmix : (⨁ (_ : Unit), P) =ᴮᴵ P := by
 
 /-! ### Monotonicity -/
 
+/-- `⨁` is monotone -/
 @[gcongr] lemma bigbmix_mono [Inhabited ι] (P Q : ι → RProp ρ) :
     (∀ i, P i ⊢ Q i) → (⨁ i, P i) ⊢ ⨁ i, Q i := by
   intro _ _ ⟨A, _, _⟩; exists A; tauto
 
+/-- `⊕` is monotone -/
 @[gcongr] lemma bmix_mono : (P ⊢ P') → (Q ⊢ Q') → P ⊕ Q ⊢ P' ⊕ Q' := by
   intro _ _; grw [bmix_as_bigbmix, bmix_as_bigbmix]; gcongr; grind only
 
 /-! ### Commutativity -/
 
+/-- `⨁` is invariant under reindexing along an equivalence, one direction -/
 private lemma bigbmix_comm_fwd [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ i, P i) ⊢ ⨁ j, P (f j) := by
   intro _ ⟨A, _, eq⟩; exists A ∘ f; rw [eq]; and_intros; { tauto };
   ext1; simp only [Mseti.bigoplus_val]; rw [Mset.bigoplus_comm f]; rfl
 
+/-- `⨁` is invariant under reindexing along an equivalence, the other direction -/
 private lemma bigbmix_comm_bwd [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ j, P (f j)) ⊢ ⨁ i, P i := by
   grw [bigbmix_comm_fwd f.symm]; gcongr; rw [Equiv.apply_symm_apply]
 
+/-- `⨁` is invariant under reindexing along an equivalence -/
 lemma bigbmix_comm [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
     (⨁ i, P i) =ᴮᴵ ⨁ j, P (f j) := by
   ext1; constructor; { apply bigbmix_comm_fwd }; { apply bigbmix_comm_bwd }
 
+/-- `⨁` is invariant under reindexing, with the equivalence given by explicit inverses -/
 lemma bigbmix_comm' [Inhabited ι] [Inhabited ι']
     (P : ι → RProp ρ) (Q : ι' → RProp ρ) (f : ι → ι') (g : ι' → ι) :
     (∀ i, P i = Q (f i)) → g.LeftInverse f → g.RightInverse f →
     (⨁ i, P i) =ᴮᴵ ⨁ j, Q j := by
   intro _ li ri; rw [bigbmix_comm ⟨f, g, li, ri⟩]; congr; ext1 _; tauto
 
+/-- `⊕` is commutative -/
 lemma bmix_comm : P ⊕ Q =ᴮᴵ Q ⊕ P := by
   simp only [bmix_as_bigbmix]; rw [bigbmix_comm Equiv.boolNot]; congr;
   simp only [Equiv.boolNot_apply]; grind only
 
 /-! ### Associativity -/
 
+/-- `⨁` is associative: a nested `⨁` is a `⨁` over the `Sigma` type -/
 lemma bigbmix_assoc {ι' : ι → Type} [Inhabited ι] [∀ i, Inhabited (ι' i)]
     (P : ∀ i, ι' i → RProp ρ) :
     (⨁ i, ⨁ j, P i j) =ᴮᴵ ⨁ (⟨i, j⟩ : Sigma ι'), P i j := by
@@ -121,6 +131,7 @@ lemma bigbmix_assoc {ι' : ι → Type} [Inhabited ι] [∀ i, Inhabited (ι' i)
     and_intros; swap; { symm; ext; apply Mset.bigoplus_assoc };
     intro i; exists fun j => A ⟨i, j⟩; simp only [and_true]; intro _; apply el ⟨_, _⟩
 
+/-- `⊕` is associative -/
 lemma bmix_assoc : (P ⊕ Q) ⊕ R =ᴮᴵ P ⊕ (Q ⊕ R) := by
   have _ : ∀ b, Inhabited (match b with | true => Bool | false => Unit) := by
     rintro (_ | _) <;> apply inferInstance
@@ -138,48 +149,61 @@ lemma bmix_assoc : (P ⊕ Q) ⊕ R =ᴮᴵ P ⊕ (Q ⊕ R) := by
 
 /-! ### `-⊕` -/
 
+/-- Introduce `-⊕`, absorbing the left operand of `⊕` -/
 lemma pine_intro_l : (P ⊕ Q ⊢ R) → Q ⊢ P -⊕ R := by
   intro toR A _ B _ _; apply toR; exists B, A, by trivial
 
+/-- Introduce `-⊕`, absorbing the right operand of `⊕` -/
 lemma pine_intro_r : (P ⊕ Q ⊢ R) → P ⊢ Q -⊕ R := by
   rw [bmix_comm]; apply pine_intro_l
 
+/-- Eliminate `-⊕`, with the argument supplied on the left -/
 lemma pine_elim_l : P ⊕ (P -⊕ Q) ⊢ Q := by
   rintro ⟨_, _⟩ ⟨_, _, _, _, rfl⟩; tauto
 
+/-- Eliminate `-⊕`, with the argument supplied on the right -/
 lemma pine_elim_r : (P -⊕ Q) ⊕ P ⊢ Q := by
   rw [bmix_comm]; apply pine_elim_l
 
+/-- `-⊕` is the right adjoint of `⊕` -/
 lemma pine_adj : (P ⊕ Q ⊢ R) ↔ (Q ⊢ P -⊕ R) := by
   constructor; { apply pine_intro_l };
   intro Qto; grw [Qto]; apply pine_elim_l
 
+/-- `-⊕` is antitone on the left and monotone on the right -/
 @[gcongr] lemma pine_mono : (P' ⊢ P) → (Q ⊢ Q') → (P -⊕ Q) ⊢ P' -⊕ Q' := by
   intro P'P QQ'; rw [←pine_adj]; grw [P'P, ←QQ']; rw [pine_adj]
 
 /-! ### Interaction of `⊕` and `⨁` with disjunction -/
 
+/-- `⊕` commutes with `∃` in the right operand -/
 lemma bmix_exists_l (Q : α → RProp ρ) :
     P ⊕ (∃ a, Q a) =ᴮᴵ ∃ a, P ⊕ Q a := by
   ext1; constructor; swap; { apply exists_elim; intro a; grw [exists_intro (Ψ := Q) a] };
   rw [pine_adj]; apply exists_elim; intro a; rw [←pine_adj]; apply exists_intro a
 
+/-- `⊕` commutes with `∃` in the left operand -/
 lemma bmix_exists_r (P : α → RProp ρ) Q :
     (∃ a, P a) ⊕ Q =ᴮᴵ ∃ a, P a ⊕ Q := by
   rw [bmix_comm, bmix_exists_l]; congr; ext1 _; rw [bmix_comm]
 
+/-- `⊕` distributes over `∨` in the right operand -/
 lemma bmix_or_l : P ⊕ (Q ∨ R) =ᴮᴵ (P ⊕ Q) ∨ (P ⊕ R) := by
   simp only [or_as_exists', bmix_exists_l]; congr; ext1 b; cases b <;> rfl
 
+/-- `⊕` distributes over `∨` in the left operand -/
 lemma bmix_or_r : (P ∨ Q) ⊕ R =ᴮᴵ (P ⊕ R) ∨ (Q ⊕ R) := by
   rw [bmix_comm, bmix_or_l, bmix_comm, bmix_comm R]
 
+/-- `False` annihilates `⊕` in the right operand -/
 lemma bmix_false_l : P ⊕ False =ᴮᴵ False := by
   simp only [false_as_exists', bmix_exists_l]; congr; ext1 _; trivial
 
+/-- `False` annihilates `⊕` in the left operand -/
 lemma bmix_false_r : False ⊕ P =ᴮᴵ False := by
   rw [bmix_comm, bmix_false_l]
 
+/-- `⨁` commutes with `∃`, by choice -/
 lemma bigbmix_exists [Inhabited ι] {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
     (⨁ i, ∃ a, P i a) =ᴮᴵ ∃ f : (∀ i, α i), ⨁ i, P i (f i) := by
   ext1; constructor; swap;
@@ -189,6 +213,7 @@ lemma bigbmix_exists [Inhabited ι] {α : ι → Sort*} (P : ∀ i, α i → RPr
 
 /-! ## Rules for interaction of `⊕` and `⨁` with `∗` -/
 
+/-- Frame a proposition from the left into `⨁` -/
 lemma bigbmix_frame_l [Inhabited ι] (Q : ι → RProp ρ) :
     P ∗ (⨁ i, Q i) ⊢ ⨁ i, P ∗ Q i := by
   rintro ⟨_, val⟩ ⟨A, ⟨_, _⟩, _, ⟨B, _, rfl⟩, rfl⟩;
@@ -198,17 +223,21 @@ lemma bigbmix_frame_l [Inhabited ι] (Q : ι → RProp ρ) :
     simp only [Mseti.bigoplus_val, Mset.bigoplus_mem]; tauto⟩;
   simp only; and_intros; { intro i; exists A, B i; tauto }; { rw [Mseti.mul_bigoplus_l] }
 
+/-- Frame a proposition from the right into `⨁` -/
 lemma bigbmix_frame_r [Inhabited ι] (P : ι → RProp ρ) Q :
     (⨁ i, P i) ∗ Q ⊢ ⨁ i, P i ∗ Q := by
   grw [sep_comm', bigbmix_frame_l]; gcongr 1; rw [sep_comm']
 
+/-- Frame a proposition from the left into `⊕` -/
 lemma bmix_frame_l : P ∗ (Q ⊕ R) ⊢ (P ∗ Q) ⊕ (P ∗ R) := by
   grw [bmix_as_bigbmix, bmix_as_bigbmix, bigbmix_frame_l];
   gcongr with b; cases b <;> rfl
 
+/-- Frame a proposition from the right into `⊕` -/
 lemma bmix_frame_r : (P ⊕ Q) ∗ R ⊢ (P ∗ R) ⊕ (Q ∗ R) := by
   grw [sep_comm', bmix_frame_l, sep_comm', sep_comm' R]
 
+/-- Unframe a precise proposition from the left out of `⨁` -/
 lemma bigbmix_unframe_l [Inhabited ι] P (Q : ι → RProp ρ) [Precise P] :
     (⨁ i, P ∗ Q i) =ᴮᴵ P ∗ ⨁ i, Q i := by
   ext1; constructor; swap; { apply bigbmix_frame_l };
@@ -223,15 +252,18 @@ lemma bigbmix_unframe_l [Inhabited ι] P (Q : ι → RProp ρ) [Precise P] :
   ext1; simp only [Mseti.mul_bigoplus_l]; congr; ext1 i;
   rw [precise P _ _ (el i0).left (el i).left]; grind only
 
+/-- Unframe a precise proposition from the right out of `⨁` -/
 lemma bigbmix_unframe_r [Inhabited ι] (P : ι → RProp ρ) Q [Precise Q] :
     (⨁ i, P i ∗ Q) =ᴮᴵ ((⨁ i, P i) ∗ Q) := by
   ext1; constructor; swap; { apply bigbmix_frame_r };
   grw [sep_comm', ←bigbmix_unframe_l _ _]; gcongr 1; rw [sep_comm']
 
+/-- Unframe a precise proposition from the left out of `⊕` -/
 lemma bmix_unframe_l [Precise P] : (P ∗ Q) ⊕ (P ∗ R) =ᴮᴵ P ∗ (Q ⊕ R) := by
   ext1; constructor; swap; { apply bmix_frame_l };
   simp only [bmix_as_bigbmix]; grw [←bigbmix_unframe_l]; gcongr with b; cases b <;> rfl
 
+/-- Unframe a precise proposition from the right out of `⊕` -/
 lemma bmix_unframe_r [Precise R] : (P ∗ R) ⊕ (Q ∗ R) =ᴮᴵ (P ⊕ Q) ∗ R := by
   ext1; constructor; swap; { apply bmix_frame_r };
   grw [sep_comm' iprop(P ⊕ Q), ←bmix_unframe_l, sep_comm', sep_comm' Q]
@@ -264,6 +296,7 @@ lemma bigbmix_satis [Inhabited ι] (P : ι → RProp ρ) :
     apply (A i).prop; trivial⟩;
   exists A
 
+/-- Satisfiability of `⨁` -/
 instance bigbmix_instSatis [Inhabited ι] (P : ι → RProp ρ) [∀ i, Satis (P i)] :
     Satis iprop(⨁ i, P i) := bigbmix_satis P inferInstance
 

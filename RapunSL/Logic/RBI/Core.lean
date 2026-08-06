@@ -19,14 +19,18 @@ def RProp ρ [RR ρ] := DiscreteO (Set (Msetiv ρ))
 
 variable {ρ : Type u} [RR ρ] (P Q R : RProp ρ) (r s : ρ)
 
+/-- Membership: an `RProp` is a set of valid inhabited multisets -/
 instance RProp_instMembership : Membership (Msetiv ρ) (RProp ρ) where
   mem P A := P.car A
 
+/-- Unfold membership in an `RProp` -/
 lemma unfold_mem A : A ∈ P ↔ P.car A := by rfl
 
+/-- Extensionality: `RProp`s with the same members are equal -/
 lemma set_ext : (∀ A, A ∈ P ↔ A ∈ Q) → P = Q := by
   intro _; apply congrArg DiscreteO.mk; apply Set.ext; trivial
 
+/-- Discrete COFE structure for `RProp` -/
 instance RProp_instCOFE : COFE (RProp ρ) := instCOFEDiscreteO
 
 /-! ## BI structure -/
@@ -46,22 +50,28 @@ instance RProp_instBIBase : BIBase (RProp ρ) where
   persistently P := .mk fun _ => ⟨1, PCM.valid_one⟩ ∈ P
   later P := P
 
+/-- Unfold membership in `emp` -/
 lemma emp_unfold A : A ∈ emp (PROP := RProp ρ) ↔ A.val = 1 := by rfl
 
+/-- Simple formulation of `∀` on `RProp` -/
 lemma forall_simple :
     BIBase.forall = fun P : α → RProp ρ => .mk fun A => ∀ x, A ∈ P x := by
   funext; apply set_ext; intro _; constructor; { tauto };
   simp only [unfold_mem]; rintro _ _ ⟨_, rfl⟩; tauto
 
+/-- Simple formulation of `∃` on `RProp` -/
 lemma exists_simple :
     BIBase.exists = fun P : α → RProp ρ => .mk fun A => ∃ x, A ∈ P x := by
   funext P; apply set_ext; intro _; constructor;
   { rintro ⟨_, ⟨_, rfl⟩, _⟩; tauto }; { rintro ⟨a, _⟩; exists P a; tauto }
 
+/-- Entailment is reflexive -/
 @[refl] lemma entails_refl : P ⊢ P := by tauto
 
+/-- Entailment is transitive -/
 @[trans] lemma entails_trans : (P ⊢ Q) → (Q ⊢ R) → P ⊢ R := by tauto
 
+/-- Entailment is antisymmetric -/
 lemma entails_antisymm :
     (P ⊢ Q) → (Q ⊢ P) → P = Q := by
   intro _ _; apply set_ext; intro _; constructor <;> tauto
@@ -126,6 +136,7 @@ instance RProp_instBI : BI (RProp ρ) where
   later_persistently := by intro _; constructor <;> rfl
   later_false_em := by tauto
 
+/-- Entailment is a partial order -/
 instance RProp_entails_instPartialOrder : IsPartialOrder (RProp ρ) Entails where
   antisymm := entails_antisymm
 
@@ -135,15 +146,19 @@ instance RProp_instBIE : BIE (RProp ρ) where
 
 /-! ### Extra properties -/
 
+/-- A proposition and its negation entail anything -/
 lemma not_contra : P ∧ ¬ P ⊢ Q := nofun
 
+/-- The law of excluded middle holds -/
 lemma not_em : Q ⊢ P ∨ ¬ P := by tauto
 
+/-- The axiom of choice holds -/
 lemma choice {β : α → Sort*} (P : ∀ a, β a → RProp ρ) :
     (∀ x, ∃ y, P x y) =ᴮᴵ ∃ f : ∀ a, β a, ∀ x, P x (f x) := by
   simp only [forall_simple, exists_simple];
   apply set_ext; intro _; apply Classical.skolem
 
+/-- `<pers> P` is the pure fact that `emp` entails `P` -/
 lemma persistently_emp_entails : <pers> P =ᴮᴵ ⌜emp ⊢ P⌝ := by
   apply set_ext; intro _; constructor; swap; { tauto };
   intro _ ⟨_, _⟩; rw [emp_unfold]; intro rfl; trivial
@@ -153,12 +168,15 @@ lemma persistently_emp_entails : <pers> P =ᴮᴵ ⌜emp ⊢ P⌝ := by
 /-- Ownership of an element -/
 def own (r : ρ) : RProp ρ := .mk fun A => A.val = pure r
 
+/-- Unfold membership in `own` -/
 lemma own_unfold r A : A ∈ own (ρ := ρ) r ↔ A.val = pure r := by rfl
 
 /-! ### Rules for `own` -/
 
+/-- `emp` is ownership of the unit -/
 lemma emp_as_own : emp = own (ρ := ρ) 1 := rfl
 
+/-- `∗` of `own`s is `own` of the product -/
 lemma own_sep : own (ρ := ρ) r ∗ own s =ᴮᴵ own (r * s) := by
   apply set_ext; intro ⟨_, val⟩; constructor;
   · rintro ⟨⟨_, _⟩, ⟨_, _⟩, rfl, rfl, rfl⟩; simp only [own_unfold, Mseti.pure_mul]
@@ -170,24 +188,31 @@ lemma own_sep : own (ρ := ρ) r ∗ own s =ᴮᴵ own (r * s) := by
 
 /-- Preciseness -/
 class Precise (P : RProp ρ) : Prop where
+  /-- Preciseness condition -/
   precise : ∀ A B, A ∈ P → B ∈ P → A = B
 
+/-- Preciseness condition -/
 lemma precise (P : RProp ρ) [Precise P] : ∀ A B, A ∈ P → B ∈ P → A = B := by
   apply Precise.precise
 
 /-! ### Rules for `Precise` -/
 
+/-- Preciseness is antitone -/
 lemma precise_anti [Precise Q] : (P ⊢ Q) → Precise P := by
   intro _; constructor; intro _ _ _ _; apply precise Q <;> tauto
 
+/-- Preciseness of `False` -/
 instance false_instPrecise : Precise (ρ := ρ) iprop(False) := by
   constructor; nofun
 
+/-- Preciseness of `own` -/
 instance own_instPrecise : Precise (own r) := by
   constructor; intro _; simp only [own_unfold]; grind only
 
+/-- Preciseness of `emp` -/
 instance emp_instPrecise : Precise (ρ := ρ) emp := own_instPrecise _
 
+/-- Preciseness of `∗` -/
 instance sep_instPrecise [Precise P] [Precise Q] : Precise iprop(P ∗ Q) := by
   constructor; rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩;
   simp only [precise P _ _ elP elP', precise Q _ _ elQ elQ']
@@ -196,8 +221,10 @@ instance sep_instPrecise [Precise P] [Precise Q] : Precise iprop(P ∗ Q) := by
 
 /-- Satisfiability of a proposition, i.e., not being `False` -/
 class Satis (P : RProp ρ) : Prop where
+  /-- Satisfiability condition -/
   satis : ∃ A, A ∈ P
 
+/-- Satisfiability condition -/
 lemma satis (P : RProp ρ) [Satis P] : ∃ A, A ∈ P := by
   apply Satis.satis
 
