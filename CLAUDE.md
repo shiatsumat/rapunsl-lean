@@ -30,6 +30,8 @@ There is no separate test suite or lint command; the build itself is the check. 
 - Definitions and lemmas that belong to a type's namespace are typically declared `protected`.
 - Notation is introduced with `scoped` prefixes/macros inside the relevant namespace, so `open` the namespace to use it.
 - `RapunSL/Util/Syntax.lean` provides the `delab_rules` command (a shorthand for `app_unexpander`) used to pretty-print custom notation.
+- Adding general-purpose lemmas to the library layers is welcome: when a proof needs a reusable fact about, say, `Mset` or the algebra classes, state it in the appropriate library file (e.g. `Mset/Bij.lean`) rather than keeping it local to the use site.
+- Keep individual proofs from growing too long, for readability: factor out auxiliary lemmas as appropriate.
 
 ## Naming conventions
 
