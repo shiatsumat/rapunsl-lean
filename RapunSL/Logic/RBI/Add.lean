@@ -108,6 +108,9 @@ instance RProp.instAdd : Add (RProp ρ) where
   add P Q := .mk fun C ↦ ∃ A B, A ∈ P ∧ B ∈ Q ∧
     A.val.val +ᴿᴹ B.val.val =ᴿᴹ C.val.val
 
+scoped macro_rules
+  | `(iprop($P + $Q)) => `(iprop($P) + iprop($Q))
+
 /-- Unfold `+` for `RProp` -/
 lemma add_unfold :
     (HAdd.hAdd : RProp ρ → RProp ρ → RProp ρ) =
