@@ -93,9 +93,9 @@ protected instance Pi.instPCMI {ι : Type*} {α : ι → Type*} [∀ i, PCMI (α
   incomp_mul_l := by
     intro _ _ _ _ ⟨i, _⟩; exists i; apply PCMI.incomp_mul_l <;> tauto
 
-/-! ## Cancellable PCMI -/
+/-! ## Cancellative PCMI -/
 
-/-- Cancellable PCMI -/
+/-- Cancellative PCMI -/
 class PCMICan (α : Type u) extends PCMI α, PCMCan α
 
 protected instance Excl.instPCMICan : PCMICan (Excl α) where
