@@ -61,13 +61,17 @@ lemma rmadd_inhab : A +ᴿᴹ B =ᴿᴹ C → A.inhab → C.inhab := by
   rintro ⟨r, _, rfl⟩ inh; rw [Mset.inhab_map'];
   rw [←Mset.Bij.graph_fst r, Mset.inhab_map'] at inh; exact inh
 
+/-- `+ᴿᴹ` transfers validity of the sum to the left-hand summand -/
+lemma rmadd_valid_l : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ a ∈ A, ✓ a := by
+  rintro ⟨r, coh, rfl⟩ val a elA;
+  rw [←Mset.Bij.graph_fst r, Mset.map'_mem] at elA;
+  rcases elA with ⟨⟨a', b⟩, mem, rfl⟩;
+  refine (RR.add_valid_l _ _ (coh _ _ mem)).mp ?_;
+  apply val; rw [Mset.map'_mem]; exact ⟨_, mem, rfl⟩
+
 /-- `+ᴿᴹ` transfers validity of the sum to the right-hand summand -/
 lemma rmadd_valid_r : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ b ∈ B, ✓ b := by
-  rintro ⟨r, coh, rfl⟩ val b elB;
-  rw [←Mset.Bij.graph_snd r, Mset.map'_mem] at elB;
-  rcases elB with ⟨⟨a, b'⟩, mem, rfl⟩;
-  refine (RR.add_valid_r _ _ (coh _ _ mem)).mp ?_;
-  apply val; rw [Mset.map'_mem]; exact ⟨_, mem, rfl⟩
+  rw [rmadd_comm]; apply rmadd_valid_l
 
 /-- `+ᴿᴹ` is associative -/
 lemma rmadd_assoc_l :
