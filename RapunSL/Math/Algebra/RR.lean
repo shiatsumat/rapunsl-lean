@@ -199,91 +199,107 @@ protected instance Prod.instPCMC [PCMC α] [PCMICan β] : PCMC (α × β) where
 
 /-- RR, i.e., resource ring -/
 class RR (α : Type u) extends PCMC α, PCMP α where
-  /-- Addition, defined only for coherent elements -/
-  protected radd : ∀ a b : α, a ≎ b → α
-  /-- Addition preserves coherence -/
-  protected radd_coher_l : ∀ a b h, radd a b h ≎ a
-  /-- Addition is commutative -/
-  protected radd_comm : ∀ a b h₁ h₂, radd a b h₁ = radd b a h₂
-  /-- Addition is associative -/
-  protected radd_assoc : ∀ a b c h₁ h₂ h₃ h₄,
-    radd (radd a b h₁) c h₂ = radd a (radd b c h₃) h₄
-  /-- Product distributes over addition -/
-  protected radd_mul_l : ∀ a b c h₁ h₂, a * radd b c h₁ = radd (a * b) (a * c) h₂
+  /-- Addition relation `· +ᴿ · =ᴿ ·` -/
+  protected radd : α → α → α → Prop
+  /-- `+ᴿ` is unique -/
+  protected radd_unique : ∀ a b c c', radd a b c → radd a b c' → c = c'
+  /-- `+ᴿ` is defined for coherent arguments -/
+  protected coher_radd : ∀ a b, a ≎ b → ∃ c, radd a b c
+  /-- `+ᴿ` requires coherence -/
+  protected radd_coher : ∀ a b c, radd a b c → a ≎ b
+  /-- `+ᴿ` is coherent with the left argument -/
+  protected radd_coher_l : ∀ a b c, radd a b c → a ≎ c
+  /-- `+ᴿ` is commutative -/
+  protected radd_comm' : ∀ a b c, radd a b c → radd b a c
+  /-- `+ᴿ` is associative -/
+  protected radd_assoc_l : ∀ a b c ab abc,
+    radd a b ab → radd ab c abc → ∃ bc, radd b c bc ∧ radd a bc abc
+  /-- `*` distributes over `+ᴿ` -/
+  protected radd_mul_l : ∀ a b c bc,
+    radd b c bc → radd (a * b) (a * c) (a * bc)
 
 open RR
 
 /-! ### Utility -/
 
 namespace RR
-variable [RR α] (a b c : α)
+variable [RR α] (a b c ab bc abc : α)
 
-scoped macro:65 a:term:65 " +[" h:term "] " b:term:66 : term => `(RR.radd $a $b $h)
+scoped macro:50 a:term:50 " +ᴿ " b:term " =ᴿ " c:term:50 : term => `(RR.radd $a $b $c)
 
 scoped delab_rules RR.radd
-  | `($_ $a $b $h) => `($a +[$h] $b)
+  | `($_ $a $b $c) => `($a +ᴿ $b =ᴿ $c)
 
-/-- Addition is commutative -/
-protected lemma radd_comm' h : a +[h] b = b +[Std.Symm.symm _ _ h] a := by
-  apply RR.radd_comm
+open Classical in
+/-- Total version of `radd` -/
+protected noncomputable instance instAdd : Add α where
+  add a b := if h : a ≎ b
+    then Classical.choose (RR.coher_radd a b h) else 1
 
-/-- Addition preserves coherence -/
-protected lemma radd_coher_r h : a +[h] b ≎ b := by
-  rw [RR.radd_comm']; apply RR.radd_coher_l
+open Classical in
+/-- Unfold `+` for `RR` -/
+protected lemma add_unfold :
+    (HAdd.hAdd : α → α → α) = fun a b => if h : a ≎ b
+      then Classical.choose (RR.coher_radd a b h) else 1 := rfl
 
-/-- Helper for `radd_assoc_l` -/
-protected lemma radd_assoc_l_aux h : a +[h] b ≎ c → b ≎ c := by
-  intro h'; trans; swap; { exact h' }; symm; apply RR.radd_coher_r
+/-- Get `+ᴿ` for `+` -/
+protected lemma add_radd : a ≎ b → a +ᴿ b =ᴿ a + b := by
+  intro h; simp only [RR.add_unfold, dif_pos h]; apply Classical.choose_spec
 
-/-- Helper for `radd_assoc_l` -/
-protected lemma radd_assoc_l_aux' h h' :
-    a ≎ b +[RR.radd_assoc_l_aux a b c h h'] c := by
-  trans; { exact h }; symm; apply RR.radd_coher_l
+/-- Get `+` from `+ᴿ` -/
+protected lemma radd_add : a ≎ b → a +ᴿ b =ᴿ c → a + b = c := by
+  intro h e; apply RR.radd_unique _ _ _ _ _ e; apply RR.add_radd _ _ h
 
-/-- Addition is associative -/
-protected lemma radd_assoc_l h h' :
-    (a +[h] b) +[h'] c =
-      a +[RR.radd_assoc_l_aux' _ _ _ h h'] (b +[RR.radd_assoc_l_aux _ _ _ h h'] c) := by
-  apply RR.radd_assoc
+/-- Unfold `+` under `¬ (a ≎ b)` -/
+protected lemma add_one : ¬ a ≎ b → a + b = 1 := by
+  intro h; simp only [RR.add_unfold, dif_neg h]
 
-/-- Helper for `radd_assoc_r` -/
-protected lemma radd_assoc_r_aux h : a ≎ b +[h] c → a ≎ b := by
-  intro h'; trans; { exact h' }; apply RR.radd_coher_l
+/-- `+ᴿ` is commutative -/
+@[simp]
+protected lemma radd_comm : a +ᴿ b =ᴿ c ↔ b +ᴿ a =ᴿ c := by
+  constructor <;> (intro _; apply RR.radd_comm'; trivial)
 
-/-- Helper for `radd_assoc_r` -/
-protected lemma radd_assoc_r_aux' h h' :
-    a +[RR.radd_assoc_r_aux a b c h h'] b ≎ c := by
-  trans; swap; { exact h }; apply RR.radd_coher_r
+open Classical in
+/-- `+` is commutative -/
+protected noncomputable instance instAddCommMagma : AddCommMagma α where
+  add_comm := by
+    intro a b; rcases Classical.em (a ≎ b) with (h | h); swap;
+    { rw [RR.add_one _ _ h]; symm; apply RR.add_one; rw [PCMC.coher_symm]; trivial }
+    apply RR.radd_unique _ _ _ _ (RR.add_radd _ _ h); apply RR.radd_comm';
+    apply RR.add_radd; symm; trivial
 
-/-- Addition is associative -/
-protected lemma radd_assoc_r h h' :
-    a +[h'] (b +[h] c) =
-      (a +[RR.radd_assoc_r_aux _ _ _ h h'] b) +[RR.radd_assoc_r_aux' _ _ _ h h'] c := by
-  symm; apply RR.radd_assoc
+/-- `+ᴿ` is coherent with the right argument -/
+protected lemma radd_coher_r : a +ᴿ b =ᴿ c → b ≎ c := by
+  rw [RR.radd_comm]; apply RR.radd_coher_l
 
-/-- Product distributes over addition -/
-protected lemma radd_mul_r h₁ h₂ : (a +[h₁] b) * c = a * c +[h₂] b * c := by
+/-- `+ᴿ` is associative -/
+protected lemma radd_assoc_r :
+    b +ᴿ c =ᴿ bc → a +ᴿ bc =ᴿ abc → ∃ ab, a +ᴿ b =ᴿ ab ∧ ab +ᴿ c =ᴿ abc := by
+  simp only [RR.radd_comm b c, RR.radd_comm a bc, RR.radd_comm a b, RR.radd_comm _ c abc];
+  apply RR.radd_assoc_l
+
+/-- `+` is associative under coherence -/
+protected lemma add_assoc : a ≎ b → b ≎ c → (a + b) + c = a + (b + c) := by
+  intro h h'; have e1 := RR.add_radd _ _ h;
+  have e2 := RR.add_radd (a + b) c
+    (by trans; swap; { apply h' }; symm; apply RR.radd_coher_r _ _ _ e1);
+  have ⟨bc, e1', e2'⟩ := RR.radd_assoc_l _ _ _ _ _ e1 e2;
+  rcases RR.radd_add _ _ _ h' e1' with rfl; symm;
+  apply RR.radd_add _ _ _ _ e2'; trans; { exact h }; apply RR.radd_coher_l _ _ _ e1'
+
+/-- `+ᴿ` distributes over `*` -/
+protected lemma radd_mul_r : a +ᴿ b =ᴿ ab → a * c +ᴿ b * c =ᴿ ab * c := by
   simp only [mul_comm _ c]; apply RR.radd_mul_l
 
-/-- Product distributes over addition -/
-protected lemma radd_mul_l_fwd h :
-    a * (b +[h] c) = a * b +[PCMC.coher_mul_r _ _ _ h] a * c := by
-  apply RR.radd_mul_l
+/-- `+` distributes over `*` under coherence -/
+protected lemma add_mul_l : b ≎ c → a * (b + c) = a * b + a * c := by
+  intro h; have e1 := RR.add_radd _ _ h;
+  have e2 := RR.radd_mul_l a _ _ _ e1; symm; apply RR.radd_add _ _ _ _ e2;
+  apply PCMC.coher_mul_r; trivial
 
-/-- Product distributes over addition -/
-protected lemma radd_mul_l_bwd val h :
-    a * b +[h] a * c = a * (b +[PCMC.coher_mul_inv_r _ _ _ val h] c) := by
-  symm; apply RR.radd_mul_l
-
-/-- Product distributes over addition -/
-protected lemma radd_mul_r_fwd h :
-    (a +[h] b) * c = a * c +[PCMC.coher_mul_l _ _ _ h] b * c := by
-  apply RR.radd_mul_r
-
-/-- Product distributes over addition -/
-protected lemma radd_mul_r_bwd val h :
-    a * c +[h] b * c = (a +[PCMC.coher_mul_inv_l _ _ _ val h] b) * c := by
-  symm; apply RR.radd_mul_r
+/-- `+` distributes over `*` under coherence -/
+protected lemma add_mul_r : a ≎ b → (a + b) * c = a * c + b * c := by
+  intro _; simp only [mul_comm _ c]; apply RR.add_mul_l; trivial
 
 end RR
 
@@ -295,17 +311,25 @@ protected instance Prod.instRR (α : Type u) (β : Type u') [RR α] [PCMICan β]
   prob p := PCMP.prob p.1
   prob_one := by apply PCMP.prob_one
   prob_mul := by intro _ _ ⟨_, _⟩; apply PCMP.prob_mul; trivial
-  radd p q h := (RR.radd p.1 q.1 h.1, p.2)
+  radd p q r := RR.radd p.1 q.1 r.1 ∧ p.2 = q.2 ∧ q.2 = r.2
+  radd_unique := by
+    intro (_, _) (_, _) (_, _) (_, _); simp only; intro ⟨e, rfl, rfl⟩ ⟨e', rfl, rfl⟩;
+    congr; exact RR.radd_unique _ _ _ _ e e'
+  coher_radd := by
+    rintro ⟨_, b⟩ ⟨_, _⟩ ⟨e, rfl⟩; have ⟨s, _⟩ := RR.coher_radd _ _ e;
+    exists ⟨s, b⟩
+  radd_coher := by
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl, rfl⟩; and_intros; swap; { rfl };
+    apply RR.radd_coher; trivial
   radd_coher_l := by
-    intro (_, _) (_, _) h; generalize h.1 = h1; rcases h with ⟨_, rfl⟩;
-    and_intros; swap; { rfl }; apply RR.radd_coher_l
-  radd_comm := by
-    intro (_, _) (_, _) h _; generalize h.1 = h1; rcases h with ⟨_, rfl⟩;
-    simp only; ext; { apply RR.radd_comm }; { rfl }
-  radd_assoc := by
-    intro (_, _) (_, _) (_, _) h; generalize h.1 = h1; rcases h with ⟨_, rfl⟩;
-    intro h; generalize h.1 = h1; rcases h with ⟨_, rfl⟩; simp only at *;
-    intro _ _; ext; { apply RR.radd_assoc }; { rfl }
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl, rfl⟩; and_intros; swap; { rfl };
+    apply RR.radd_coher_l; trivial
+  radd_comm' := by
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl, rfl⟩; simp only at *;
+    rw [RR.radd_comm]; trivial
+  radd_assoc_l := by
+    rintro ⟨_, b⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨e, rfl, rfl⟩ ⟨e', rfl, rfl⟩; simp only at *;
+    have ⟨s, _, _⟩ := RR.radd_assoc_l _ _ _ _ _ e e'; exists ⟨s, b⟩
   radd_mul_l := by
-    intro (_, _) (_, _) (_, _) h _; generalize h.1 = h1; rcases h with ⟨_, rfl⟩;
-    ext; { apply RR.radd_mul_l }; { trivial }
+    rintro ⟨_, b⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨e, rfl, rfl⟩; simp only at *;
+    and_intros; rotate_left 1; { rfl }; { rfl }; apply RR.radd_mul_l; trivial
