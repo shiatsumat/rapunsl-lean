@@ -65,23 +65,20 @@ lemma rmadd_valid_r : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ b �
   refine (RR.add_valid_r _ _ (coh _ _ mem)).mp ?_;
   apply val; rw [Mset.map'_mem]; exact ⟨_, mem, rfl⟩
 
-/-- Pointwise consequences of `a ≎ b` and `a + b ≎ c` for associativity -/
-private lemma add_pointwise {a b c : ρ} :
-    a ≎ b → a + b ≎ c → b ≎ c ∧ a ≎ b + c ∧ (a + b) + c = a + (b + c) := by
-  intro h₁ h₂;
-  have hbc := PCMC.coher_trans _ _ _ (PCMC.coher_symm' _ _ (RR.add_coher_r _ _ h₁)) h₂;
-  exact ⟨hbc, PCMC.coher_trans _ _ _ h₁ (PCMC.coher_symm' _ _ (RR.add_coher_l _ _ hbc)),
-    RR.add_assoc _ _ _ h₁ hbc⟩
-
 /-- `+ᴿᴹ` is associative -/
 lemma rmadd_assoc_l :
     A +ᴿᴹ B =ᴿᴹ AB → AB +ᴿᴹ C =ᴿᴹ ABC → ∃ BC, B +ᴿᴹ C =ᴿᴹ BC ∧ A +ᴿᴹ BC =ᴿᴹ ABC := by
   rintro ⟨r₁, coh₁, rfl⟩ ⟨r₂, coh₂, rfl⟩;
   rcases Mset.Bij.graph_unmap_l (fun ((a, b) : ρ × ρ) ↦ a + b) r₂ with ⟨S, hfst, hsnd, hgr⟩;
   have pw : ∀ a b c, ((a, b), c) ∈ S → b ≎ c ∧ a ≎ b + c ∧ (a + b) + c = a + (b + c) := by
-    intro a b c mem; apply add_pointwise;
-    { apply coh₁; rw [←hfst, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩ };
-    { apply coh₂; rw [←hgr, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩ }
+    intro a b c mem;
+    have h₁ : a ≎ b := by
+      apply coh₁; rw [←hfst, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩
+    have h₂ : a + b ≎ c := by
+      apply coh₂; rw [←hgr, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩
+    have hbc := PCMC.coher_trans _ _ _ (PCMC.coher_symm' _ _ (RR.add_coher_r _ _ h₁)) h₂;
+    exact ⟨hbc, PCMC.coher_trans _ _ _ h₁ (PCMC.coher_symm' _ _ (RR.add_coher_l _ _ hbc)),
+      RR.add_assoc _ _ _ h₁ hbc⟩
   refine ⟨(fun ((a, b), c) ↦ b + c) <$>ᴹ S, ?_, ?_⟩
   · apply rmadd_map S (fun ((a, b), c) ↦ b) Prod.snd;
     · rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).1
