@@ -150,8 +150,8 @@ instance RProp.instAddCommMagma : AddCommMagma (RProp ρ) where
 private lemma add_assoc' : (P + Q) + R ⊢ P + (Q + R) := by
   rintro D ⟨ABv, Cv, ⟨Av, Bv, elP, elQ, hAB⟩, elR, hABC⟩;
   rcases rmadd_assoc_l _ _ _ _ _ hAB hABC with ⟨BC, hBC, hA⟩;
-  have inh : BC.inhab := rmadd_inhab _ _ _ hBC Bv.val.property;
-  have val : ∀ b ∈ BC, ✓ b := rmadd_valid_r _ _ _ hA D.property;
+  have inh : BC.inhab := rmadd_inhab _ _ _ hBC Bv.val.prop;
+  have val : ∀ b ∈ BC, ✓ b := rmadd_valid_r _ _ _ hA D.prop;
   exists Av, ⟨⟨BC, inh⟩, val⟩; and_intros;
   { trivial }; { exists Bv, Cv }; { trivial }
 
