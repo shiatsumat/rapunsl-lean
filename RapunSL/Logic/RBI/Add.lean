@@ -211,6 +211,35 @@ lemma cross_adj : (P + Q ⊢ R) ↔ (Q ⊢ P -+ R) := by
 @[gcongr] lemma cross_mono : (P' ⊢ P) → (Q ⊢ Q') → (P -+ Q) ⊢ P' -+ Q' := by
   intro P'P QQ'; rw [←cross_adj]; grw [P'P, ←QQ']; rw [cross_adj]
 
+/-! ### Interaction of `+` with disjunction -/
+
+/-- `+` commutes with `∃` in the right operand -/
+lemma add_exists_l (Q : α → RProp ρ) :
+    P + (∃ a, Q a) =ᴮᴵ ∃ a, P + Q a := by
+  ext1; constructor; swap; { apply exists_elim; intro a; grw [exists_intro (Ψ := Q) a] };
+  rw [cross_adj]; apply exists_elim; intro a; rw [←cross_adj]; apply exists_intro a
+
+/-- `+` commutes with `∃` in the left operand -/
+lemma add_exists_r (P : α → RProp ρ) Q :
+    (∃ a, P a) + Q =ᴮᴵ ∃ a, P a + Q := by
+  rw [add_comm, add_exists_l]; congr; ext1 _; rw [add_comm]
+
+/-- `+` distributes over `∨` in the right operand -/
+lemma add_or_l : P + (Q ∨ R) =ᴮᴵ (P + Q) ∨ (P + R) := by
+  simp only [or_as_exists', add_exists_l]; congr; ext1 b; cases b <;> rfl
+
+/-- `+` distributes over `∨` in the left operand -/
+lemma add_or_r : (P ∨ Q) + R =ᴮᴵ (P + R) ∨ (Q + R) := by
+  rw [add_comm, add_or_l, add_comm, add_comm R]
+
+/-- `False` annihilates `+` in the right operand -/
+lemma add_false_l : P + False =ᴮᴵ False := by
+  simp only [false_as_exists', add_exists_l]; congr; ext1 _; trivial
+
+/-- `False` annihilates `+` in the left operand -/
+lemma add_false_r : False + P =ᴮᴵ False := by
+  rw [add_comm, add_false_l]
+
 /-! ### Judgment rules -/
 
 /-- Preciseness of `+` -/
