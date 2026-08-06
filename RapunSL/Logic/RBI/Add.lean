@@ -13,12 +13,13 @@ variable {ρ : Type u} [RR ρ] (P P' Q Q' R : RProp ρ)
 
 /-! ## Addition of multisets -/
 
-/-- Addition of `Mset`s -/
+/-- Addition relation over `Mset`s -/
 def rmadd (A B C : Mset ρ) : Prop :=
   ∃ AB : A ≃ᴹ B,
     (∀ a b, (a, b) ∈ AB.graph → a ≎ b) ∧
     C = (fun (a, b) ↦ a + b) <$>ᴹ AB.graph
 
+@[inherit_doc rmadd]
 scoped macro:50 A:term:50 " +ᴿᴹ " B:term " =ᴿᴹ " C:term:50 : term => `(RBI.rmadd $A $B $C)
 
 /-- `+ᴿᴹ` is commutative -/
