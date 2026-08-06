@@ -320,7 +320,7 @@ lemma incomp_bmix : (P #ᴿ R) → (Q #ᴿ R) → P ⊕ Q #ᴿ R := by
 
 /-- Unambiguity over `⨁` -/
 lemma bigbmix_unambig [Inhabited ι] (P : ι → RProp ρ) :
-    (∀ i, Unambig (P i)) → (∀ i j, i ≠ j → Incomp (P i) (P j)) →
+    (∀ i, Unambig (P i)) → (∀ i j, i ≠ j → P i #ᴿ P j) →
     Unambig (ρ := ρ) iprop(⨁ i, P i) := by
   intro _ inc; constructor; rintro ⟨_, _⟩ ⟨_, _, rfl⟩ _ _;
   rw [Mseti.bigoplus_val, Mset.bigoplus_pairmem];
@@ -329,7 +329,7 @@ lemma bigbmix_unambig [Inhabited ι] (P : ι → RProp ρ) :
 
 /-- Unambiguity over `⊕` -/
 lemma bmix_unambig [Unambig P] [Unambig Q] :
-    Incomp P Q → Unambig (ρ := ρ) iprop(P ⊕ Q) := by
+    (P #ᴿ Q) → Unambig (ρ := ρ) iprop(P ⊕ Q) := by
   intro inc; rw [bmix_as_bigbmix]; apply bigbmix_unambig;
   { rintro (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> trivial };
   rintro (_ | _) (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> tauto
