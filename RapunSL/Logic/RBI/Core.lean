@@ -358,6 +358,41 @@ instance sep_instUnambig [Unambig P] [Unambig Q] :
     { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_r] };
     apply unambig P <;> tauto }
 
+/-! ## Frameability -/
+
+/-- Frameability, a set of useful properties for frame propositions,
+  i.e., preciseness and unambiguity -/
+class abbrev Frameable (P : RProp ρ) : Prop := Precise P, Unambig P
+
+/-- Preciseness by frameability -/
+lemma frameable_precise : Frameable P → Precise P := by
+  intro _; infer_instance
+
+/-- Unambiguity by frameability -/
+lemma frameable_unambig : Frameable P → Unambig P := by
+  intro _; infer_instance
+
+/-- Frameability by preciseness and unambiguity -/
+lemma make_frameable : Precise P → Unambig P → Frameable P := by
+  intro _ _; infer_instance
+
+/-- Frameability is antitone -/
+lemma frameable_anti [Frameable Q] : (P ⊢ Q) → Frameable P := by
+  intro PQ; apply make_frameable;
+  { apply precise_anti _ _ PQ }; { apply unambig_anti _ _ PQ }
+
+/-- Frameability of `False` -/
+instance false_instFrameable : Frameable (ρ := ρ) iprop(False) := inferInstance
+
+/-- Frameability of `own` -/
+instance own_instFrameable (r : ρ) : Frameable (own r) := inferInstance
+
+/-- Frameability of `emp` -/
+instance emp_instFrameable : Frameable (ρ := ρ) emp := inferInstance
+
+/-- Frameability of `∗` -/
+instance sep_instFrameable [Frameable P] [Frameable Q] : Frameable iprop(P ∗ Q) := inferInstance
+
 /-! ## Coherence -/
 
 /-- Coherence of propositions -/

@@ -214,7 +214,7 @@ lemma cross_adj : (P + Q ⊢ R) ↔ (Q ⊢ P -+ R) := by
 /-! ### Judgment rules -/
 
 /-- Preciseness of `+` -/
-instance add_instPrecise [Precise P] [Precise Q] [Unambig P] : Precise (P + Q) := by
+instance add_instPrecise [Frameable P] [Precise Q] : Precise (P + Q) := by
   constructor;
   rintro Cv Cv' ⟨Av, Bv, elP, elQ, hC⟩ ⟨Av', Bv', elP', elQ', hC'⟩;
   rcases precise P _ _ elP elP' with rfl; rcases precise Q _ _ elQ elQ' with rfl;
@@ -257,6 +257,9 @@ instance add_instUnambig [Unambig P] : Unambig (P + Q) := by
   · exact coh _ _ (Mset.pairmem_mem_l _ _ _ pm)
   · exact coh _ _ (Mset.pairmem_mem_r _ _ _ pm)
   · exact unambig P _ elP _ _ pmA
+
+/-- Frameability of `+` -/
+instance add_instFrameable [Frameable P] [Precise Q] : Frameable (P + Q) := inferInstance
 
 /-- Coherence over `+` -/
 lemma coher_add' : (P ≎ᴿ P') → P + Q ≎ᴿ P' := by

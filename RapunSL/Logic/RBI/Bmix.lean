@@ -134,7 +134,7 @@ lemma bigbmix_assoc {ι' : ι → Type} [Inhabited ι] [∀ i, Inhabited (ι' i)
 /-- `⊕` is associative -/
 lemma bmix_assoc : (P ⊕ Q) ⊕ R =ᴮᴵ P ⊕ (Q ⊕ R) := by
   have _ : ∀ b, Inhabited (match b with | true => Bool | false => Unit) := by
-    rintro (_ | _) <;> apply inferInstance
+    rintro (_ | _) <;> infer_instance
   have eq : ∀ P Q R : RProp ρ,
       (P ⊕ Q) ⊕ R =ᴮᴵ ⨁ (b : Bool),
         ⨁ (i : match b with | true => Bool | false => Unit),
@@ -333,6 +333,21 @@ lemma bmix_unambig [Unambig P] [Unambig Q] :
   intro inc; rw [bmix_as_bigbmix]; apply bigbmix_unambig;
   { rintro (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> trivial };
   rintro (_ | _) (_ | _) <;> simp only [Bool.false_eq_true, reduceIte] <;> tauto
+
+/-! ## Rules for `Frameable` -/
+
+/-- Frameability over `⨁` -/
+lemma bigbmix_frameable [Inhabited ι] (P : ι → RProp ρ) :
+    (∀ i, Frameable (P i)) → (∀ i j, i ≠ j → P i #ᴿ P j) →
+    Frameable (ρ := ρ) iprop(⨁ i, P i) := by
+  intro _ _; apply make_frameable; { infer_instance };
+  apply bigbmix_unambig; { infer_instance }; { trivial }
+
+/-- Frameability over `⊕` -/
+lemma bmix_frameable [Frameable P] [Frameable Q] :
+    (P #ᴿ Q) → Frameable (ρ := ρ) iprop(P ⊕ Q) := by
+  intro _; apply make_frameable; { infer_instance };
+  apply bmix_unambig; trivial
 
 /-! ## Rules for `Coher` -/
 
