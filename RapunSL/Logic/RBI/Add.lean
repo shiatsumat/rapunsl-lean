@@ -140,10 +140,7 @@ private lemma add_assoc' : (P + Q) + R ⊢ P + (Q + R) := by
 instance RProp.instAddCommSemigroup : AddCommSemigroup (RProp ρ) where
   add_assoc := by
     intro P Q R; apply entails_antisymm; { apply add_assoc' };
-    rw [add_comm P (Q + R)];
-    trans; { apply add_assoc' };
-    rw [add_comm Q (R + P)];
-    trans; { apply add_assoc' };
-    rw [add_comm R (P + Q)]
+    rw [add_comm P (Q + R), add_comm Q R, add_comm P Q, add_comm (Q + P) R];
+    apply add_assoc'
 
 end RBI
