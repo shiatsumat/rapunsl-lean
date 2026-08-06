@@ -147,7 +147,7 @@ lemma bmix_assoc : (P ⊕ Q) ⊕ R =ᴮᴵ P ⊕ (Q ⊕ R) := by
     (fun | ⟨true, b⟩ => if b then ⟨true, false⟩ else ⟨false, ()⟩ | ⟨false, _⟩ => ⟨true, true⟩) <;>
     { rintro ⟨(_ | _), i⟩; { rfl }; cases i <;> rfl }
 
-/-! ### `-⊕` -/
+/-! ### Rules for `-⊕` -/
 
 /-- Introduce `-⊕`, absorbing the left operand of `⊕` -/
 lemma pine_intro_l : (P ⊕ Q ⊢ R) → Q ⊢ P -⊕ R := by
