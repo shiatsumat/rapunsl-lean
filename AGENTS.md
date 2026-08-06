@@ -26,7 +26,6 @@ There is no separate test suite or lint command; the build itself is the check. 
 ## Code conventions
 
 - Proofs may freely use Lean's standard axioms (notably `Classical.choice`, `propext`, and `Quot.sound`); there is no constructivity requirement.
-- Every file uses the Lean **module system**: it starts with `module`, uses `public import` for imports that must be visible to downstream files (plain `import` for implementation-only ones), and wraps its content in `@[expose] public section`.
 - Definitions and lemmas that belong to a type's namespace are typically declared `protected`.
 - Lemma signatures bind only data (multisets, bijections, elements) by name; proof obligations are stated as a chain of `→`s after the colon and bound with `intro`/`rintro` at the start of the proof, not as named hypothesis binders in the signature (e.g. `lemma rmadd_comm' : A +ᴿᴹ B =ᴿᴹ C → B +ᴿᴹ A =ᴿᴹ C`).
 - Notation is introduced with `scoped` prefixes/macros inside the relevant namespace, so `open` the namespace to use it.
