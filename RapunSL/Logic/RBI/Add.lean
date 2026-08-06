@@ -111,6 +111,19 @@ instance RProp.instAdd : Add (RProp ρ) where
 scoped macro_rules
   | `(iprop($P + $Q)) => `(iprop($P) + iprop($Q))
 
+/-- Cross, the right adjoint of `+` -/
+def cross (P Q : RProp ρ) : RProp ρ :=
+  .mk fun A ↦ ∀ B, B ∈ P → ∀ C, A.val.val +ᴿᴹ B.val.val =ᴿᴹ C.val.val → C ∈ Q
+
+@[inherit_doc cross]
+scoped syntax:25 term:26 " -+ " term:25 : term
+
+scoped macro_rules
+  | `(iprop($P -+ $Q)) => `(RBI.cross iprop($P) iprop($Q))
+
+scoped delab_rules RBI.cross
+  | `($_ $P $Q) => do ``(iprop($(← unpackIprop P) -+ $(← unpackIprop Q)))
+
 /-- Unfold `+` for `RProp` -/
 lemma add_unfold :
     (HAdd.hAdd : RProp ρ → RProp ρ → RProp ρ) =
@@ -146,5 +159,33 @@ instance RProp.instAddCommSemigroup : AddCommSemigroup (RProp ρ) where
     intro P Q R; apply entails_antisymm; { apply add_assoc' };
     rw [add_comm P (Q + R), add_comm Q R, add_comm P Q, add_comm (Q + P) R];
     apply add_assoc'
+
+/-! ### Rules for `-+` -/
+
+/-- Introduce `-+`, absorbing the left operand of `+` -/
+lemma cross_intro_l : (P + Q ⊢ R) → Q ⊢ P -+ R := by
+  intro toR A elQ B elP C hadd; apply toR; exists B, A; and_intros;
+  { trivial }; { trivial }; apply rmadd_comm'; trivial
+
+/-- Introduce `-+`, absorbing the right operand of `+` -/
+lemma cross_intro_r : (P + Q ⊢ R) → P ⊢ Q -+ R := by
+  rw [add_comm]; apply cross_intro_l
+
+/-- Eliminate `-+`, with the argument supplied on the left -/
+lemma cross_elim_l : P + (P -+ Q) ⊢ Q := by
+  rintro C ⟨A, B, elP, elPQ, hadd⟩; apply elPQ A elP; apply rmadd_comm'; trivial
+
+/-- Eliminate `-+`, with the argument supplied on the right -/
+lemma cross_elim_r : (P -+ Q) + P ⊢ Q := by
+  rw [add_comm]; apply cross_elim_l
+
+/-- `-+` is the right adjoint of `+` -/
+lemma cross_adj : (P + Q ⊢ R) ↔ (Q ⊢ P -+ R) := by
+  constructor; { apply cross_intro_l };
+  intro Qto; grw [Qto]; apply cross_elim_l
+
+/-- `-+` is antitone on the left and monotone on the right -/
+@[gcongr] lemma cross_mono : (P' ⊢ P) → (Q ⊢ Q') → (P -+ Q) ⊢ P' -+ Q' := by
+  intro P'P QQ'; rw [←cross_adj]; grw [P'P, ←QQ']; rw [cross_adj]
 
 end RBI
