@@ -87,15 +87,15 @@ lemma rmadd_valid_r : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ b �
   rintro ⟨r, coh, rfl⟩ val b elB;
   rw [←Mset.Bij.graph_snd r, Mset.map'_mem] at elB;
   rcases elB with ⟨⟨a, b'⟩, mem, rfl⟩;
-  refine (PCMC.coher_valid _ _ (RR.radd_coher_r _ _ _ (RR.add_radd _ _ (coh _ _ mem)))).mpr ?_;
+  refine (RR.add_valid_r _ _ (coh _ _ mem)).mp ?_;
   apply val; rw [Mset.map'_mem]; exact ⟨_, mem, rfl⟩
 
 /-- Pointwise consequences of `a ≎ b` and `a + b ≎ c` for associativity -/
 private lemma add_pointwise {a b c : ρ} :
     a ≎ b → a + b ≎ c → b ≎ c ∧ a ≎ b + c ∧ (a + b) + c = a + (b + c) := by
   intro h₁ h₂;
-  have hbc := PCMC.coher_trans _ _ _ (RR.radd_coher_r _ _ _ (RR.add_radd _ _ h₁)) h₂;
-  exact ⟨hbc, PCMC.coher_trans _ _ _ h₁ (RR.radd_coher_l _ _ _ (RR.add_radd _ _ hbc)),
+  have hbc := PCMC.coher_trans _ _ _ (PCMC.coher_symm' _ _ (RR.add_coher_r _ _ h₁)) h₂;
+  exact ⟨hbc, PCMC.coher_trans _ _ _ h₁ (PCMC.coher_symm' _ _ (RR.add_coher_l _ _ hbc)),
     RR.add_assoc _ _ _ h₁ hbc⟩
 
 /-- `+ᴿᴹ` is associative -/
