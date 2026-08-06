@@ -54,15 +54,15 @@ instance RProp.instAddCommMagma : AddCommMagma (RProp ρ) where
   add_comm := by intro _ _; ext; constructor <;> apply add_comm'
 
 /-- Construct `+ᴿᴹ` from a multiset of coherent pairs -/
-lemma pairs_radd (T : Mset (ρ × ρ)) :
-    (∀ a b, (a, b) ∈ T → a ≎ b) →
-    (Prod.fst <$>ᴹ T) +ᴿᴹ (Prod.snd <$>ᴹ T) =ᴿᴹ (fun (a, b) ↦ a + b) <$>ᴹ T := by
+lemma pairs_radd (S : Mset (ρ × ρ)) :
+    (∀ a b, (a, b) ∈ S → a ≎ b) →
+    (Prod.fst <$>ᴹ S) +ᴿᴹ (Prod.snd <$>ᴹ S) =ᴿᴹ (fun (a, b) ↦ a + b) <$>ᴹ S := by
   intro coh;
-  have hg : ((Mset.Bij.map_l Prod.fst T).trans (Mset.Bij.map_r Prod.snd T)).graph = T := by
-    rw [Mset.Bij.trans_graph_map_l (Mset.Bij.map_l Prod.fst T) (Mset.Bij.map_r Prod.snd T)
+  have hg : ((Mset.Bij.map_l Prod.fst S).trans (Mset.Bij.map_r Prod.snd S)).graph = S := by
+    rw [Mset.Bij.trans_graph_map_l (Mset.Bij.map_l Prod.fst S) (Mset.Bij.map_r Prod.snd S)
       Prod.fst (by intro _ _ mem; rw [Mset.Bij.map_l_graph_mem] at mem; exact mem.1)];
-    rw [Mset.Bij.map_r_graph, ←Mset.comp_map]; exact Mset.id_map T
-  exists (Mset.Bij.map_l Prod.fst T).trans (Mset.Bij.map_r Prod.snd T); and_intros;
+    rw [Mset.Bij.map_r_graph, ←Mset.comp_map]; exact Mset.id_map S
+  exists (Mset.Bij.map_l Prod.fst S).trans (Mset.Bij.map_r Prod.snd S); and_intros;
   { rw [hg]; exact coh }; { rw [hg] }
 
 /-- Construct `+ᴿᴹ` from two coherent images of a common multiset -/
