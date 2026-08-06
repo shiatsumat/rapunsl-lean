@@ -258,4 +258,20 @@ instance add_instUnambig [Unambig P] : Unambig (P + Q) := by
   · exact coh _ _ (Mset.pairmem_mem_r _ _ _ pm)
   · exact unambig P _ elP _ _ pmA
 
+/-- Coherence over `+` -/
+lemma coher_add' : (P ≎ᴿ P') → P + Q ≎ᴿ P' := by
+  rintro coh Cv Bv ⟨Av, Qv, elP, elQ, r, cohr, hC⟩ elP';
+  rcases coh _ _ elP elP' with ⟨f, cohf⟩; rw [hC];
+  exists (Mset.Bij.map_l (fun (a, b) ↦ a + b) r.graph).trans (r.graph_dom.trans f);
+  intro c b' mem;
+  rcases Mset.Bij.trans_graph_mem _ _ _ _ mem with ⟨⟨a, b⟩, mem₁, mem₂⟩;
+  rcases Mset.Bij.trans_graph_mem _ _ _ _ mem₂ with ⟨a', mem₃, mem₄⟩;
+  rw [Mset.Bij.map_l_graph_mem] at mem₁; rw [Mset.Bij.graph_dom_graph_mem] at mem₃;
+  rcases mem₁ with ⟨rfl, memr⟩; rcases mem₃ with ⟨_, rfl⟩;
+  trans a'; { apply RR.add_coher_l; apply cohr; trivial }; { apply cohf; trivial }
+
+/-- Coherence over `+` -/
+lemma coher_add : (P ≎ᴿ P') → P + Q ≎ᴿ P' + Q' := by
+  intro _; apply coher_add'; symm; apply coher_add'; symm; trivial
+
 end RBI
