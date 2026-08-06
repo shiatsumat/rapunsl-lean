@@ -431,13 +431,13 @@ protected lemma Mset.map_congr {A : Mset α} {f g : α → β} :
   rcases mem with ⟨rfl, _⟩; apply h; trivial
 
 /-- Unpack the graph of a bijection out of a mapped multiset into a multiset of pairs -/
-protected lemma Mset.Bij.graph_unmap_l {T : Mset α} {C : Mset β} (f : α → γ)
-    (r : f <$>ᴹ T ≃ᴹ C) :
-    ∃ S : Mset (α × β), Prod.fst <$>ᴹ S = T ∧ Prod.snd <$>ᴹ S = C ∧
-      (fun (a, c) ↦ (f a, c)) <$>ᴹ S = r.graph := by
-  refine ⟨((Mset.Bij.map_r f T).trans r).graph,
+protected lemma Mset.Bij.graph_unmap_l {A : Mset α} {B : Mset β} (f : α → γ)
+    (r : f <$>ᴹ A ≃ᴹ B) :
+    ∃ S : Mset (α × β), Prod.fst <$>ᴹ S = A ∧ Prod.snd <$>ᴹ S = B ∧
+      (fun (a, b) ↦ (f a, b)) <$>ᴹ S = r.graph := by
+  refine ⟨((Mset.Bij.map_r f A).trans r).graph,
     Mset.Bij.graph_fst _, Mset.Bij.graph_snd _, ?_⟩;
-  have e : r = (Mset.Bij.map_r f T).symm.trans ((Mset.Bij.map_r f T).trans r) := by
+  have e : r = (Mset.Bij.map_r f A).symm.trans ((Mset.Bij.map_r f A).trans r) := by
     ext1 i; simp only [Equiv.trans_apply, Equiv.apply_symm_apply]
   conv_rhs => rw [e]
   symm; apply Mset.Bij.trans_graph_map_l;
