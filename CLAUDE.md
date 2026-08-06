@@ -31,6 +31,14 @@ There is no separate test suite or lint command; the build itself is the check. 
 - Notation is introduced with `scoped` prefixes/macros inside the relevant namespace, so `open` the namespace to use it.
 - `RapunSL/Util/Syntax.lean` provides the `delab_rules` command (a shorthand for `app_unexpander`) used to pretty-print custom notation.
 
+## Naming conventions
+
+- Type variables: `α`, `β`, `γ` for generic types (primed `α'`, `β'` for modified copies), `ι` for index types, `σ` for a generic index type, and `ρ` for the resource-ring carrier in `Logic/`.
+- Multisets (`Ifam`/`Mset`/`Mseti`/`Msetiv`) are uppercase `A`, `B`, `C`, …, and their elements the matching lowercase (`a ∈ A`, `b ∈ B`); combined multisets concatenate the names (`AB`, `ABC`, `BC` for sums). `S` is a multiset of pairs/tuples serving as a common index (as in `pairs_radd`, `radd_map`, `Mset.Bij.graph_unmap_l`). `F` is a multiset of functions, `K` a monadic continuation (`α → Mset β`). `i`, `j` are `Ifam` indices, `p` a pair.
+- Functions are `f`, `g`; bijections are `r`, `s` (`r : A ≃ᴹ B`, `s : B ≃ᴹ C`); `e` is an equivalence or equality proof.
+- Algebra elements are `a`, `b`, `c` (also `r`, `s` for owned resources in `Logic/`); `RProp`s are `P`, `Q`, `R` (primed `P'`, `Q'`); probabilities are `p`, `q`.
+- Witnesses and proofs of a relation between `X` and `Y` are often named `XY` (`AB : A ≃ᴹ B` in `Mset.radd`, `PP' : P ⊢ P'`). Common hypothesis names: `coh` (coherence), `val` (validity), `inc` (incompatibility), `inh` (inhabitedness), `mem` (membership in a multiset), `elP` (membership in the proposition `P`), `eq` (an equation).
+
 ## Notation
 
 Superscripts tag the level an operator lives at: `ᴵ` = `Ifam`, `ᴹ` = `Mset`, `ᴹⁱ` = `Mseti` (e.g. `<$>ᴹ`, `⊕ᴹⁱ`, `⨁ᴹ`, `≃ᴹ`, `×ᴹ`, `<*>ᴹ`, `>>=ᴹ` and their variants at each level).
