@@ -65,6 +65,18 @@ lemma pairs_radd (T : Mset (ρ × ρ)) :
   exists (Mset.Bij.map_l Prod.fst T).trans (Mset.Bij.map_r Prod.snd T); and_intros;
   { rw [hg]; exact coh }; { rw [hg] }
 
+/-- Construct `+ᴿᴹ` from two coherent images of a common multiset -/
+lemma radd_map {σ : Type*} (S : Mset σ) (f g : σ → ρ) {A B C : Mset ρ} :
+    (∀ x ∈ S, f x ≎ g x) → f <$>ᴹ S = A → g <$>ᴹ S = B →
+    (fun x ↦ f x + g x) <$>ᴹ S = C → A +ᴿᴹ B =ᴿᴹ C := by
+  rintro coh rfl rfl rfl;
+  have hcoh : ∀ a b, (a, b) ∈ (fun x ↦ (f x, g x)) <$>ᴹ S → a ≎ b := by
+    intro a b mem; rw [Mset.map'_mem] at mem;
+    rcases mem with ⟨x, memS, eq⟩; injection eq with ea eb; subst ea; subst eb;
+    exact coh _ memS
+  have h := pairs_radd _ hcoh;
+  rw [←Mset.comp_map, ←Mset.comp_map, ←Mset.comp_map] at h; exact h
+
 /-- `+ᴿᴹ` preserves inhabitedness -/
 lemma radd_inhab : A +ᴿᴹ B =ᴿᴹ C → A.inhab → C.inhab := by
   rintro ⟨r, _, rfl⟩ inh; rw [Mset.inhab_map'];
@@ -91,38 +103,22 @@ lemma radd_assoc_l :
     A +ᴿᴹ B =ᴿᴹ AB → AB +ᴿᴹ C =ᴿᴹ ABC → ∃ BC, B +ᴿᴹ C =ᴿᴹ BC ∧ A +ᴿᴹ BC =ᴿᴹ ABC := by
   rintro ⟨r₁, coh₁, rfl⟩ ⟨r₂, coh₂, rfl⟩;
   rcases Mset.Bij.graph_unmap_l (fun ((a, b) : ρ × ρ) ↦ a + b) r₂ with ⟨S, hfst, hsnd, hgr⟩;
-  have mem_S : ∀ a b c, ((a, b), c) ∈ S → a ≎ b ∧ a + b ≎ c := by
-    intro a b c mem; and_intros;
+  have pw : ∀ a b c, ((a, b), c) ∈ S → b ≎ c ∧ a ≎ b + c ∧ (a + b) + c = a + (b + c) := by
+    intro a b c mem; apply add_pointwise;
     { apply coh₁; rw [←hfst, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩ };
     { apply coh₂; rw [←hgr, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩ }
   refine ⟨(fun ((a, b), c) ↦ b + c) <$>ᴹ S, ?_, ?_⟩
-  · have e₁ : Prod.fst <$>ᴹ ((fun ((a, b), c) ↦ (b, c)) <$>ᴹ S) = B := by
-      rw [←Mset.comp_map, ←Mset.Bij.graph_snd r₁, ←hfst, ←Mset.comp_map]; rfl
-    have e₂ : Prod.snd <$>ᴹ ((fun ((a, b), c) ↦ (b, c)) <$>ᴹ S) = C := by
-      rw [←Mset.comp_map, ←hsnd]; rfl
-    have e₃ : (fun (b, c) ↦ b + c) <$>ᴹ ((fun ((a, b), c) ↦ (b, c)) <$>ᴹ S) =
-        (fun ((a, b), c) ↦ b + c) <$>ᴹ S := by
-      rw [←Mset.comp_map]; rfl
-    rw [←e₁, ←e₂, ←e₃]; apply pairs_radd;
-    rintro b c mem; rw [Mset.map'_mem] at mem;
-    rcases mem with ⟨⟨⟨a, b'⟩, c'⟩, memS, eq⟩;
-    injection eq with eb ec; subst eb; subst ec;
-    exact (add_pointwise (mem_S _ _ _ memS).1 (mem_S _ _ _ memS).2).1
-  · have e₄ : Prod.fst <$>ᴹ ((fun ((a, b), c) ↦ (a, b + c)) <$>ᴹ S) = A := by
-      rw [←Mset.comp_map, ←Mset.Bij.graph_fst r₁, ←hfst, ←Mset.comp_map]; rfl
-    have e₅ : Prod.snd <$>ᴹ ((fun ((a, b), c) ↦ (a, b + c)) <$>ᴹ S) =
-        (fun ((a, b), c) ↦ b + c) <$>ᴹ S := by
-      rw [←Mset.comp_map]; rfl
-    have e₆ : (fun (a, b) ↦ a + b) <$>ᴹ ((fun ((a, b), c) ↦ (a, b + c)) <$>ᴹ S) =
-        (fun x ↦ x.1 + x.2) <$>ᴹ r₂.graph := by
-      rw [←hgr, ←Mset.comp_map, ←Mset.comp_map]; apply Mset.map_congr;
-      rintro ⟨⟨a, b⟩, c⟩ memS;
-      exact ((add_pointwise (mem_S _ _ _ memS).1 (mem_S _ _ _ memS).2).2.2).symm
-    rw (occs := [1]) [←e₄]; rw [←e₅, ←e₆]; apply pairs_radd;
-    rintro x y mem; rw [Mset.map'_mem] at mem;
-    rcases mem with ⟨⟨⟨a, b⟩, c⟩, memS, eq⟩;
-    injection eq with ex ey; subst ex; subst ey;
-    exact (add_pointwise (mem_S _ _ _ memS).1 (mem_S _ _ _ memS).2).2.1
+  · apply radd_map S (fun ((a, b), c) ↦ b) Prod.snd;
+    · rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).1
+    · rw [←Mset.Bij.graph_snd r₁, ←hfst, ←Mset.comp_map]; rfl
+    · exact hsnd
+    · rfl
+  · apply radd_map S (fun ((a, b), c) ↦ a) (fun ((a, b), c) ↦ b + c);
+    · rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.1
+    · rw [←Mset.Bij.graph_fst r₁, ←hfst, ←Mset.comp_map]; rfl
+    · rfl
+    · rw [←hgr, ←Mset.comp_map]; apply Mset.map_congr;
+      rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.2.symm
 
 /-- `+` is associative -/
 private lemma add_assoc' : (P + Q) + R ⊢ P + (Q + R) := by
