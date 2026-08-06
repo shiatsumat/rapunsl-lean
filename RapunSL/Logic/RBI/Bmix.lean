@@ -9,7 +9,6 @@ open Iris BI RBI Mseti ENNReal
 /-! # Bare mixing in RapunSL -/
 
 namespace RBI
-
 variable {ρ : Type u} [RR ρ] (P P' Q Q' R : RProp ρ)
 
 /-! ## Bare mixing connectives -/

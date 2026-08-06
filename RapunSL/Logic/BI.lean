@@ -64,7 +64,6 @@ attribute [ext] Iris.BIE.bi_ext
 macro:25 P:term:29 " =ᴮᴵ " Q:term:29 : term => `(Eq iprop($P) iprop($Q))
 
 namespace Iris.BI
-
 variable {PROP} [BIE PROP] (P Q : PROP)
 
 lemma or_as_exists' : P ∨ Q =ᴮᴵ ∃ b : Bool, if b then P else Q := by
