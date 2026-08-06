@@ -78,7 +78,7 @@ The library root is `RapunSL.lean` → `RapunSL.Math` + `RapunSL.Logic`. The lay
    - `RBI/Bmix.lean`: bare mixing connectives (`⊕`, big mixing `⨁`, and its adjoint).
    - `RBI/Add.lean`: the sum connective `+` on `RProp` (via `RProp.instAdd`). The relation `RBI.rmadd` (notation `A +ᴿᴹ B =ᴿᴹ C`, "adding multisets `A` and `B` can yield `C`") is only an auxiliary definition used to state it.
 
-When adding a file, create it under the matching directory and add a `public import` for it in the directory's umbrella module (`Mset.lean`, `Algebra.lean`, `RBI.lean`, etc.), which is how everything reaches the root.
+When adding a file, follow the `new-module` skill (`.claude/skills/new-module/SKILL.md`): it covers placement, the module-system boilerplate, and registration in the directory's umbrella module.
 
 ## Proof tips
 
