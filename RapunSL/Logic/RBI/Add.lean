@@ -217,4 +217,17 @@ instance add_instPrecise [Precise P] [Precise Q] [Unambig P] : Precise (P + Q) :
   apply Subtype.ext; apply Subtype.ext;
   exact rmadd_unique_l _ _ _ _ Av.prop (unambig P _ elP) hC hC'
 
+/-- Unambiguity of `+` -/
+instance add_instUnambig [Unambig P] : Unambig (P + Q) := by
+  constructor;
+  rintro Cv ⟨Av, Bv, elP, elQ, r, coh, hC⟩ c c' pm;
+  rw [hC, Mset.map'_pairmem] at pm;
+  rcases pm with ⟨⟨a, b⟩, ⟨a', b'⟩, pm, rfl, rfl⟩;
+  have pmA : Av.val.val.pairmem a a' := by
+    rw [←Mset.Bij.graph_fst r, Mset.map'_pairmem]; exact ⟨(a, b), (a', b'), pm, rfl, rfl⟩
+  apply RR.add_incomp;
+  · exact coh _ _ (Mset.pairmem_mem_l _ _ _ pm)
+  · exact coh _ _ (Mset.pairmem_mem_r _ _ _ pm)
+  · exact unambig P _ elP _ _ pmA
+
 end RBI

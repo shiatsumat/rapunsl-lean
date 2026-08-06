@@ -294,6 +294,21 @@ protected lemma add_valid_l : a ≎ b → (✓ (a + b) ↔ ✓ a) := by
 protected lemma add_valid_r : a ≎ b → (✓ (a + b) ↔ ✓ b) := by
   intro coh; apply PCMC.coher_valid; apply RR.add_coher_r; trivial
 
+/-- `+` inherits incompatibility from the left summand -/
+protected lemma add_incomp_l : a ≎ b → a # c → a + b # c := by
+  intro coh inc; apply PCMC.coher_incomp a;
+  { symm; apply RR.add_coher_l; trivial }; { trivial }
+
+/-- `+` inherits incompatibility from the right summand -/
+protected lemma add_incomp_r : a ≎ b → b # c → a + b # c := by
+  intro coh inc; rw [add_comm]; apply RR.add_incomp_l;
+  { symm; trivial }; { trivial }
+
+/-- `+` preserves incompatibility of summands -/
+protected lemma add_incomp (a' b' : α) : a ≎ b → a' ≎ b' → a # a' → a + b # a' + b' := by
+  intro coh coh' inc; symm; apply RR.add_incomp_l _ _ _ coh'; symm;
+  apply RR.add_incomp_l _ _ _ coh; trivial
+
 /-- `+ᴿ` is associative -/
 protected lemma radd_assoc_r :
     b +ᴿ c =ᴿ bc → a +ᴿ bc =ᴿ abc → ∃ ab, a +ᴿ b =ᴿ ab ∧ ab +ᴿ c =ᴿ abc := by
