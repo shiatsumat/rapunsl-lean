@@ -121,6 +121,8 @@ class PCMC (α : Type u) extends PCMI α where
   protected coher_mul_inv_l : ∀ a b c, ✓ a * c → coher (a * c) (b * c) → coher a b
   /-- Incompatibility negates coherence -/
   protected incomp_neg_coher : ∀ a b, ✓ a → a # b → ¬ coher a b
+  /-- Coherence preserves incompatibility -/
+  protected coher_incomp : ∀ a b c, coher a b → a # c → b # c
 
 open PCMC
 
@@ -194,6 +196,9 @@ protected instance Prod.instPCMC [PCMC α] [PCMICan β] : PCMC (α × β) where
   incomp_neg_coher := by
     rintro ⟨_, _⟩ ⟨_, _⟩ ⟨val, _⟩ (inc | inc) ⟨coh, rfl⟩;
     { apply PCMC.incomp_neg_coher _ _ val inc coh }; { apply irrefl _ inc }
+  coher_incomp := by
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨coh, rfl⟩ (inc | inc) <;> simp only at *;
+    { left; apply PCMC.coher_incomp _ _ _ coh inc }; { right; trivial }
 
 /-! ## RR, i.e., resource ring -/
 
