@@ -383,7 +383,7 @@ scoped delab_rules Coher
   rcases coh _ _ elP elQ with ⟨f, coh⟩; rcases coh' _ _ elQ elR with ⟨g, coh'⟩;
   exists f.trans g; intro _ _ mem;
   rcases Mset.Bij.trans_graph_mem _ _ _ _ mem with ⟨_, _, _⟩;
-  apply PCMC.coher_trans; { apply coh; trivial }; { apply coh'; trivial }
+  trans; { apply coh; trivial }; { apply coh'; trivial }
 
 /-- Coherence is antitone -/
 lemma coher_anti : (P' ≎ᴿ Q') → (P ⊢ P') → (Q ⊢ Q') → P ≎ᴿ Q := by
