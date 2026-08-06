@@ -235,6 +235,19 @@ lemma add_satis [Satis P] [Satis Q] : (P ≎ᴿ Q) → Satis iprop(P + Q) := by
   have val := rmadd_valid _ _ _ hadd Av.prop;
   exact ⟨⟨⟨_, inh⟩, val⟩, Av, Bv, elP, elQ, hadd⟩
 
+/-- Incompatibility over `+` -/
+lemma incomp_add_l : (P #ᴿ Q) → P + R #ᴿ Q := by
+  rintro inc Cv Bv ⟨Av, Rv, elP, elR, r, coh, hC⟩ elQ c b elC elB;
+  rw [hC, Mset.map'_mem] at elC;
+  rcases elC with ⟨⟨a, x⟩, mem, rfl⟩;
+  apply RR.add_incomp_l _ _ _ (coh _ _ mem);
+  apply inc _ _ elP elQ _ _ ?_ elB;
+  rw [←Mset.Bij.graph_fst r, Mset.map'_mem]; exact ⟨(a, x), mem, rfl⟩
+
+/-- Incompatibility over `+` -/
+lemma incomp_add_r : (P #ᴿ Q) → R + P #ᴿ Q := by
+  rw [add_comm]; apply incomp_add_l
+
 /-- Unambiguity of `+` -/
 instance add_instUnambig [Unambig P] : Unambig (P + Q) := by
   constructor;
