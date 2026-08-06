@@ -1,7 +1,7 @@
 module
 
 public import RapunSL.Logic.RBI.Core
-open Iris BI RBI Mset Mseti PCM PCMC RR
+open Iris BI RBI Mset Mseti PCM PCMI PCMC RR
 
 @[expose] public section
 
@@ -9,7 +9,7 @@ open Iris BI RBI Mset Mseti PCM PCMC RR
 
 namespace RBI
 variable {ρ : Type u} [RR ρ] (P P' Q Q' R : RProp ρ)
-  (A B C AB ABC : Mset ρ)
+  (A B C C' AB ABC : Mset ρ)
 
 /-! ## Addition of multisets -/
 
@@ -73,6 +73,23 @@ lemma rmadd_valid_l : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ a �
 /-- `+ᴿᴹ` transfers validity of the sum to the right-hand summand -/
 lemma rmadd_valid_r : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ b ∈ B, ✓ b := by
   rw [rmadd_comm]; apply rmadd_valid_l
+
+/-- `+ᴿᴹ` is deterministic when the right-hand summand is valid and pairwise incompatible -/
+lemma rmadd_unique_r : (∀ b ∈ B, ✓ b) → (∀ b b', B.pairmem b b' → b # b') →
+    A +ᴿᴹ B =ᴿᴹ C → A +ᴿᴹ B =ᴿᴹ C' → C = C' := by
+  rintro val inc ⟨r, coh, rfl⟩ ⟨s, coh', rfl⟩;
+  suffices eq : r = s by rw [eq]
+  apply Mset.Bij.eq_graph_no_pairmem; intro a b b' mem mem' pm;
+  apply PCMC.incomp_neg_coher b b';
+  · apply val; apply Mset.pairmem_mem_l _ _ _ pm
+  · apply inc; trivial
+  · trans a; { symm; apply coh; trivial }; { apply coh'; trivial }
+
+/-- `+ᴿᴹ` is deterministic when the left-hand summand is valid and pairwise incompatible -/
+lemma rmadd_unique_l : (∀ a ∈ A, ✓ a) → (∀ a a', A.pairmem a a' → a # a') →
+    A +ᴿᴹ B =ᴿᴹ C → A +ᴿᴹ B =ᴿᴹ C' → C = C' := by
+  intro val inc _ _;
+  apply rmadd_unique_r B A C C' val inc <;> { apply rmadd_comm'; trivial }
 
 /-- `+ᴿᴹ` is associative -/
 lemma rmadd_assoc_l :
@@ -189,5 +206,15 @@ lemma cross_adj : (P + Q ⊢ R) ↔ (Q ⊢ P -+ R) := by
 /-- `-+` is antitone on the left and monotone on the right -/
 @[gcongr] lemma cross_mono : (P' ⊢ P) → (Q ⊢ Q') → (P -+ Q) ⊢ P' -+ Q' := by
   intro P'P QQ'; rw [←cross_adj]; grw [P'P, ←QQ']; rw [cross_adj]
+
+/-! ### Judgment rules -/
+
+/-- Preciseness of `+` -/
+instance add_instPrecise [Precise P] [Precise Q] [Unambig P] : Precise (P + Q) := by
+  constructor;
+  rintro Cv Cv' ⟨Av, Bv, elP, elQ, hC⟩ ⟨Av', Bv', elP', elQ', hC'⟩;
+  rcases precise P _ _ elP elP' with rfl; rcases precise Q _ _ elQ elQ' with rfl;
+  apply Subtype.ext; apply Subtype.ext;
+  exact rmadd_unique_l _ _ _ _ Av.prop (unambig P _ elP) hC hC'
 
 end RBI
