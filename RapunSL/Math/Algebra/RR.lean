@@ -41,8 +41,12 @@ protected instance incomp_instSymm :
     Std.Symm (α := α) PCMI.incomp := PCMI.incomp_Symm
 
 /-- Incompatibility is symmetric -/
-@[symm] protected lemma incomp_symm : a # b → b # a := by
+@[symm] protected lemma incomp_symm' : a # b → b # a := by
   apply symm
+
+/-- Incompatibility is symmetric -/
+protected lemma incomp_symm : a # b ↔ b # a := by
+  constructor <;> (intro _; symm; trivial)
 
 /-- Incompatibility is preserved by `*` under validity -/
 protected lemma incomp_mul_r : ✓ a * b → b # c → a * b # c := by
@@ -135,8 +139,12 @@ protected instance coher_instIsEquiv :
   apply refl
 
 /-- Coherence is symmetric -/
-@[symm] protected lemma coher_symm : a ≎ b → b ≎ a := by
+@[symm] protected lemma coher_symm' : a ≎ b → b ≎ a := by
   apply symm
+
+/-- Coherence is symmetric -/
+protected lemma coher_symm : a ≎ b ↔ b ≎ a := by
+  constructor <;> (intro _; symm; trivial)
 
 /-- Coherence is transitive -/
 @[trans] protected lemma coher_trans : a ≎ b → b ≎ c → a ≎ c := by
