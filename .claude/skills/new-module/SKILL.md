@@ -53,7 +53,7 @@ Keep the import list in dependency-ish order, matching the existing lists (e.g. 
 - Declarations belonging to a type's namespace are typically `protected`.
 - Introduce notation with `scoped` prefixes/macros inside the relevant namespace.
 - Give every definition and lemma a doc comment (`/-- ... -/`); reuse the doc for notation via `@[inherit_doc]`.
-- Follow the naming conventions in CLAUDE.md (type variables, multiset names, hypothesis names).
+- Follow the naming conventions in AGENTS.md (type variables, multiset names, hypothesis names).
 
 ## 5. Verify
 
