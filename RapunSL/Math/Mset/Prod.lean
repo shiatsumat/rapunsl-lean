@@ -215,3 +215,64 @@ protected lemma Mset.Bij.prod_graph
     ((a, b), (a', b')) ∈ (Mset.Bij.prod r s).graph ↔
       (a, a') ∈ r.graph ∧ (b, b') ∈ s.graph := by
   simp only [Mset.Bij.prod_graph, Mset.map'_mem, Mset.prod_mem]; aesop
+
+/-- Cancel a common left factor with pairwise-distinct elements out of a bijection
+  between products whose graph preserves the first component -/
+protected lemma Ifam.Bij.prod_cancel_l {A : Ifam α} {B C : Ifam β}
+    (r : A ×ᴵ B ≃ᴵ A ×ᴵ C) (i₀ : A.dom) :
+    (∀ a a', A.pairmem a a' → a ≠ a') →
+    (∀ a b a' c, ((a, b), (a', c)) ∈ r.graph → a = a') →
+    ∃ s : B ≃ᴵ C, ∀ b c, (b, c) ∈ s.graph →
+      ((A.elem i₀, b), (A.elem i₀, c)) ∈ r.graph := by
+  intro ne eq;
+  have fst_eq : ∀ p : (A ×ᴵ B).dom, r p = (p.1, (r p).2) := by
+    intro p;
+    have mem : ((A.elem p.1, B.elem p.2), (A.elem (r p).1, C.elem (r p).2)) ∈ r.graph :=
+      ⟨p, rfl⟩
+    have eq' : (r p).1 = p.1 := by
+      by_contra ne';
+      exact ne _ _ ⟨p.1, (r p).1, fun h => ne' h.symm, rfl, rfl⟩ (eq _ _ _ _ mem)
+    rw [←eq']; rfl
+  have fst_eq' : ∀ q : (A ×ᴵ C).dom, r.symm q = (q.1, (r.symm q).2) := by
+    intro q; have h := fst_eq (r.symm q); rw [Equiv.apply_symm_apply] at h;
+    rw [congrArg Prod.fst h]; rfl
+  refine ⟨⟨fun j => (r (i₀, j)).2, fun k => (r.symm (i₀, k)).2, ?_, ?_⟩, ?_⟩
+  · intro j; have h := congrArg r.symm (fst_eq (i₀, j)).symm;
+    rw [Equiv.symm_apply_apply] at h; exact congrArg Prod.snd h
+  · intro k; have h := congrArg r (fst_eq' (i₀, k)).symm;
+    rw [Equiv.apply_symm_apply] at h; exact congrArg Prod.snd h
+  · rintro b c ⟨j, ej⟩;
+    have eb : B.elem j = b := congrArg Prod.fst ej
+    have ec : C.elem (r (i₀, j)).2 = c := congrArg Prod.snd ej
+    refine ⟨(i₀, j), ?_⟩; rw [←eb, ←ec];
+    exact congrArg (fun q => ((A.elem i₀, B.elem j), (A ×ᴵ C).elem q)) (fst_eq (i₀, j))
+
+/-- Cancel a common left factor with pairwise-distinct elements out of a bijection
+  between products whose graph preserves the first component -/
+protected lemma Mset.Bij.prod_cancel_l {A : Mset α} {B C : Mset β}
+    (r : A ×ᴹ B ≃ᴹ A ×ᴹ C) {a₀ : α} :
+    a₀ ∈ A → (∀ a a', A.pairmem a a' → a ≠ a') →
+    (∀ a b a' c, ((a, b), (a', c)) ∈ r.graph → a = a') →
+    ∃ s : B ≃ᴹ C, ∀ b c, (b, c) ∈ s.graph → ((a₀, b), (a₀, c)) ∈ r.graph := by
+  intro mem ne eq;
+  have eAB : (A ×ᴹ B).out ≈ A.out ×ᴵ B.out := by
+    apply Quotient.exact; rw [Mset.out_eq];
+    rw (occs := [1]) [←A.out_eq]; rw (occs := [1]) [←B.out_eq]; rfl
+  have eAC : (A ×ᴹ C).out ≈ A.out ×ᴵ C.out := by
+    apply Quotient.exact; rw [Mset.out_eq];
+    rw (occs := [1]) [←A.out_eq]; rw (occs := [1]) [←C.out_eq]; rfl
+  let r' : A.out ×ᴵ B.out ≃ᴵ A.out ×ᴵ C.out :=
+    (Ifam.Bij.lift_equiv eAB).symm.trans (Ifam.Bij.trans r (Ifam.Bij.lift_equiv eAC))
+  have hg : Ifam.Bij.graph r' ≈ Ifam.Bij.graph r := by
+    have hg2 : (Ifam.Bij.trans r (Ifam.Bij.lift_equiv eAC)).graph = Ifam.Bij.graph r := by
+      apply Ifam.Bij.trans_graph_id_r; intro _ _ mem';
+      rw [Ifam.Bij.lift_equiv_graph_mem] at mem'; exact mem'.1
+    rw [←hg2]; apply Ifam.Bij.trans_graph_id_l; intro _ _ mem';
+    rw [Ifam.Bij.symm_graph_mem, Ifam.Bij.lift_equiv_graph_mem] at mem'; exact mem'.1.symm
+  have hmem : ∀ p, p ∈ Ifam.Bij.graph r' ↔ p ∈ r.graph :=
+    fun _ => iff_of_eq (Ifam.mem_proper _ _ hg)
+  rw [←Mset.out_mem] at mem; rcases mem with ⟨i₀, hi₀⟩;
+  rcases Ifam.Bij.prod_cancel_l r' i₀
+    (by intro a a' pm; apply ne; rw [←Mset.out_pairmem]; exact pm)
+    (fun a b a' c mem' => eq a b a' c ((hmem _).mp mem')) with ⟨s, hs⟩
+  exact ⟨s, fun b c mem' => (hmem _).mp (hi₀ ▸ hs b c mem')⟩

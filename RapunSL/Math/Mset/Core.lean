@@ -315,6 +315,16 @@ protected lemma Mset.pairmem_mem_l (A : Mset α) a b : A.pairmem a b → a ∈ A
 protected lemma Mset.pairmem_mem_r (A : Mset α) a b : A.pairmem a b → b ∈ A := by
   intro mem; symm at mem; apply Mset.pairmem_mem_l; trivial
 
+/-- Two members with distinct values form a pair membership -/
+protected lemma Ifam.mem_ne_pairmem (A : Ifam α) a b :
+    a ∈ A → b ∈ A → a ≠ b → A.pairmem a b := by
+  rintro ⟨i, rfl⟩ ⟨j, rfl⟩ ne; exact ⟨i, j, by rintro rfl; exact ne rfl, rfl, rfl⟩
+
+/-- Two members with distinct values form a pair membership -/
+protected lemma Mset.mem_ne_pairmem (A : Mset α) a b :
+    a ∈ A → b ∈ A → a ≠ b → A.pairmem a b := by
+  cases A using Quotient.ind; apply Ifam.mem_ne_pairmem
+
 @[simp] protected lemma Mset.out_pairmem (A : Mset α) a b :
     A.out.pairmem a b ↔ A.pairmem a b := by
   cases A using Quotient.ind; apply iff_of_eq; apply Ifam.pairmem_proper; apply Quotient.mk_out

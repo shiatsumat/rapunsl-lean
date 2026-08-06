@@ -140,6 +140,63 @@ lemma rmadd_mul_l (A : Mseti ρ) {B C BC : Mseti ρ} :
     change a * b + a * c = a * (b + c); symm;
     apply RR.add_mul_l; exact coh _ _ mem.2
 
+/-- Auxiliary for `rmadd_mul_inv_l`: extract a sum of the right factors -/
+private lemma rmadd_mul_inv_l' (A : Mseti ρ) {B C : Mseti ρ} {D : Mset ρ} :
+    (A * B).val +ᴿᴹ (A * C).val =ᴿᴹ D → (∀ d ∈ D, ✓ d) →
+    (∀ a a', A.val.pairmem a a' → a # a') →
+    ∃ BC, B.val +ᴿᴹ C.val =ᴿᴹ BC := by
+  intro hadd val incA;
+  have hmB : (A * B).val = Function.uncurry HMul.hMul <$>ᴹ (A.val ×ᴹ B.val) := by
+    rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold]
+  have hmC : (A * C).val = Function.uncurry HMul.hMul <$>ᴹ (A.val ×ᴹ C.val) := by
+    rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold]
+  rw [hmB, hmC] at hadd;
+  have valAB := rmadd_valid_l _ _ _ hadd val;
+  have valAC := rmadd_valid_r _ _ _ hadd val;
+  rcases hadd with ⟨r, coh, -⟩;
+  let r₂ : A.val ×ᴹ B.val ≃ᴹ A.val ×ᴹ C.val :=
+    (Mset.Bij.map_r (Function.uncurry HMul.hMul) (A.val ×ᴹ B.val)).trans
+      (r.trans (Mset.Bij.map_l (Function.uncurry HMul.hMul) (A.val ×ᴹ C.val)))
+  have key : ∀ a b a' c, ((a, b), (a', c)) ∈ r₂.graph →
+      (a, b) ∈ A.val ×ᴹ B.val ∧ (a', c) ∈ A.val ×ᴹ C.val ∧ a * b ≎ a' * c := by
+    intro a b a' c mem;
+    rcases Mset.Bij.trans_graph_mem _ _ _ _ mem with ⟨x, mem₁, mem₂⟩;
+    rw [Mset.Bij.map_r_graph_mem] at mem₁; rcases mem₁ with ⟨rfl, memAB⟩;
+    rcases Mset.Bij.trans_graph_mem _ _ _ _ mem₂ with ⟨y, mem₃, mem₄⟩;
+    rw [Mset.Bij.map_l_graph_mem] at mem₄; rcases mem₄ with ⟨rfl, memAC⟩;
+    exact ⟨memAB, memAC, coh _ _ mem₃⟩
+  have fst_eq : ∀ a b a' c, ((a, b), (a', c)) ∈ r₂.graph → a = a' := by
+    intro a b a' c mem;
+    rcases key _ _ _ _ mem with ⟨memAB, memAC, cohr⟩;
+    have vab : ✓ (a * b) := valAB _ (by rw [Mset.map'_mem]; exact ⟨(a, b), memAB, rfl⟩);
+    have va'c : ✓ (a' * c) := valAC _ (by rw [Mset.map'_mem]; exact ⟨(a', c), memAC, rfl⟩);
+    by_contra ne; rw [Mset.prod_mem] at memAB memAC;
+    have inc : a # a' := incA _ _ (Mset.mem_ne_pairmem _ _ _ memAB.1 memAC.1 ne);
+    apply PCMC.incomp_neg_coher _ _ vab ?_ cohr;
+    symm; apply PCMI.incomp_mul_l _ _ _ va'c; symm;
+    exact PCMI.incomp_mul_l _ _ _ vab inc
+  rcases A.prop with ⟨a₀, mem₀⟩;
+  rcases Mset.Bij.prod_cancel_l r₂ mem₀
+    (by rintro a a' pm rfl; exact PCMI.incomp_irrefl _ (incA _ _ pm)) fst_eq with ⟨s, hs⟩;
+  refine ⟨_, s, ?_, rfl⟩; intro b c mem;
+  rcases key _ _ _ _ (hs _ _ mem) with ⟨memAB, -, cohr⟩;
+  refine PCMC.coher_mul_inv_r a₀ b c (valAB _ ?_) cohr;
+  rw [Mset.map'_mem]; exact ⟨(a₀, b), memAB, rfl⟩
+
+/-- Cancel a common frame `A *` out of `+ᴿᴹ`, under validity of the sum and
+  pairwise incompatibility of `A` and `A * B` -/
+lemma rmadd_mul_inv_l (A : Mseti ρ) {B C : Mseti ρ} {D : Mset ρ} :
+    (A * B).val +ᴿᴹ (A * C).val =ᴿᴹ D → (∀ d ∈ D, ✓ d) →
+    (∀ a a', A.val.pairmem a a' → a # a') →
+    (∀ x x', (A * B).val.pairmem x x' → x # x') →
+    ∃ BC : Mseti ρ, (B.val +ᴿᴹ C.val =ᴿᴹ BC.val) ∧ D = (A * BC).val := by
+  intro hadd val incA incAB;
+  rcases rmadd_mul_inv_l' A hadd val incA with ⟨BC', hBC⟩;
+  have inh : BC'.inhab := rmadd_inhab _ _ _ hBC B.prop;
+  refine ⟨⟨_, inh⟩, hBC, ?_⟩;
+  exact rmadd_unique_l (A * B).val (A * C).val _ _ (rmadd_valid_l _ _ _ hadd val) incAB hadd
+    (rmadd_mul_l A (BC := ⟨_, inh⟩) hBC)
+
 /-! ## Sum connectives -/
 
 /-- Binary sum over `RProp` -/
@@ -273,6 +330,25 @@ lemma sum_frame_l : P ∗ (Q + R) ⊢ (P ∗ Q) + (P ∗ R) := by
 /-- Frame a proposition from the right into `+` -/
 lemma sum_frame_r : (P + Q) ∗ R ⊢ (P ∗ R) + (Q ∗ R) := by
   grw [sep_comm', sum_frame_l, sep_comm', sep_comm' R]
+
+/-- Unframe a frameable proposition from the left out of `+` -/
+lemma sum_unframe_l [Frameable P] [Unambig Q] : (P ∗ Q) + (P ∗ R) =ᴮᴵ P ∗ (Q + R) := by
+  ext1; constructor; swap; { apply sum_frame_l };
+  rintro D ⟨Ev, Fv, ⟨Av, Bv, elP, elQ, hE⟩, ⟨Av', Cv, elP', elR, hF⟩, hadd⟩;
+  rcases precise P _ _ elP elP' with rfl;
+  have incAB : ∀ x x', (Av.val * Bv.val).val.pairmem x x' → x # x' := by
+    rw [←hE]; exact unambig iprop(P ∗ Q) Ev ⟨Av, Bv, elP, elQ, hE⟩
+  rw [hE, hF] at hadd;
+  rcases rmadd_mul_inv_l Av.val hadd D.prop (unambig P _ elP) incAB with ⟨BC, hBC, hD⟩;
+  have valBC : ✓ BC := by
+    apply PCM.valid_mul_r Av.val BC; intro x mem;
+    apply D.prop; rwa [hD]
+  exact ⟨Av, ⟨BC, valBC⟩, elP, ⟨Bv, Cv, elQ, elR, hBC⟩, Subtype.ext hD⟩
+
+/-- Unframe a frameable proposition from the right out of `+` -/
+lemma sum_unframe_r [Unambig P] [Frameable R] : (P ∗ R) + (Q ∗ R) =ᴮᴵ (P + Q) ∗ R := by
+  ext1; constructor; swap; { apply sum_frame_r };
+  grw [sep_comm' iprop(P + Q), ←sum_unframe_l, sep_comm', sep_comm' Q]
 
 /-! ### Judgment rules -/
 
