@@ -122,6 +122,24 @@ lemma rmadd_assoc_l :
     { rw [←hgr, ←Mset.comp_map]; apply Mset.map_congr;
       rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.2.symm }
 
+/-- `*` over `Mseti`s distributes over `+ᴿᴹ` -/
+lemma rmadd_mul_l (A : Mseti ρ) {B C BC : Mseti ρ} :
+    B.val +ᴿᴹ C.val =ᴿᴹ BC.val → (A * B).val +ᴿᴹ (A * C).val =ᴿᴹ (A * BC).val := by
+  rintro ⟨r, coh, hBC⟩;
+  apply rmadd_map (A.val ×ᴹ r.graph) (fun (a, (b, _)) ↦ a * b) (fun (a, (_, c)) ↦ a * c);
+  · rintro ⟨a, b, c⟩ mem; rw [Mset.prod_mem] at mem;
+    change a * b ≎ a * c; apply PCMC.coher_mul_r; exact coh _ _ mem.2
+  · rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold];
+    rw (occs := [2]) [←Mset.Bij.graph_fst r];
+    rw [Mset.prod_map'_r, ←Mset.comp_map]; rfl
+  · rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold];
+    rw (occs := [2]) [←Mset.Bij.graph_snd r];
+    rw [Mset.prod_map'_r, ←Mset.comp_map]; rfl
+  · rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold, hBC, Mset.prod_map'_r, ←Mset.comp_map];
+    apply Mset.map_congr; rintro ⟨a, b, c⟩ mem; rw [Mset.prod_mem] at mem;
+    change a * b + a * c = a * (b + c); symm;
+    apply RR.add_mul_l; exact coh _ _ mem.2
+
 /-! ## Sum connectives -/
 
 /-- Binary sum over `RProp` -/
@@ -239,6 +257,22 @@ lemma add_false_l : P + False =ᴮᴵ False := by
 /-- `False` annihilates `+` in the left operand -/
 lemma add_false_r : False + P =ᴮᴵ False := by
   rw [add_comm, add_false_l]
+
+/-! ## Interaction with `∗` -/
+
+/-- Frame a proposition from the left into `+` -/
+lemma sum_frame_l : P ∗ (Q + R) ⊢ (P ∗ Q) + (P ∗ R) := by
+  rintro D ⟨Av, BCv, elP, ⟨Bv, Cv, elQ, elR, hBC⟩, hD⟩;
+  have hadd : (Av.val * Bv.val).val +ᴿᴹ (Av.val * Cv.val).val =ᴿᴹ D.val.val := by
+    rw [hD]; exact rmadd_mul_l Av.val hBC
+  have valB : ✓ (Av.val * Bv.val) := rmadd_valid_l _ _ _ hadd D.prop;
+  have valC : ✓ (Av.val * Cv.val) := rmadd_valid_r _ _ _ hadd D.prop;
+  exists ⟨Av.val * Bv.val, valB⟩, ⟨Av.val * Cv.val, valC⟩; and_intros;
+  { exists Av, Bv }; { exists Av, Cv }; { exact hadd }
+
+/-- Frame a proposition from the right into `+` -/
+lemma sum_frame_r : (P + Q) ∗ R ⊢ (P ∗ R) + (Q ∗ R) := by
+  grw [sep_comm', sum_frame_l, sep_comm', sep_comm' R]
 
 /-! ### Judgment rules -/
 
