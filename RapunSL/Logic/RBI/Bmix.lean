@@ -154,6 +154,9 @@ lemma pine_adj : (P ⊕ Q ⊢ R) ↔ (Q ⊢ P -⊕ R) := by
   constructor; { apply pine_intro_l };
   intro Qto; grw [Qto]; apply pine_elim_l
 
+@[gcongr] lemma pine_mono : (P' ⊢ P) → (Q ⊢ Q') → (P -⊕ Q) ⊢ P' -⊕ Q' := by
+  intro P'P QQ'; rw [←pine_adj]; grw [P'P, ←QQ']; rw [pine_adj]
+
 /-! ### Interaction of `⊕` and `⨁` with disjunction -/
 
 lemma bmix_exists_l (Q : α → RProp ρ) :
