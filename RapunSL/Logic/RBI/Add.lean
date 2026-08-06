@@ -130,6 +130,8 @@ lemma add_unfold :
       fun P Q => .mk fun C ↦ ∃ A B, A ∈ P ∧ B ∈ Q ∧
         A.val.val +ᴿᴹ B.val.val =ᴿᴹ C.val.val := rfl
 
+/-! ### Basic rules -/
+
 /-- `+` is monotone -/
 @[gcongr] lemma add_mono : (P ⊢ P') → (Q ⊢ Q') → P + Q ⊢ P' + Q' := by
   intro PP' QQ' _ ⟨A, B, _, _, _⟩; exists A, B; and_intros;
