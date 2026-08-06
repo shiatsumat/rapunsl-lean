@@ -147,7 +147,7 @@ lemma bmix_assoc : (P ⊕ Q) ⊕ R =ᴮᴵ P ⊕ (Q ⊕ R) := by
     (fun | ⟨true, b⟩ => if b then ⟨true, false⟩ else ⟨false, ()⟩ | ⟨false, _⟩ => ⟨true, true⟩) <;>
     { rintro ⟨(_ | _), i⟩; { rfl }; cases i <;> rfl }
 
-/-! ### Rules for `-⊕` -/
+/-! ### Basic rules for `-⊕` -/
 
 /-- Introduce `-⊕`, absorbing the left operand of `⊕` -/
 lemma pine_intro_l : (P ⊕ Q ⊢ R) → Q ⊢ P -⊕ R := by
@@ -174,7 +174,7 @@ lemma pine_adj : (P ⊕ Q ⊢ R) ↔ (Q ⊢ P -⊕ R) := by
 @[gcongr] lemma pine_mono : (P' ⊢ P) → (Q ⊢ Q') → (P -⊕ Q) ⊢ P' -⊕ Q' := by
   intro P'P QQ'; rw [←pine_adj]; grw [P'P, ←QQ']; rw [pine_adj]
 
-/-! ### Interaction of `⊕` and `⨁` with disjunction -/
+/-! ### Interaction with disjunction -/
 
 /-- `⊕` commutes with `∃` in the right operand -/
 lemma bmix_exists_l (Q : α → RProp ρ) :
@@ -211,7 +211,7 @@ lemma bigbmix_exists [Inhabited ι] {α : ι → Sort*} (P : ∀ i, α i → RPr
   simp only [exists_simple]; rintro ⟨_, _⟩ ⟨F, el, rfl⟩;
   have ⟨f, el⟩ := Classical.skolem.mp el; exists f; exists F
 
-/-! ## Interaction of `⊕` and `⨁` with `∗` -/
+/-! ## Interaction with `∗` -/
 
 /-- Frame a proposition from the left into `⨁` -/
 lemma bigbmix_frame_l [Inhabited ι] (Q : ι → RProp ρ) :

@@ -183,7 +183,7 @@ instance RProp.instAddCommSemigroup : AddCommSemigroup (RProp ρ) where
     rw [add_comm P (Q + R), add_comm Q R, add_comm P Q, add_comm (Q + P) R];
     apply add_assoc'
 
-/-! ### Rules for `-+` -/
+/-! ### Basic rules for `-+` -/
 
 /-- Introduce `-+`, absorbing the left operand of `+` -/
 lemma cross_intro_l : (P + Q ⊢ R) → Q ⊢ P -+ R := by
@@ -211,7 +211,7 @@ lemma cross_adj : (P + Q ⊢ R) ↔ (Q ⊢ P -+ R) := by
 @[gcongr] lemma cross_mono : (P' ⊢ P) → (Q ⊢ Q') → (P -+ Q) ⊢ P' -+ Q' := by
   intro P'P QQ'; rw [←cross_adj]; grw [P'P, ←QQ']; rw [cross_adj]
 
-/-! ### Interaction of `+` with disjunction -/
+/-! ### Interaction with disjunction -/
 
 /-- `+` commutes with `∃` in the right operand -/
 lemma add_exists_l (Q : α → RProp ρ) :
