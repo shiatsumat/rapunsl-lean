@@ -14,12 +14,12 @@ variable {ρ : Type u} [RR ρ] (P P' Q Q' R : RProp ρ)
 /-! ## Sum connectives -/
 
 /-- Addition of `Mset`s -/
-def Mset.radd (A B C : Mset ρ) : Prop :=
+def rmadd (A B C : Mset ρ) : Prop :=
   ∃ AB : A ≃ᴹ B,
     (∀ a b, (a, b) ∈ AB.graph → a ≎ b) ∧
     C = (fun (a, b) ↦ a + b) <$>ᴹ AB.graph
 
-scoped macro:50 A:term:50 " +ᴿᴹ " B:term " =ᴿᴹ " C:term:50 : term => `(RBI.Mset.radd $A $B $C)
+scoped macro:50 A:term:50 " +ᴿᴹ " B:term " =ᴿᴹ " C:term:50 : term => `(RBI.rmadd $A $B $C)
 
 /-- Binary sum over `RProp` -/
 instance RProp.instAdd : Add (RProp ρ) where
@@ -38,7 +38,7 @@ lemma add_unfold :
   { apply PP'; trivial }; { apply QQ'; trivial }; trivial
 
 /-- `+ᴿᴹ` is commutative -/
-lemma radd_comm' : A +ᴿᴹ B =ᴿᴹ C → B +ᴿᴹ A =ᴿᴹ C := by
+lemma rmadd_comm' : A +ᴿᴹ B =ᴿᴹ C → B +ᴿᴹ A =ᴿᴹ C := by
   rintro ⟨AB, coh, rfl⟩; exists AB.symm; and_intros;
   · intro _ _; rw [Bij.symm_graph_mem]; intro _; symm; apply coh; trivial
   · simp only [Bij.symm_graph, ←Mset.comp_map];
@@ -47,14 +47,14 @@ lemma radd_comm' : A +ᴿᴹ B =ᴿᴹ C → B +ᴿᴹ A =ᴿᴹ C := by
 /-- `+` is commutative -/
 private lemma add_comm' : P + Q ⊢ Q + P := by
   intro _ ⟨A, B, _, _, _⟩; exists B, A; and_intros; { trivial }; { trivial };
-  apply radd_comm'; trivial
+  apply rmadd_comm'; trivial
 
 /-- `+` is commutative -/
 instance RProp.instAddCommMagma : AddCommMagma (RProp ρ) where
   add_comm := by intro _ _; ext; constructor <;> apply add_comm'
 
 /-- Construct `+ᴿᴹ` from a multiset of coherent pairs -/
-lemma pairs_radd (S : Mset (ρ × ρ)) :
+lemma pairs_rmadd (S : Mset (ρ × ρ)) :
     (∀ a b, (a, b) ∈ S → a ≎ b) →
     (Prod.fst <$>ᴹ S) +ᴿᴹ (Prod.snd <$>ᴹ S) =ᴿᴹ (fun (a, b) ↦ a + b) <$>ᴹ S := by
   intro coh;
@@ -66,7 +66,7 @@ lemma pairs_radd (S : Mset (ρ × ρ)) :
   { rw [hg]; exact coh }; { rw [hg] }
 
 /-- Construct `+ᴿᴹ` from two coherent images of a common multiset -/
-lemma radd_map {σ : Type*} (S : Mset σ) (f g : σ → ρ) {A B C : Mset ρ} :
+lemma rmadd_map {σ : Type*} (S : Mset σ) (f g : σ → ρ) {A B C : Mset ρ} :
     (∀ x ∈ S, f x ≎ g x) → f <$>ᴹ S = A → g <$>ᴹ S = B →
     (fun x ↦ f x + g x) <$>ᴹ S = C → A +ᴿᴹ B =ᴿᴹ C := by
   rintro coh rfl rfl rfl;
@@ -74,16 +74,16 @@ lemma radd_map {σ : Type*} (S : Mset σ) (f g : σ → ρ) {A B C : Mset ρ} :
     intro a b mem; rw [Mset.map'_mem] at mem;
     rcases mem with ⟨x, memS, eq⟩; injection eq with ea eb; subst ea; subst eb;
     exact coh _ memS
-  have h := pairs_radd _ hcoh;
+  have h := pairs_rmadd _ hcoh;
   rw [←Mset.comp_map, ←Mset.comp_map, ←Mset.comp_map] at h; exact h
 
 /-- `+ᴿᴹ` preserves inhabitedness -/
-lemma radd_inhab : A +ᴿᴹ B =ᴿᴹ C → A.inhab → C.inhab := by
+lemma rmadd_inhab : A +ᴿᴹ B =ᴿᴹ C → A.inhab → C.inhab := by
   rintro ⟨r, _, rfl⟩ inh; rw [Mset.inhab_map'];
   rw [←Mset.Bij.graph_fst r, Mset.inhab_map'] at inh; exact inh
 
 /-- `+ᴿᴹ` transfers validity of the sum to the right-hand summand -/
-lemma radd_valid_r : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ b ∈ B, ✓ b := by
+lemma rmadd_valid_r : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ b ∈ B, ✓ b := by
   rintro ⟨r, coh, rfl⟩ val b elB;
   rw [←Mset.Bij.graph_snd r, Mset.map'_mem] at elB;
   rcases elB with ⟨⟨a, b'⟩, mem, rfl⟩;
@@ -99,7 +99,7 @@ private lemma add_pointwise {a b c : ρ} :
     RR.add_assoc _ _ _ h₁ hbc⟩
 
 /-- `+ᴿᴹ` is associative -/
-lemma radd_assoc_l :
+lemma rmadd_assoc_l :
     A +ᴿᴹ B =ᴿᴹ AB → AB +ᴿᴹ C =ᴿᴹ ABC → ∃ BC, B +ᴿᴹ C =ᴿᴹ BC ∧ A +ᴿᴹ BC =ᴿᴹ ABC := by
   rintro ⟨r₁, coh₁, rfl⟩ ⟨r₂, coh₂, rfl⟩;
   rcases Mset.Bij.graph_unmap_l (fun ((a, b) : ρ × ρ) ↦ a + b) r₂ with ⟨S, hfst, hsnd, hgr⟩;
@@ -108,12 +108,12 @@ lemma radd_assoc_l :
     { apply coh₁; rw [←hfst, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩ };
     { apply coh₂; rw [←hgr, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩ }
   refine ⟨(fun ((a, b), c) ↦ b + c) <$>ᴹ S, ?_, ?_⟩
-  · apply radd_map S (fun ((a, b), c) ↦ b) Prod.snd;
+  · apply rmadd_map S (fun ((a, b), c) ↦ b) Prod.snd;
     · rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).1
     · rw [←Mset.Bij.graph_snd r₁, ←hfst, ←Mset.comp_map]; rfl
     · exact hsnd
     · rfl
-  · apply radd_map S (fun ((a, b), c) ↦ a) (fun ((a, b), c) ↦ b + c);
+  · apply rmadd_map S (fun ((a, b), c) ↦ a) (fun ((a, b), c) ↦ b + c);
     · rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.1
     · rw [←Mset.Bij.graph_fst r₁, ←hfst, ←Mset.comp_map]; rfl
     · rfl
@@ -123,9 +123,9 @@ lemma radd_assoc_l :
 /-- `+` is associative -/
 private lemma add_assoc' : (P + Q) + R ⊢ P + (Q + R) := by
   rintro D ⟨ABv, Cv, ⟨Av, Bv, elP, elQ, hAB⟩, elR, hABC⟩;
-  rcases radd_assoc_l _ _ _ _ _ hAB hABC with ⟨BC, hBC, hA⟩;
-  have inh : BC.inhab := radd_inhab _ _ _ hBC Bv.val.property;
-  have val : ∀ b ∈ BC, ✓ b := radd_valid_r _ _ _ hA D.property;
+  rcases rmadd_assoc_l _ _ _ _ _ hAB hABC with ⟨BC, hBC, hA⟩;
+  have inh : BC.inhab := rmadd_inhab _ _ _ hBC Bv.val.property;
+  have val : ∀ b ∈ BC, ✓ b := rmadd_valid_r _ _ _ hA D.property;
   exists Av, ⟨⟨BC, inh⟩, val⟩; and_intros;
   { trivial }; { exists Bv, Cv }; { trivial }
 
