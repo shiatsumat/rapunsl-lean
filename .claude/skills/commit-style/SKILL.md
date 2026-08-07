@@ -24,3 +24,15 @@ When the subject enumerates several declarations sharing a common name prefix, w
 Don't enumerate secondary changes such as auxiliary library lemmas added along the way.
 
 **Example:** `Add add_instUnambig in RBI.Add`, not `Add add_instUnambig in RBI.Add, with add_incomp lemmas in RR`.
+
+## State only the change, not the rationale
+
+The subject names the change itself; trailing clauses explaining motivation are noise.
+
+**Example:** `Drop module-system bullet from AGENTS.md`, not `Drop module-system bullet from AGENTS.md, deferring to new-module skill`.
+
+## "Introduce" for new modules
+
+When the commit's main deliverable is a whole new module, write `Introduce <Module>`. Keep `Add <decls> in <Module>` for new declarations inside an existing module.
+
+**Example:** `Introduce Math.Algebra.Finiprod`, not `Add Math.Algebra.Finiprod`.
