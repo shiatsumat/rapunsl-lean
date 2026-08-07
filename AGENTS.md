@@ -45,6 +45,10 @@ There is no separate test suite or lint command; the build itself is the check. 
 
 Superscripts tag the level an operator lives at: `ᴵ` = `Ifam`, `ᴹ` = `Mset`, `ᴹⁱ` = `Mseti` (e.g. `<$>ᴹ`, `⊕ᴹⁱ`, `⨁ᴹ`, `≃ᴹ`, `×ᴹ`, `<*>ᴹ`, `>>=ᴹ` and their variants at each level).
 
+Finite products/sums (scoped in `Finiprod`, `Finisum`):
+
+- `∏ᶠⁱ i, a i`, `∑ᶠⁱ i, a i` — product/sum over a finite inhabited type (`finiprod`, `finisum`)
+
 Algebra (scoped in `PCM`, `PCMI`, `PCMC`, `RR`):
 
 - `✓ a` — validity (`PCM.valid`)
@@ -69,6 +73,7 @@ The library root is `RapunSL.lean` → `RapunSL.Math` + `RapunSL.Logic`. The lay
 2. **`RapunSL/Math/Algebra/`** — the resource-algebra hierarchy in `PCM.lean` and `RR.lean`:
    `CommMonoid'` → `PCM` (partial commutative monoid with validity `✓`) → `PCMI` (adds incompatibility `#`) → `PCMC` (coherence) and `PCMP` (probability/weights via `ENNReal`) → `RR` (resource ring, combining `PCMC` and `PCMP`).
    `Algebra/Mseti.lean` lifts algebra structure to inhabited multisets and defines `Msetiv α = { A : Mseti α // ✓ A }` (valid inhabited multisets), the carrier of the model.
+   `Algebra/Finiprod.lean` defines `FiniType` (finite inhabited types) and the product `∏ᶠⁱ` of a `CommSemigroup`-valued and the sum `∑ᶠⁱ` of an `AddCommSemigroup`-valued family over a `FiniType`.
 
    **Caution — for `RR`, work with `+`, not `radd`.** The relation `radd` (`+ᴿ`) is only the primitive underlying the total addition `+`. Downstream proofs should stay in the `+` world and use its lemmas (`RR.add_assoc`, `RR.add_coher_l`/`r`, `RR.add_valid_l`/`r`, …). When a fact about `+` is missing, add it as a lemma in `Algebra/RR.lean` (where proving it via `radd` is fine) rather than reaching for `radd` at the use site.
 
@@ -94,3 +99,4 @@ Lessons learned working in this codebase:
 - **Relating `Mseti` multiplication to `Mset` combinators.** `(A * B).val` unfolds by `Mseti.mul_val` into the generic `HMul.hMul <$> A.val <*> B.val`; follow with `Mset.map_seq` to reach `Function.uncurry HMul.hMul <$> (A.val ×ᴹ B.val)` and `Mset.map_unfold` to turn `<$>` into `<$>ᴹ`. From there the `×ᴹ` lemmas (`Mset.prod_map'_r`, `←Mset.comp_map`, …) apply, ending in the usual `; rfl`.
 - **Use `change`, not `show`, to restate a goal up to defeq.** The Mathlib linter set flags `show` whenever it actually changes the goal (e.g. reducing a pattern-match lambda applied to a tuple after `rintro`); `change` is the accepted tactic for that.
 - **`Msetiv` equality and validity.** `Msetiv α = { A : Mseti α // ✓ A }` is a subtype of a subtype: prove `Msetiv` equality with two `Subtype.ext`s, reducing to `Mset` equality. For `A : Msetiv α`, `A.prop : ✓ A.val` is definitionally `∀ a ∈ A.val.val, ✓ a` and can be passed directly where the latter is expected. Use `.prop`, not the longer `.property`.
+- **New `finiprod`/`finisum` lemmas go through `WithOne`/`WithZero`.** `finiprod` is defined by lifting into `WithOne α`: prove facts by moving the goal there with `coe_finiprod`, inducting over the product with `Finset.prod_induction_nonempty` (nonemptiness from `Finset.univ_nonempty`), and pulling the result back along `WithOne.coe_inj`. To relate two `finiprod`s pointwise, take the product of pairs in `WithOne α × WithOne β` and split it with `Prod.fst_prod`/`Prod.snd_prod` — or use `finiprod_rel`/`finisum_rel`, which packages this for any multiplication-compatible relation (see `finisum_mono` in `RBI/Add.lean` for a use).
