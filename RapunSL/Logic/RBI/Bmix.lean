@@ -203,7 +203,7 @@ lemma bmix_false_l : P ⊕ False =ᴮᴵ False := by
 lemma bmix_false_r : False ⊕ P =ᴮᴵ False := by
   rw [bmix_comm, bmix_false_l]
 
-/-- `⨁` commutes with `∃`, by choice -/
+/-- `⨁` distributes over `∃` -/
 lemma bigbmix_exists [Inhabited ι] {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
     (⨁ i, ∃ a, P i a) =ᴮᴵ ∃ f : (∀ i, α i), ⨁ i, P i (f i) := by
   ext1; constructor; swap;
