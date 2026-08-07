@@ -172,8 +172,8 @@ lemma finiprod_fin (a : ι → α) :
     ∏ᶠⁱ i, a i = ∏ᶠⁱ i', a (Finitype.equivFin.symm i') := by
   symm; apply finiprod_bij
 
-/-- Transfer a multiplication-compatible relation to `∏ᶠⁱ`s -/
-@[to_additive finisum_rel /-- Transfer an addition-compatible relation to `∑ᶠⁱ`s -/]
+/-- Transfer a multiplication-compatible binary relation to `∏ᶠⁱ`s -/
+@[to_additive finisum_rel /-- Transfer an addition-compatible binary relation to `∑ᶠⁱ`s -/]
 lemma finiprod_rel {β : Type*} [CommSemigroup β] (r : α → β → Prop) (a : ι → α) (b : ι → β) :
     (∀ x y x' y', r x y → r x' y' → r (x * x') (y * y')) →
     (∀ i, r (a i) (b i)) → r (∏ᶠⁱ i, a i) (∏ᶠⁱ i, b i) := by
