@@ -9,7 +9,7 @@ Subject lines follow the repo's terse imperative style, e.g. `Prove add_assoc`, 
 
 ## Refer to files by module name, not file name
 
-Write `RBI.Add` or `Math.Algebra.RR`, never `Add.lean`. Bare file names are ambiguous — several directories could plausibly contain an `Add.lean` — while the dotted module path is unique and matches how the user refers to files.
+Write `RBI.Add` or `Math.Algebra.RR`, never `Add.lean`. Bare file names are ambiguous — several directories could plausibly contain an `Add.lean` — while the dotted module path is unique and matches how the user refers to files. Leading segments can be dropped when the suffix stays unambiguous (`RBI.Add` for `Logic.RBI.Add`, `Algebra.Finiprod` for `Math.Algebra.Finiprod`).
 
 **Example:** `Add add_satis in RBI.Add`, not `Add add_satis in Add.lean`.
 
@@ -30,6 +30,12 @@ Don't enumerate secondary changes such as auxiliary library lemmas added along t
 The subject names the change itself; trailing clauses explaining motivation are noise.
 
 **Example:** `Drop module-system bullet from AGENTS.md`, not `Drop module-system bullet from AGENTS.md, deferring to new-module skill`.
+
+## "Comment tweak" for minor comment-only changes
+
+When a commit only adjusts comments or doc comments, the generic subject `Comment tweak in <Module>` (or `Minor comment tweaks` across several files) suffices; don't describe which comments changed or how.
+
+**Example:** `Comment tweak in Algebra.Finiprod`, not `Write ∏ᶠⁱ/∑ᶠⁱ in doc comments of Math.Algebra.Finiprod`.
 
 ## "Introduce" for new modules
 
