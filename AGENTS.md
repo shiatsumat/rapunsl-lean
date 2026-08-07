@@ -56,11 +56,16 @@ Algebra (scoped in `PCM`, `PCMI`, `PCMC`, `RR`):
 - `a ≎ b` — coherence (`PCMC.coher`)
 - `a +ᴿ b =ᴿ c` — addition relation in a resource ring (`RR.radd`)
 
+Logic, over any BI (unscoped, from `Logic/BI.lean`):
+
+- `P =ᴮᴵ Q` — equality of BI propositions, with both sides elaborated as `iprop`; used to state connective laws as equalities. Over a `BIE` (BI with extensionality, e.g. `RProp`), prove it by `ext1`, which reduces the goal to `⊣⊢`.
+
 Logic, over `RProp` (scoped in `RBI`):
 
 - `P ⊕ Q`, `⨁ i, P i` — bare mixing (`bmix`, `bigbmix`); `P -⊕ Q` — pine, the right adjoint of `⊕`
+- `P + Q`, `∑ᶠⁱ i, P i` — sum connectives: the ordinary generic `+` and `∑ᶠⁱ`, via instances on `RProp`; `P -+ Q` — cross, the right adjoint of `+`
 - `P #ᴿ Q` — incompatibility of propositions (`Incomp`); `P ≎ᴿ Q` — coherence of propositions (`Coher`)
-- `A +ᴿᴹ B =ᴿᴹ C` — addition relation on `Mset`s (`RBI.Mset.radd`), auxiliary to `+` on `RProp`
+- `A +ᴿᴹ B =ᴿᴹ C` — addition relation on `Mset`s (`RBI.rmadd`), auxiliary to `+` on `RProp`
 
 ## Architecture
 
@@ -78,10 +83,10 @@ The library root is `RapunSL.lean` → `RapunSL.Math` + `RapunSL.Logic`. The lay
    **Caution — for `RR`, work with `+`, not `radd`.** The relation `radd` (`+ᴿ`) is only the primitive underlying the total addition `+`. Downstream proofs should stay in the `+` world and use its lemmas (`RR.add_assoc`, `RR.add_coher_l`/`r`, `RR.add_valid_l`/`r`, …). When a fact about `+` is missing, add it as a lemma in `Algebra/RR.lean` (where proving it via `radd` is fine) rather than reaching for `radd` at the use site.
 
 3. **`RapunSL/Logic/`** — the logic itself:
-   - `BI.lean`: utilities over iris-lean's `BI` type class (preorder/equivalence instances for `⊢`/`⊣⊢`, connective reinterpretations).
+   - `BI.lean`: utilities over iris-lean's `BI` type class (preorder/equivalence instances for `⊢`/`⊣⊢`, connective reinterpretations), the `BIE` class (BI with extensionality: `⊣⊢` implies `=`, registered `@[ext]`), and the `=ᴮᴵ` notation.
    - `RBI/Core.lean`: RapunSL's model — `RProp ρ [RR ρ] = DiscreteO (Set (Msetiv ρ))` with its `BIBase`/`BI` instances (entailment is set inclusion, separating conjunction via the PCM).
    - `RBI/Bmix.lean`: bare mixing connectives (`⊕`, big mixing `⨁`, and its adjoint).
-   - `RBI/Add.lean`: the sum connective `+` on `RProp` (via `RProp.instAdd`). The relation `RBI.rmadd` (notation `A +ᴿᴹ B =ᴿᴹ C`, "adding multisets `A` and `B` can yield `C`") is only an auxiliary definition used to state it.
+   - `RBI/Add.lean`: the sum connectives on `RProp` — the binary `+`, its right adjoint `-+` (`cross`), and the finite sum `∑ᶠⁱ`. Here `+` and `∑ᶠⁱ` are the generic operations, not bespoke notation: `+` is Lean's `HAdd.hAdd` via `RProp.instAdd`/`instAddCommSemigroup` (so `add_comm`/`add_assoc` and other generic lemmas apply), and `∑ᶠⁱ` is `Finisum`'s `finisum` instantiated through that `AddCommSemigroup` instance. The relation `RBI.rmadd` (notation `A +ᴿᴹ B =ᴿᴹ C`, "adding multisets `A` and `B` can yield `C`") is only an auxiliary definition used to state `+`.
 
 When adding a file, follow the `new-module` skill (`.claude/skills/new-module/SKILL.md`): it covers placement, the module-system boilerplate, and registration in the directory's umbrella module.
 
