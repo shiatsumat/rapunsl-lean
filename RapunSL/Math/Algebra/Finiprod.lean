@@ -91,4 +91,25 @@ lemma finiprod_finiprod (a : ι → ι' → α) :
     ∏ᶠⁱ i, ∏ᶠⁱ i', a i i' = ∏ᶠⁱ i', ∏ᶠⁱ i, a i i' := by
   simp only [finiprod_prod]; apply finiprod_bij' (Equiv.prodComm _ _); tauto
 
+/-- Transfer a multiplication-compatible relation to `finiprod`s -/
+@[to_additive finisum_rel /-- Transfer an addition-compatible relation to `finisum`s -/]
+lemma finiprod_rel {β : Type*} [CommSemigroup β] (r : α → β → Prop) (a : ι → α) (b : ι → β) :
+    (∀ x y x' y', r x y → r x' y' → r (x * x') (y * y')) →
+    (∀ i, r (a i) (b i)) → r (finiprod a) (finiprod b) := by
+  intro mul rel
+  have key : ∃ (c : α) (d : β),
+      (∏ i, ((a i : WithOne α), (b i : WithOne β))).1 = ↑c ∧
+      (∏ i, ((a i : WithOne α), (b i : WithOne β))).2 = ↑d ∧ r c d := by
+    apply Finset.prod_induction_nonempty _
+      (fun x : WithOne α × WithOne β => ∃ (c : α) (d : β), x.1 = ↑c ∧ x.2 = ↑d ∧ r c d)
+      ?_ Finset.univ_nonempty fun i _ => ⟨a i, b i, rfl, rfl, rel i⟩
+    rintro x y ⟨c, d, hc, hd, rcd⟩ ⟨c', d', hc', hd', rcd'⟩
+    refine ⟨c * c', d * d', ?_, ?_, mul _ _ _ _ rcd rcd'⟩
+    · rw [Prod.fst_mul, hc, hc', WithOne.coe_mul]
+    · rw [Prod.snd_mul, hd, hd', WithOne.coe_mul]
+  rcases key with ⟨c, d, hc, hd, rcd⟩
+  rw [Prod.fst_prod] at hc; rw [Prod.snd_prod] at hd
+  obtain rfl : finiprod a = c := WithOne.coe_inj.mp ((coe_finiprod a).trans hc)
+  obtain rfl : finiprod b = d := WithOne.coe_inj.mp ((coe_finiprod b).trans hd); exact rcd
+
 end finiprod

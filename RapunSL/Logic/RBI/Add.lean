@@ -1,7 +1,8 @@
 module
 
 public import RapunSL.Logic.RBI.Core
-open Iris BI RBI Mset Mseti PCM PCMI PCMC RR
+public import RapunSL.Math.Algebra.Finiprod
+open Iris BI RBI Mset Mseti PCM PCMI PCMC RR Finisum
 
 @[expose] public section
 
@@ -257,6 +258,17 @@ instance RProp.instAddCommSemigroup : AddCommSemigroup (RProp ρ) where
     intro P Q R; apply entails_antisymm; { apply add_assoc' };
     rw [add_comm P (Q + R), add_comm Q R, add_comm P Q, add_comm (Q + P) R];
     apply add_assoc'
+
+/-! ### Sum over an finite inhabited type -/
+
+scoped macro_rules
+  | `(iprop(∑ᶠⁱ $i, $P)) => `(∑ᶠⁱ $i, iprop($P))
+
+variable {ι : Type*} [FiniType ι] (Φ Ψ : ι → RProp ρ)
+
+/-- `∑ᶠⁱ` is monotone -/
+lemma finisum_mono : (∀ i, Φ i ⊢ Ψ i) → ∑ᶠⁱ i, Φ i ⊢ ∑ᶠⁱ i, Ψ i := by
+  intro mono; exact finisum_rel (· ⊢ ·) Φ Ψ add_mono mono
 
 /-! ### Basic rules for `-+` -/
 
