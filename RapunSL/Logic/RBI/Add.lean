@@ -328,6 +328,38 @@ lemma add_false_l : P + False =ᴮᴵ False := by
 lemma add_false_r : False + P =ᴮᴵ False := by
   rw [add_comm, add_false_l]
 
+/-- `∑ᶠⁱ` distributes over `∃` -/
+lemma finisum_exists {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
+    (∑ᶠⁱ i, ∃ a, P i a) =ᴮᴵ ∃ f : (∀ i, α i), ∑ᶠⁱ i, P i (f i) := by
+  suffices h : ∀ n {α : Fin (n + 1) → Sort _} (P : ∀ k, α k → RProp ρ),
+      (∑ᶠⁱ k, ∃ a, P k a) =ᴮᴵ ∃ f : (∀ k, α k), ∑ᶠⁱ k, P k (f k) by
+    rw [finisum_fin (fun i ↦ ∃ a, P i a), h _ fun k ↦ P (Finitype.equivFin.symm k)];
+    ext1; constructor;
+    · apply exists_elim; intro g;
+      grw [←exists_intro ((Equiv.piCongrLeft' α Finitype.equivFin).symm g)];
+      rw [finisum_fin (fun i ↦ P i ((Equiv.piCongrLeft' α Finitype.equivFin).symm g i))];
+      simp only [Equiv.piCongrLeft'_symm_apply_apply]; rfl
+    · apply exists_elim; intro f;
+      grw [←exists_intro fun k ↦ f (Finitype.equivFin.symm k), finisum_fin]
+  intro n; induction n with
+  | zero =>
+    intro α P; simp only [Nat.reduceAdd, finisum_fin_one];
+    ext1; constructor;
+    · apply exists_elim; intro a;
+      grw [←exists_intro (Ψ := fun f : ∀ k, α k ↦ P 0 (f 0)) (Fin.cases a fun i ↦ i.elim0)];
+      simp only [Fin.cases_zero]; rfl
+    · apply exists_elim; intro f; exact exists_intro (f 0)
+  | succ n ih =>
+    intro α P; simp only [finisum_fin_succ];
+    rw [ih fun k ↦ P k.castSucc]; simp only [add_exists_r, add_exists_l];
+    ext1; constructor;
+    · apply exists_elim; intro a; apply exists_elim; intro g;
+      grw [←exists_intro (Fin.lastCases a g)];
+      simp only [Fin.lastCases_last, Fin.lastCases_castSucc]; rfl
+    · apply exists_elim; intro f;
+      grw [←exists_intro (f (Fin.last (n + 1))),
+        ←exists_intro fun k : Fin (n + 1) ↦ f k.castSucc]
+
 /-! ## Interaction with `∗` -/
 
 /-- Frame a proposition from the left into `+` -/
