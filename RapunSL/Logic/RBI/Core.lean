@@ -373,12 +373,12 @@ lemma frameable_unambig : Frameable P → Unambig P := by
   intro _; infer_instance
 
 /-- Frameability by preciseness and unambiguity -/
-lemma make_frameable : Precise P → Unambig P → Frameable P := by
+lemma Frameable.make : Precise P → Unambig P → Frameable P := by
   intro _ _; infer_instance
 
 /-- Frameability is antitone -/
 lemma frameable_anti [Frameable Q] : (P ⊢ Q) → Frameable P := by
-  intro PQ; apply make_frameable;
+  intro PQ; apply Frameable.make;
   { apply precise_anti _ _ PQ }; { apply unambig_anti _ _ PQ }
 
 /-- Frameability of `False` -/

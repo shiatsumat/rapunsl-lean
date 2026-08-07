@@ -340,13 +340,13 @@ lemma bmix_unambig [Unambig P] [Unambig Q] :
 lemma bigbmix_frameable [Inhabited ι] (P : ι → RProp ρ) :
     (∀ i, Frameable (P i)) → (∀ i j, i ≠ j → P i #ᴿ P j) →
     Frameable (ρ := ρ) iprop(⨁ i, P i) := by
-  intro _ _; apply make_frameable; { infer_instance };
+  intro _ _; apply Frameable.make; { infer_instance };
   apply bigbmix_unambig; { infer_instance }; { trivial }
 
 /-- Frameability over `⊕` -/
 lemma bmix_frameable [Frameable P] [Frameable Q] :
     (P #ᴿ Q) → Frameable (ρ := ρ) iprop(P ⊕ Q) := by
-  intro _; apply make_frameable; { infer_instance };
+  intro _; apply Frameable.make; { infer_instance };
   apply bmix_unambig; trivial
 
 /-! ## Rules for `Coher` -/
