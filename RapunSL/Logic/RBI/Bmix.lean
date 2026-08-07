@@ -84,19 +84,19 @@ lemma unary_bigbmix : (⨁ (_ : Unit), P) =ᴮᴵ P := by
 /-! ### Commutativity -/
 
 /-- `⨁` is invariant under reindexing along an equivalence, one direction -/
-private lemma bigbmix_comm_fwd [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
-    (⨁ i, P i) ⊢ ⨁ j, P (f j) := by
+private lemma bigbmix_comm_bwd [Inhabited ι] [Inhabited ι'] (f : ι ≃ ι') (P : ι' → RProp ρ) :
+    (⨁ j, P j) ⊢ ⨁ i, P (f i) := by
   intro _ ⟨A, _, eq⟩; exists A ∘ f; rw [eq]; and_intros; { tauto };
-  ext1; simp only [Mseti.bigoplus_val]; rw [Mset.bigoplus_comm f]; rfl
+  ext1; simp only [Mseti.bigoplus_val]; rw [←Mset.bigoplus_comm f]; rfl
 
 /-- `⨁` is invariant under reindexing along an equivalence, the other direction -/
-private lemma bigbmix_comm_bwd [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
-    (⨁ j, P (f j)) ⊢ ⨁ i, P i := by
-  grw [bigbmix_comm_fwd f.symm]; gcongr; rw [Equiv.apply_symm_apply]
+private lemma bigbmix_comm_fwd [Inhabited ι] [Inhabited ι'] (f : ι ≃ ι') (P : ι' → RProp ρ) :
+    (⨁ i, P (f i)) ⊢ ⨁ j, P j := by
+  grw [bigbmix_comm_bwd f.symm]; gcongr; rw [Equiv.apply_symm_apply]
 
 /-- `⨁` is invariant under reindexing along an equivalence -/
-lemma bigbmix_comm [Inhabited ι] [Inhabited ι'] (f : ι' ≃ ι) (P : ι → RProp ρ) :
-    (⨁ i, P i) =ᴮᴵ ⨁ j, P (f j) := by
+lemma bigbmix_comm [Inhabited ι] [Inhabited ι'] (f : ι ≃ ι') (P : ι' → RProp ρ) :
+    (⨁ i, P (f i)) =ᴮᴵ ⨁ j, P j := by
   ext1; constructor; { apply bigbmix_comm_fwd }; { apply bigbmix_comm_bwd }
 
 /-- `⨁` is invariant under reindexing, with the equivalence given by explicit inverses -/
@@ -104,11 +104,11 @@ lemma bigbmix_comm' [Inhabited ι] [Inhabited ι']
     (P : ι → RProp ρ) (Q : ι' → RProp ρ) (f : ι → ι') (g : ι' → ι) :
     (∀ i, P i = Q (f i)) → g.LeftInverse f → g.RightInverse f →
     (⨁ i, P i) =ᴮᴵ ⨁ j, Q j := by
-  intro _ li ri; rw [bigbmix_comm ⟨f, g, li, ri⟩]; congr; ext1 _; tauto
+  intro _ li ri; rw [←bigbmix_comm ⟨f, g, li, ri⟩]; congr; ext1 _; tauto
 
 /-- `⊕` is commutative -/
 lemma bmix_comm : P ⊕ Q =ᴮᴵ Q ⊕ P := by
-  simp only [bmix_as_bigbmix]; rw [bigbmix_comm Equiv.boolNot]; congr;
+  simp only [bmix_as_bigbmix]; rw [←bigbmix_comm Equiv.boolNot]; congr;
   simp only [Equiv.boolNot_apply]; grind only
 
 /-! ### Associativity -/

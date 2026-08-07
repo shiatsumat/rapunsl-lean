@@ -148,13 +148,13 @@ protected lemma Mset.bigoplus_map (f : α → β) (A : ι → Mset α) :
 
 /-- `⨁ᴵ` is invariant under reindexing along an equivalence -/
 protected lemma Ifam.bigoplus_comm {ι ι' : Type} (f : ι ≃ ι') (A : ι' → Ifam α) :
-    Ifam.bigoplus A ≈ ⨁ᴵ i, A (f i) := by
-  symm; exists Equiv.sigmaCongrLeft (β := fun j => (A j).dom) f; intro _; rfl
+    (⨁ᴵ i, A (f i)) ≈ Ifam.bigoplus A := by
+  exists Equiv.sigmaCongrLeft (β := fun j => (A j).dom) f; intro _; rfl
 
 /-- `⨁ᴹ` is invariant under reindexing along an equivalence -/
 protected lemma Mset.bigoplus_comm {ι ι' : Type} (f : ι ≃ ι') (A : ι' → Mset α) :
-    Mset.bigoplus A = ⨁ᴹ i, A (f i) := by
-  apply Quotient.sound; apply Ifam.bigoplus_comm
+    (⨁ᴹ i, A (f i)) = Mset.bigoplus A := by
+  apply Quotient.sound; exact Ifam.bigoplus_comm f fun j => (A j).out
 
 /-! ### `bigoplus` is associative -/
 
