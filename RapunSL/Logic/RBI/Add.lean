@@ -264,7 +264,7 @@ instance RProp.instAddCommSemigroup : AddCommSemigroup (RProp ρ) where
 scoped macro_rules
   | `(iprop(∑ᶠⁱ $i, $P)) => `(∑ᶠⁱ $i, iprop($P))
 
-variable {ι : Type*} [FiniType ι]
+variable {ι : Type*} [Finitype ι]
 
 /-- `∑ᶠⁱ` is monotone -/
 lemma finisum_mono (P Q : ι → RProp ρ) :

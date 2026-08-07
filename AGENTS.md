@@ -78,7 +78,7 @@ The library root is `RapunSL.lean` → `RapunSL.Math` + `RapunSL.Logic`. The lay
 2. **`RapunSL/Math/Algebra/`** — the resource-algebra hierarchy in `PCM.lean` and `RR.lean`:
    `CommMonoid'` → `PCM` (partial commutative monoid with validity `✓`) → `PCMI` (adds incompatibility `#`) → `PCMC` (coherence) and `PCMP` (probability/weights via `ENNReal`) → `RR` (resource ring, combining `PCMC` and `PCMP`).
    `Algebra/Mseti.lean` lifts algebra structure to inhabited multisets and defines `Msetiv α = { A : Mseti α // ✓ A }` (valid inhabited multisets), the carrier of the model.
-   `Algebra/Finiprod.lean` defines `FiniType` (finite inhabited types) and the product `∏ᶠⁱ` of a `CommSemigroup`-valued and the sum `∑ᶠⁱ` of an `AddCommSemigroup`-valued family over a `FiniType`.
+   `Algebra/Finiprod.lean` defines `Finitype` (finite inhabited types) and the product `∏ᶠⁱ` of a `CommSemigroup`-valued and the sum `∑ᶠⁱ` of an `AddCommSemigroup`-valued family over a `Finitype`.
 
    **Caution — for `RR`, work with `+`, not `radd`.** The relation `radd` (`+ᴿ`) is only the primitive underlying the total addition `+`. Downstream proofs should stay in the `+` world and use its lemmas (`RR.add_assoc`, `RR.add_coher_l`/`r`, `RR.add_valid_l`/`r`, …). When a fact about `+` is missing, add it as a lemma in `Algebra/RR.lean` (where proving it via `radd` is fine) rather than reaching for `radd` at the use site.
 

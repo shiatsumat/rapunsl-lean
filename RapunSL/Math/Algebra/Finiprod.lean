@@ -13,16 +13,16 @@ public import Mathlib.Data.Fintype.Prod
 /-! ## Finite inhabited types -/
 
 /-- Finite inhabited type -/
-class abbrev FiniType (ι : Type*) := Inhabited ι, Fintype ι
+class abbrev Finitype (ι : Type*) := Inhabited ι, Fintype ι
 
-/-- Product preserves `FiniType` -/
-instance FiniType.prod {ι ι' : Type*} [FiniType ι] [FiniType ι'] : FiniType (ι × ι') :=
+/-- Product preserves `Finitype` -/
+instance Finitype.prod {ι ι' : Type*} [Finitype ι] [Finitype ι'] : Finitype (ι × ι') :=
   inferInstance
 
 /-! ## Product/sum over finite inhabited sets -/
 
 section finiprod
-variable {ι ι' : Type*} [FiniType ι] [FiniType ι']
+variable {ι ι' : Type*} [Finitype ι] [Finitype ι']
   {α : Type*} [CommSemigroup α]
 
 /-- Prelimary definition of `∏ᶠⁱ` -/
