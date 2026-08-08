@@ -390,14 +390,12 @@ lemma finisum_frame_r (P : ι → RProp ρ) Q : (∑ᶠⁱ i, P i) ∗ Q ⊢ ∑
 lemma sum_unframe_l [Frameable P] [Unambig Q] : (P ∗ Q) + (P ∗ R) =ᴮᴵ P ∗ (Q + R) := by
   ext1; constructor; swap; { apply sum_frame_l };
   rintro D ⟨Ev, Fv, ⟨Av, Bv, elP, elQ, hE⟩, ⟨Av', Cv, elP', elR, hF⟩, hadd⟩;
-  rcases precise P _ _ elP elP' with rfl;
+  rcases precise P _ _ elP elP' with rfl; rw [hE, hF] at hadd;
   have incAB : ∀ x x', (Av.val * Bv.val).val.pairmem x x' → x # x' := by
     rw [←hE]; exact unambig iprop(P ∗ Q) Ev ⟨Av, Bv, elP, elQ, hE⟩
-  rw [hE, hF] at hadd;
   rcases rmadd_mul_inv_l Av.val hadd D.prop (unambig P _ elP) incAB with ⟨BC, hBC, hD⟩;
   have valBC : ✓ BC := by
-    apply PCM.valid_mul_r Av.val BC; intro x mem;
-    apply D.prop; rwa [hD]
+    apply PCM.valid_mul_r Av.val BC; intro x mem; apply D.prop; rwa [hD]
   exact ⟨Av, ⟨BC, valBC⟩, elP, ⟨Bv, Cv, elQ, elR, hBC⟩, Subtype.ext hD⟩
 
 /-- Unframe a frameable proposition from the right out of `+` -/
