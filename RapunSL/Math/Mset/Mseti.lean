@@ -48,9 +48,7 @@ protected lemma Mseti.comp_map (f : α → β) (g : β → γ) (A : Mseti α) :
 
 /-- Functor laws for `Mseti` -/
 protected instance Mseti.instLawfulFunctor : LawfulFunctor Mseti where
-  id_map := Mseti.id_map
-  comp_map := Mseti.comp_map
-  map_const := rfl
+  id_map := Mseti.id_map; comp_map := Mseti.comp_map; map_const := rfl
 
 /-! ## Singleton -/
 
@@ -151,8 +149,7 @@ protected noncomputable instance Mseti.instMonad : Monad Mseti where
 
 /-- Monad laws for `Mseti` -/
 protected instance Mseti.instLawfulMonad : LawfulMonad Mseti where
-  seqLeft_eq _ _ := rfl
-  seqRight_eq _ _ := rfl
+  seqLeft_eq _ _ := rfl; seqRight_eq _ _ := rfl
   pure_seq := by intros; ext1; simp only [Mseti.seq_val, Mseti.pure_val, map_val, pure_seq]
   pure_bind := by intros; ext1; simp only [Mseti.bind_val, Mseti.pure_val, pure_bind]
   bind_pure_comp := by

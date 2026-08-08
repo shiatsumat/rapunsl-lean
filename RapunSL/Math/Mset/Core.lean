@@ -88,9 +88,7 @@ protected lemma Ifam.comp_map (f : α → β) (g : β → γ) (A : Ifam α) :
 
 /-- `LawfulFunctor` for `Ifam` -/
 protected instance Ifam.instLawfulFunctor : LawfulFunctor Ifam where
-  id_map _ := rfl
-  comp_map _ _ _ := rfl
-  map_const := rfl
+  id_map _ := rfl; comp_map _ _ _ := rfl; map_const := rfl
 
 /-- The index domain of `<$>ᴵ` -/
 @[simp] protected lemma Ifam.map_dom (f : α → β) (A : Ifam α) :
@@ -132,9 +130,7 @@ protected lemma Mset.comp_map (f : α → β) (g : β → γ) (A : Mset α) :
 
 /-- Functor laws for `Mset` -/
 protected instance Mset.instLawfulFunctor : LawfulFunctor Mset where
-  id_map := Mset.id_map
-  comp_map := Mset.comp_map
-  map_const := rfl
+  id_map := Mset.id_map; comp_map := Mset.comp_map; map_const := rfl
 
 /-! ## Empty multiset -/
 

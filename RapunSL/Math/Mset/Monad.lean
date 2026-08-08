@@ -203,13 +203,9 @@ protected lemma Mset.bind_assoc (A : Mset α) (K : α → Mset β) (L : β → M
 
 /-- Monad laws for `Mset` -/
 protected instance Mset.instLawfulMonad : LawfulMonad Mset where
-  seqLeft_eq _ _ := rfl
-  seqRight_eq _ _ := rfl
-  pure_seq := Mset.pure_seq
-  pure_bind := Mset.pure_bind
-  bind_pure_comp := Mset.bind_pure_comp
-  bind_map := Mset.bind_map
-  bind_assoc := Mset.bind_assoc
+  seqLeft_eq _ _ := rfl; seqRight_eq _ _ := rfl; pure_seq := Mset.pure_seq;
+  pure_bind := Mset.pure_bind; bind_pure_comp := Mset.bind_pure_comp;
+  bind_map := Mset.bind_map; bind_assoc := Mset.bind_assoc
 
 /-! ### Commutative applicative -/
 
