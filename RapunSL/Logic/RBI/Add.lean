@@ -402,8 +402,7 @@ lemma sum_unframe_l [Frameable P] [Unambig Q] : (P ∗ Q) + (P ∗ R) =ᴮᴵ P 
 
 /-- Unframe a frameable proposition from the right out of `+` -/
 lemma sum_unframe_r [Unambig P] [Frameable R] : (P ∗ R) + (Q ∗ R) =ᴮᴵ (P + Q) ∗ R := by
-  ext1; constructor; swap; { apply sum_frame_r };
-  grw [sep_comm' iprop(P + Q), ←sum_unframe_l, sep_comm', sep_comm' Q]
+  grw [sep_comm' (P + Q), ←sum_unframe_l, sep_comm', sep_comm' Q]
 
 /-! ### Judgment rules -/
 
