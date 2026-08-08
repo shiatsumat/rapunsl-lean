@@ -291,7 +291,7 @@ lemma incomp_false : False #ᴿ P := nofun
 
 /-- Incompatibility over `own` -/
 lemma incomp_own : r # s → own r #ᴿ own s := by
-  rintro inc ⟨_, _⟩ ⟨_, _⟩ rfl rfl _ _; simp only [Mseti.pure_val, Mset.pure_mem]; aesop
+  rintro _ ⟨_, _⟩ ⟨_, _⟩ rfl rfl _ _; simp only [Mseti.pure_val, Mset.pure_mem]; aesop
 
 /-- Incompatibility over `∗` -/
 lemma incomp_sep_l : (P #ᴿ Q) → P ∗ R #ᴿ Q := by
