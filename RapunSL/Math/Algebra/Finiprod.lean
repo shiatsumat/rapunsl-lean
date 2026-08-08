@@ -185,4 +185,10 @@ lemma finiprod_rel {β : Type*} [CommSemigroup β] (r : α → β → Prop) (a :
   | zero => simp only [Nat.reduceAdd, Fin.forall_fin_one, finiprod_fin_one]; tauto
   | succ n ih => simp only [finiprod_fin_succ]; intro _ _ _; apply rel <;> tauto
 
+/-- Transfer a multiplication-compatible predicate to `∏ᶠⁱ`s -/
+@[to_additive finisum_pred /-- Transfer an addition-compatible predicate to `∑ᶠⁱ`s -/]
+lemma finiprod_pred (r : α → Prop) (a : ι → α) :
+    (∀ x x', r x → r x' → r (x * x')) → (∀ i, r (a i)) → r (∏ᶠⁱ i, a i) := by
+  intro _; apply finiprod_rel (fun _ => r) a; tauto
+
 end finiprod
