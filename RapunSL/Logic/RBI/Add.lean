@@ -525,15 +525,14 @@ lemma finisum_satis (P : ι → RProp ρ) [∀ i, Satis (P i)] :
   suffices h : ∀ n (P : Fin (n + 1) → RProp ρ), (∀ k, Satis (P k)) →
       (∀ k l, k ≠ l → P k ≎ᴿ P l) → Satis iprop(∑ᶠⁱ k, P k) by
     rw [finisum_fin P]; apply h _ _ fun _ ↦ inferInstance;
-    intro k l ne; exact coh _ _ fun e ↦ ne (Finitype.equivFin.symm.injective e)
+    intro _ _ ne; exact coh _ _ fun e ↦ ne (Finitype.equivFin.symm.injective e)
   intro n; induction n with
-  | zero =>
-    intro P sat _; simp only [Nat.reduceAdd, finisum_fin_one]; exact sat 0
+  | zero => intro P sat _; simp only [Nat.reduceAdd, finisum_fin_one]; exact sat 0
   | succ n ih =>
     intro P sat coh; simp only [finisum_fin_succ];
-    have satSum := ih (fun k ↦ P k.castSucc) (fun _ ↦ sat _)
-      fun k l ne ↦ coh _ _ fun e ↦ ne (Fin.castSucc_injective _ e);
-    have satLast := sat (Fin.last (n + 1));
+    have _ := ih (fun k ↦ P k.castSucc) (fun _ ↦ sat _)
+      fun _ _ ne ↦ coh _ _ fun e ↦ ne (Fin.castSucc_injective _ e);
+    have _ := sat (Fin.last (n + 1));
     apply add_satis; apply coher_finisum';
     intro k; exact coh _ _ (Fin.castSucc_lt_last k).ne
 
