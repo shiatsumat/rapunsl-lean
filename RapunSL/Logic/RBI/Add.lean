@@ -424,17 +424,6 @@ instance add_instPrecise [Frameable P] [Precise Q] : Precise (P + Q) := by
   apply Subtype.ext; apply Subtype.ext;
   exact rmadd_unique_l _ _ _ _ Av.prop (unambig P _ elP) hC hC'
 
-/-- Satisfiability of `+` -/
-lemma add_satis [Satis P] [Satis Q] : (P ≎ᴿ Q) → Satis iprop(P + Q) := by
-  intro cohPQ; constructor;
-  rcases satis P with ⟨Av, elP⟩; rcases satis Q with ⟨Bv, elQ⟩;
-  rcases cohPQ _ _ elP elQ with ⟨r, coh⟩;
-  have hadd : Av.val.val +ᴿᴹ Bv.val.val =ᴿᴹ (fun (a, b) ↦ a + b) <$>ᴹ r.graph :=
-    ⟨r, coh, rfl⟩;
-  have inh := rmadd_inhab _ _ _ hadd Av.val.prop;
-  have val := rmadd_valid _ _ _ hadd Av.prop;
-  exact ⟨⟨⟨_, inh⟩, val⟩, Av, Bv, elP, elQ, hadd⟩
-
 /-- Incompatibility over `+` -/
 lemma incomp_add_l : (P #ᴿ Q) → P + R #ᴿ Q := by
   rintro inc Cv Bv ⟨Av, Rv, elP, elR, r, coh, hC⟩ elQ c b elC elB;
@@ -517,5 +506,16 @@ lemma coher_finisum' (P : ι → RProp ρ) : (∀ i, P i ≎ᴿ Q) → (∑ᶠ�
 lemma coher_finisum (P Q : ι → RProp ρ) :
     (∀ i, P i ≎ᴿ Q i) → (∑ᶠⁱ i, P i) ≎ᴿ ∑ᶠⁱ i, Q i := by
   apply finisum_rel; intro _ _ _ _ _ _; apply coher_add; trivial
+
+/-- Satisfiability of `+` -/
+lemma add_satis [Satis P] [Satis Q] : (P ≎ᴿ Q) → Satis iprop(P + Q) := by
+  intro cohPQ; constructor;
+  rcases satis P with ⟨Av, elP⟩; rcases satis Q with ⟨Bv, elQ⟩;
+  rcases cohPQ _ _ elP elQ with ⟨r, coh⟩;
+  have hadd : Av.val.val +ᴿᴹ Bv.val.val =ᴿᴹ (fun (a, b) ↦ a + b) <$>ᴹ r.graph :=
+    ⟨r, coh, rfl⟩;
+  have inh := rmadd_inhab _ _ _ hadd Av.val.prop;
+  have val := rmadd_valid _ _ _ hadd Av.prop;
+  exact ⟨⟨⟨_, inh⟩, val⟩, Av, Bv, elP, elQ, hadd⟩
 
 end RBI
