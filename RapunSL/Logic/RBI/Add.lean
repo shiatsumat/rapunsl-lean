@@ -402,6 +402,18 @@ lemma sum_unframe_l [Frameable P] [Unambig Q] : (P ∗ Q) + (P ∗ R) =ᴮᴵ P 
 lemma sum_unframe_r [Unambig P] [Frameable R] : (P ∗ R) + (Q ∗ R) =ᴮᴵ (P + Q) ∗ R := by
   grw [sep_comm' (P + Q), ←sum_unframe_l, sep_comm', sep_comm' Q]
 
+/-- Unframe a frameable proposition from the left out of `∑ᶠⁱ` -/
+lemma finisum_unframe_l P (Q : ι → RProp ρ) [Frameable P] [∀ i, Unambig (Q i)] :
+    (∑ᶠⁱ i, (P ∗ Q i)) =ᴮᴵ P ∗ (∑ᶠⁱ i, Q i) := by
+  apply finisum_rel' (fun R R' : RProp ρ ↦ R =ᴮᴵ P ∗ R') (fun i ↦ iprop(P ∗ Q i)) Q; swap;
+  { intro _; rfl };
+  intro _ _ _ eq; rw [eq, sum_unframe_l]
+
+/-- Unframe a frameable proposition from the right out of `∑ᶠⁱ` -/
+lemma finisum_unframe_r (P : ι → RProp ρ) Q [∀ i, Unambig (P i)] [Frameable Q] :
+    (∑ᶠⁱ i, (P i ∗ Q)) =ᴮᴵ (∑ᶠⁱ i, P i) ∗ Q := by
+  rw [sep_comm' (finisum _), ←finisum_unframe_l]; simp only [sep_comm']
+
 /-! ### Judgment rules -/
 
 /-- Preciseness of `+` -/

@@ -185,6 +185,22 @@ lemma finiprod_rel {β : Type*} [CommSemigroup β] (r : α → β → Prop) (a :
   | zero => simp only [Nat.reduceAdd, Fin.forall_fin_one, finiprod_fin_one]; tauto
   | succ n ih => simp only [finiprod_fin_succ]; intro _ _ _; apply rel <;> tauto
 
+/-- Transfer a binary relation to `∏ᶠⁱ`s, multiplying one factor at a time -/
+@[to_additive finisum_rel'
+  /-- Transfer a binary relation to `∑ᶠⁱ`s, adding one summand at a time -/]
+lemma finiprod_rel' {β : Type*} [CommSemigroup β] (r : α → β → Prop) (a : ι → α) (b : ι → β) :
+    (∀ i x y, r x y → r (a i * x) (b i * y)) →
+    (∀ i, r (a i) (b i)) → r (∏ᶠⁱ i, a i) (∏ᶠⁱ i, b i) := by
+  intro rel base;
+  suffices h : ∀ n (f : Fin (n + 1) → ι), r (∏ᶠⁱ k, a (f k)) (∏ᶠⁱ k, b (f k)) by
+    rw [finiprod_fin a, finiprod_fin b]; apply h
+  intro n; induction n with
+  | zero => intro _; simp only [Nat.reduceAdd, finiprod_fin_one]; apply base
+  | succ n ih =>
+    intro f; simp only [finiprod_fin_succ];
+    rw [mul_comm _ (a (f (Fin.last _))), mul_comm _ (b (f (Fin.last _)))];
+    apply rel; apply ih
+
 /-- Transfer a multiplication-compatible predicate to `∏ᶠⁱ`s -/
 @[to_additive finisum_pred /-- Transfer an addition-compatible predicate to `∑ᶠⁱ`s -/]
 lemma finiprod_pred (r : α → Prop) (a : ι → α) :
