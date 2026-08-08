@@ -72,8 +72,7 @@ lemma exists_simple :
 @[trans] lemma entails_trans : (P ⊢ Q) → (Q ⊢ R) → P ⊢ R := by tauto
 
 /-- Entailment is antisymmetric -/
-lemma entails_antisymm :
-    (P ⊢ Q) → (Q ⊢ P) → P = Q := by
+lemma entails_antisymm : (P ⊢ Q) → (Q ⊢ P) → P = Q := by
   intro _ _; apply set_ext; intro _; constructor <;> tauto
 
 /-- BI properties for `RProp` -/
