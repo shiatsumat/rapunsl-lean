@@ -77,8 +77,7 @@ open Finiprod Finisum
 /-- Product over a unique type -/
 @[to_additive finisum_unique /-- Sum over a unique type -/]
 lemma finiprod_unique [Unique ι] (i : ι) (a : ι → α) : ∏ᶠⁱ j, a j = a i := by
-  apply WithOne.coe_inj.mp; rw [coe_finiprod]
-  exact Fintype.prod_subsingleton _ i
+  apply WithOne.coe_inj.mp; rw [coe_finiprod]; exact Fintype.prod_subsingleton _ i
 
 /-- Modifying `∏ᶠⁱ` with a bijection -/
 @[to_additive finisum_bij /-- Modifying `∑ᶠⁱ` with a bijection -/]
@@ -91,15 +90,13 @@ lemma finiprod_bij (f : ι ≃ ι') (a : ι' → α) :
 @[to_additive finisum_bij' /-- Modifying `∑ᶠⁱ` with a bijection -/]
 lemma finiprod_bij' (f : ι ≃ ι') (a : ι → α) (a' : ι' → α) :
     (∀ i, a i = a' (f i)) → ∏ᶠⁱ i, a i = ∏ᶠⁱ i', a' i' := by
-  intro eq; rw [←finiprod_bij f a']
-  exact congrArg finiprod (funext eq)
+  intro eq; rw [←finiprod_bij f a']; exact congrArg finiprod (funext eq)
 
 /-- `∏ᶠⁱ` over a sigma type -/
 @[to_additive (attr := simp) finisum_sigma /-- `∑ᶠⁱ` over a product -/]
 lemma finiprod_sigma {ι' : ι → Type*} [∀ ι, Finitype (ι' ι)] (a : Sigma ι' → α) :
     ∏ᶠⁱ ii', a ii' = ∏ᶠⁱ i, ∏ᶠⁱ i', a ⟨i, i'⟩ := by
-  apply WithOne.coe_inj.mp
-  simp only [coe_finiprod, finiprod', Fintype.prod_sigma]
+  apply WithOne.coe_inj.mp; simp only [coe_finiprod, finiprod', Fintype.prod_sigma]
 
 /-- Merge nested `∏ᶠⁱ` using a sigma type -/
 @[to_additive finisum_sigma' /-- Merge nested `∑ᶠⁱ` using a sigma type -/]
@@ -111,8 +108,7 @@ lemma finiprod_sigma' {ι' : ι → Type*} [∀ ι, Finitype (ι' ι)] (a : ∀ 
 @[to_additive (attr := simp) finisum_prod_type /-- `∑ᶠⁱ` over a product -/]
 lemma finiprod_prod_type (a : ι × ι' → α) :
     ∏ᶠⁱ ii', a ii' = ∏ᶠⁱ i, ∏ᶠⁱ i', a (i, i') := by
-  apply WithOne.coe_inj.mp
-  simp only [coe_finiprod, finiprod', Fintype.prod_prod_type]
+  apply WithOne.coe_inj.mp; simp only [coe_finiprod, finiprod', Fintype.prod_prod_type]
 
 /-- Merge nested `∏ᶠⁱ` using a product type -/
 @[to_additive finisum_prod_type' /-- Merge nested `∑ᶠⁱ` using a product type -/]
