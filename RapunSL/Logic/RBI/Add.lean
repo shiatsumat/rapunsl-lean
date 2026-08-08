@@ -429,6 +429,10 @@ lemma incomp_add_l : (P #ᴿ Q) → P + R #ᴿ Q := by
 lemma incomp_add_r : (P #ᴿ Q) → R + P #ᴿ Q := by
   rw [add_comm]; apply incomp_add_l
 
+/-- Incompatibility over `∑ᶠⁱ` -/
+lemma incomp_finisum (P : ι → RProp ρ) : (∀ i, P i #ᴿ Q) → (∑ᶠⁱ i, P i) #ᴿ Q := by
+  apply finisum_pred (· #ᴿ Q); intro _ _ _; apply incomp_add_r
+
 /-- Unambiguity of `+` -/
 instance add_instUnambig [Unambig P] : Unambig (P + Q) := by
   constructor;
@@ -442,8 +446,33 @@ instance add_instUnambig [Unambig P] : Unambig (P + Q) := by
   · exact coh _ _ (Mset.pairmem_mem_r _ _ _ pm)
   · exact unambig P _ elP _ _ pmA
 
+/-- Unambiguity of `∑ᶠⁱ` -/
+lemma finisum_unambig (P : ι → RProp ρ) : (∀ i, Unambig (P i)) → Unambig (∑ᶠⁱ i, P i) := by
+  apply finisum_pred; intro _ _ _; infer_instance
+
+/-- Unambiguity of `∑ᶠⁱ` -/
+instance finisum_instUnambig (P : ι → RProp ρ) [∀ i, Unambig (P i)] : Unambig (∑ᶠⁱ i, P i) := by
+  apply finisum_unambig; infer_instance
+
 /-- Frameability of `+` -/
 instance add_instFrameable [Frameable P] [Precise Q] : Frameable (P + Q) := inferInstance
+
+/-- Frameability of `∑ᶠⁱ` -/
+lemma finisum_frameable (P : ι → RProp ρ) : (∀ i, Frameable (P i)) → Frameable (∑ᶠⁱ i, P i) := by
+  apply finisum_pred; intro _ _ _ _; infer_instance
+
+/-- Frameability of `∑ᶠⁱ` -/
+instance finisum_instFrameable (P : ι → RProp ρ) [∀ i, Frameable (P i)] :
+    Frameable (∑ᶠⁱ i, P i) := by
+  apply finisum_frameable; infer_instance
+
+/-- Preciseness of `∑ᶠⁱ` -/
+lemma finisum_precise (P : ι → RProp ρ) : (∀ i, Frameable (P i)) → Precise (∑ᶠⁱ i, P i) := by
+  intro _; infer_instance
+
+/-- Preciseness of `∑ᶠⁱ` -/
+instance finisum_instPrecise (P : ι → RProp ρ) [∀ i, Frameable (P i)] : Precise (∑ᶠⁱ i, P i) :=
+  inferInstance
 
 /-- Coherence over `+` -/
 lemma coher_add' : (P ≎ᴿ P') → P + Q ≎ᴿ P' := by
@@ -460,5 +489,14 @@ lemma coher_add' : (P ≎ᴿ P') → P + Q ≎ᴿ P' := by
 /-- Coherence over `+` -/
 lemma coher_add : (P ≎ᴿ P') → P + Q ≎ᴿ P' + Q' := by
   intro _; apply coher_add'; symm; apply coher_add'; symm; trivial
+
+/-- Coherence over `∑ᶠⁱ` -/
+lemma coher_finisum' (P : ι → RProp ρ) : (∀ i, P i ≎ᴿ Q) → (∑ᶠⁱ i, P i) ≎ᴿ Q := by
+  apply finisum_pred (· ≎ᴿ Q); intro _ _ _ _; apply coher_add'; trivial
+
+/-- Coherence over `∑ᶠⁱ` -/
+lemma coher_finisum (P Q : ι → RProp ρ) :
+    (∀ i, P i ≎ᴿ Q i) → (∑ᶠⁱ i, P i) ≎ᴿ ∑ᶠⁱ i, Q i := by
+  apply finisum_rel; intro _ _ _ _ _ _; apply coher_add; trivial
 
 end RBI
