@@ -376,6 +376,16 @@ lemma sum_frame_l : P ∗ (Q + R) ⊢ (P ∗ Q) + (P ∗ R) := by
 lemma sum_frame_r : (P + Q) ∗ R ⊢ (P ∗ R) + (Q ∗ R) := by
   grw [sep_comm', sum_frame_l, sep_comm', sep_comm' R]
 
+/-- Frame a proposition from the left into `∑ᶠⁱ` -/
+lemma finisum_frame_l (Q : ι → RProp ρ) : P ∗ (∑ᶠⁱ i, Q i) ⊢ ∑ᶠⁱ i, (P ∗ Q i) := by
+  apply finisum_rel (fun Q R ↦ iprop(P ∗ Q) ⊢ R) Q fun i ↦ iprop(P ∗ Q i); swap;
+  { intro _; rfl };
+  intro _ _ _ _ frame frame'; grw [sum_frame_l, frame, frame']
+
+/-- Frame a proposition from the right into `∑ᶠⁱ` -/
+lemma finisum_frame_r (P : ι → RProp ρ) Q : (∑ᶠⁱ i, P i) ∗ Q ⊢ ∑ᶠⁱ i, (P i ∗ Q) := by
+  grw [sep_comm', finisum_frame_l]; simp only [sep_comm' Q]; rfl
+
 /-- Unframe a frameable proposition from the left out of `+` -/
 lemma sum_unframe_l [Frameable P] [Unambig Q] : (P ∗ Q) + (P ∗ R) =ᴮᴵ P ∗ (Q + R) := by
   ext1; constructor; swap; { apply sum_frame_l };
