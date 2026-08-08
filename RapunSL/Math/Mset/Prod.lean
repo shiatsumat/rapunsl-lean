@@ -258,10 +258,9 @@ protected lemma Ifam.Bij.prod_cancel_l {A : Ifam α} {B C : Ifam β}
     intro p
     have mem : ((A.elem p.1, B.elem p.2), (A.elem (r p).1, C.elem (r p).2)) ∈ r.graph :=
       ⟨p, rfl⟩
-    have eq' : (r p).1 = p.1 := by
-      by_contra ne'
-      exact ne _ _ ⟨p.1, (r p).1, fun h => ne' h.symm, rfl, rfl⟩ (eq _ _ _ _ mem)
-    rw [←eq']; rfl
+    rw [←show (r p).1 = p.1 by
+      by_contra ne'; exact ne _ _ ⟨p.1, (r p).1, fun h => ne' h.symm, rfl, rfl⟩ (eq _ _ _ _ mem)]
+    rfl
   have fst_eq' : ∀ q : (A ×ᴵ C).dom, r.symm q = (q.1, (r.symm q).2) := by
     intro q; have h := fst_eq (r.symm q); rw [Equiv.apply_symm_apply] at h
     rw [congrArg Prod.fst h]; rfl
@@ -270,10 +269,8 @@ protected lemma Ifam.Bij.prod_cancel_l {A : Ifam α} {B C : Ifam β}
     rw [Equiv.symm_apply_apply] at h; exact congrArg Prod.snd h
   · intro k; have h := congrArg r (fst_eq' (i₀, k)).symm
     rw [Equiv.apply_symm_apply] at h; exact congrArg Prod.snd h
-  · rintro b c ⟨j, ej⟩
-    have eb : B.elem j = b := congrArg Prod.fst ej
-    have ec : C.elem (r (i₀, j)).2 = c := congrArg Prod.snd ej
-    refine ⟨(i₀, j), ?_⟩; rw [←eb, ←ec]
+  · rintro b c ⟨j, ej⟩; rw[←show B.elem j = b from congrArg Prod.fst ej]
+    rw[←show C.elem (r (i₀, j)).2 = c from congrArg Prod.snd ej]; exists (i₀, j)
     exact congrArg (fun q => ((A.elem i₀, B.elem j), (A ×ᴵ C).elem q)) (fst_eq (i₀, j))
 
 /-- Cancel a common left factor with pairwise-distinct elements out of a bijection
