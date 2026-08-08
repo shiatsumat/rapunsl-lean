@@ -241,7 +241,7 @@ protected instance Mset.instMembership : Membership α (Mset α) where
 /-- Membership for `<$>ᴵ` -/
 @[simp] protected lemma Ifam.map'_mem (f : α → β) (A : Ifam α) b :
     b ∈ f <$>ᴵ A ↔ ∃ a ∈ A, b = f a := by
-  constructor;
+  constructor
   · intro ⟨i, eq⟩; subst eq; exists A.elem i; and_intros; { exists i }; { rfl }
   · intro ⟨a, ⟨i, eq⟩, eq'⟩; subst eq eq'; exists i
 
@@ -299,15 +299,15 @@ protected def Mset.inhab (A : Mset α) : Prop := ∃ a, a ∈ A
 /-- An indexed family with no members is equivalent to `∅` -/
 protected lemma Ifam.no_elem_empty (A : Ifam α) :
     (∀ a, a ∉ A) → A ≈ ∅ := by
-  intro noA;
-  have noAdom : A.dom → False := by intro i; apply noA (A.elem i); tauto;
+  intro noA
+  have noAdom : A.dom → False := by intro i; apply noA (A.elem i); tauto
   exists ⟨fun i => (noAdom i).elim, nofun, by tauto, by tauto⟩; tauto
 
 /-- A multiset is uninhabited iff it is `∅` -/
 protected lemma Mset.not_inhab_empty (A : Mset α) :
     ¬ A.inhab ↔ A = ∅ := by
-  constructor; swap; { intro rfl; rw [Mset.inhab_empty]; trivial };
-  cases A using Quotient.ind; intro nin; apply Quotient.sound;
+  constructor; swap; { intro rfl; rw [Mset.inhab_empty]; trivial }
+  cases A using Quotient.ind; intro nin; apply Quotient.sound
   apply Ifam.no_elem_empty; intro a _; apply nin; exists a
 
 /-- A multiset is inhabited iff it is not `∅` -/
@@ -323,8 +323,8 @@ protected def Ifam.pairmem (A : Ifam α) (a b : α) : Prop :=
 /-- Pair membership respects `≈`, one direction -/
 protected lemma Ifam.pairmem_proper' (A B : Ifam α) :
     A ≈ B → A.pairmem a b → B.pairmem a b := by
-  rintro ⟨f, AB⟩ ⟨i, j, _, rfl, rfl⟩; exists f i, f j;
-  constructor; swap; { simp only [AB]; trivial };
+  rintro ⟨f, AB⟩ ⟨i, j, _, rfl, rfl⟩; exists f i, f j
+  constructor; swap; { simp only [AB]; trivial }
   grind only [EquivLike.apply_eq_iff_eq f]
 
 /-- Pair membership respects `≈` -/
@@ -341,7 +341,7 @@ protected def Mset.pairmem (A : Mset α) (a b : α) : Prop :=
 /-- Pair membership is symmetric -/
 protected instance Mset.pairmem_instSymm (A : Mset α) : Std.Symm A.pairmem where
   symm := by
-    cases A using Quotient.ind; rintro _ _ ⟨i, j, _, rfl, rfl⟩;
+    cases A using Quotient.ind; rintro _ _ ⟨i, j, _, rfl, rfl⟩
     exists j, i; constructor <;> tauto
 
 /-- Pair membership is symmetric -/
@@ -375,7 +375,7 @@ protected lemma Mset.mem_ne_pairmem (A : Mset α) a b :
 /-- Pair membership for `<$>ᴵ` -/
 @[simp] protected lemma Ifam.map'_pairmem (f : α → β) (A : Ifam α) b b' :
     (f <$>ᴵ A).pairmem b b' ↔ ∃ a a', A.pairmem a a' ∧ b = f a ∧ b' = f a' := by
-  constructor;
+  constructor
   · rintro ⟨i, j, _, rfl, rfl⟩; exists A.elem i, A.elem j; constructor; { exists i, j }; trivial
   · rintro ⟨_, _, ⟨i, j, _, rfl, rfl⟩, rfl, rfl⟩; exists i, j
 

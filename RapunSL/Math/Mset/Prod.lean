@@ -27,7 +27,7 @@ scoped[Ifam] infixr:69 " ×ᴵ " => Ifam.prod
 /-- `×ᴵ` respects `≈` -/
 @[gcongr] protected lemma Ifam.prod_proper (A A' : Ifam α) (B B' : Ifam β) :
     A ≈ A' → B ≈ B' → A ×ᴵ B ≈ A' ×ᴵ B' := by
-  intro ⟨f, AA'⟩ ⟨g, BB'⟩; exists Equiv.prodCongr f g; intro (_, _);
+  intro ⟨f, AA'⟩ ⟨g, BB'⟩; exists Equiv.prodCongr f g; intro (_, _)
   simp only [Ifam.prod_elem]; rw [AA', BB']; rfl
 
 /-- Product of two multisets -/
@@ -78,7 +78,7 @@ protected lemma Ifam.prod_comm (A : Ifam α) (B : Ifam β) :
 /-- `×ᴹ` is commutative up to `Prod.swap` -/
 protected lemma Mset.prod_comm (A : Mset α) (B : Mset β) :
     A ×ᴹ B = Prod.swap <$>ᴹ (B ×ᴹ A) := by
-  cases A using Quotient.ind; cases B using Quotient.ind;
+  cases A using Quotient.ind; cases B using Quotient.ind
   apply Quotient.sound; apply Ifam.prod_comm
 
 /-! ## `*` is unital -/
@@ -91,7 +91,7 @@ protected lemma Ifam.prod_id_r (A : Ifam α) (b : β) :
 /-- `pure` is a right identity for `×ᴹ`, up to `<$>ᴹ` -/
 protected lemma Mset.prod_id_r (A : Mset α) (b : β) :
     A ×ᴹ pure b = (·, b) <$>ᴹ A := by
-  cases A using Quotient.ind; apply Quotient.sound;
+  cases A using Quotient.ind; apply Quotient.sound
   apply Ifam.prod_id_r
 
 /-- `pure` is a left identity for `×ᴹ`, up to `<$>ᴹ` -/
@@ -109,7 +109,7 @@ protected lemma Ifam.prod_assoc_l (A : Ifam α) (B : Ifam β) (C : Ifam γ) :
 /-- `×ᴹ` is associative, up to `<$>ᴹ`: left-nested from right-nested -/
 protected lemma Mset.prod_assoc_l (A : Mset α) (B : Mset β) (C : Mset γ) :
     (A ×ᴹ B) ×ᴹ C = (fun (a, (b, c)) => ((a, b), c)) <$>ᴹ (A ×ᴹ (B ×ᴹ C)) := by
-  cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
+  cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind
   apply Quotient.sound; apply Ifam.prod_assoc_l
 
 /-- `×ᴹ` is associative, up to `<$>ᴹ`: right-nested from left-nested -/
@@ -124,20 +124,20 @@ protected lemma Ifam.prod_bigoplus_l (A : Ifam α) (B : ι → Ifam β) :
     A ×ᴵ (⨁ᴵ i, B i) ≈ ⨁ᴵ i, A ×ᴵ B i := by
   exists { toFun := fun ⟨a, ⟨i, b⟩⟩ => ⟨i, (a, b)⟩,
            invFun := fun ⟨i, ⟨a, b⟩⟩ => ⟨a, ⟨i, b⟩⟩,
-           left_inv := by tauto, right_inv := by tauto };
+           left_inv := by tauto, right_inv := by tauto }
   intro _; rfl
 
 /-- `×ᴹ` distributes over `⨁ᴹ` from the left -/
 protected lemma Mset.prod_bigoplus_l (A : Mset α) (B : ι → Mset β) :
     A ×ᴹ (⨁ᴹ i, B i) = ⨁ᴹ i, A ×ᴹ B i := by
-  cases A using Quotient.ind; apply Quotient.sound; grw [Ifam.prod_bigoplus_l];
-  gcongr with i; simp only; cases B i using Quotient.ind;
+  cases A using Quotient.ind; apply Quotient.sound; grw [Ifam.prod_bigoplus_l]
+  gcongr with i; simp only; cases B i using Quotient.ind
   grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
 /-- `×ᴹ` distributes over `⨁ᴹ` from the right -/
 protected lemma Mset.prod_bigoplus_r (A : ι → Mset α) (B : Mset β) :
     (⨁ᴹ i, A i) ×ᴹ B = ⨁ᴹ i, A i ×ᴹ B := by
-  rw [Mset.prod_comm, Mset.prod_bigoplus_l, Mset.bigoplus_map'];
+  rw [Mset.prod_comm, Mset.prod_bigoplus_l, Mset.bigoplus_map']
   congr; ext1 _; rw [←Mset.prod_comm]
 
 /-- `×ᴹ` distributes over `⊕ᴹ` from the left -/
@@ -163,14 +163,14 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
 /-- Membership for `×ᴵ` -/
 @[simp] protected lemma Ifam.prod_mem (A : Ifam α) (B : Ifam β) p :
     p ∈ A ×ᴵ B ↔ p.1 ∈ A ∧ p.2 ∈ B := by
-  cases p; constructor;
+  cases p; constructor
   · rintro ⟨⟨_, _⟩, eq⟩; have ⟨rfl, rfl⟩ := Prod.mk_inj.mp eq; tauto
   · rintro ⟨⟨_, rfl⟩, ⟨_, rfl⟩⟩; tauto
 
 /-- Membership for `×ᴹ` -/
 @[simp] protected lemma Mset.prod_mem (A : Mset α) (B : Mset β) p :
     p ∈ A ×ᴹ B ↔ p.1 ∈ A ∧ p.2 ∈ B := by
-  cases A using Quotient.ind; cases B using Quotient.ind;
+  cases A using Quotient.ind; cases B using Quotient.ind
   apply Ifam.prod_mem
 
 /-! ## Inhabitedness -/
@@ -178,7 +178,7 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
 /-- Inhabitedness for `×ᴹ` -/
 @[simp] protected lemma Mset.inhab_prod (A : Mset α) (B : Mset β) :
     (A ×ᴹ B).inhab ↔ A.inhab ∧ B.inhab := by
-  simp only [Mset.inhab, Mset.prod_mem]; constructor; { tauto };
+  simp only [Mset.inhab, Mset.prod_mem]; constructor; { tauto }
   intro ⟨⟨a, _⟩, ⟨b, _⟩⟩; exists (a, b)
 
 /-! ## Pair membership -/
@@ -189,17 +189,17 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
       (A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
        (p.1 = q.1 ∧ p.1 ∈ A ∧ B.pairmem p.2 q.2) ∨
        (p.2 = q.2 ∧ p.2 ∈ B ∧ A.pairmem p.1 q.1) := by
-  constructor;
-  · rintro ⟨⟨i, j⟩, ⟨i', j'⟩, _, rfl, rfl⟩;
-    rcases Classical.em (i = i') with rfl | _;
-    { right; left; constructor; { rfl }; and_intros; { exists i }; exists j, j'; aesop };
-    rcases Classical.em (j = j') with rfl | _;
-    { right; right; constructor; { rfl }; and_intros; { exists j }; exists i, i' };
+  constructor
+  · rintro ⟨⟨i, j⟩, ⟨i', j'⟩, _, rfl, rfl⟩
+    rcases Classical.em (i = i') with rfl | _
+    { right; left; constructor; { rfl }; and_intros; { exists i }; exists j, j'; aesop }
+    rcases Classical.em (j = j') with rfl | _
+    { right; right; constructor; { rfl }; and_intros; { exists j }; exists i, i' }
     left; and_intros; { exists i, i' }; { exists j, j' }
-  · cases p; cases q;
+  · cases p; cases q
     rintro (⟨⟨i, i', _, rfl, rfl⟩, ⟨j, j', _, rfl, rfl⟩⟩ |
-      ⟨rfl, ⟨i, rfl⟩, ⟨j, j', _, rfl, rfl⟩⟩ | ⟨rfl, ⟨j, rfl⟩, ⟨i, i', _, rfl, rfl⟩⟩);
-    { exists (i, j), (i', j'); aesop };
+      ⟨rfl, ⟨i, rfl⟩, ⟨j, j', _, rfl, rfl⟩⟩ | ⟨rfl, ⟨j, rfl⟩, ⟨i, i', _, rfl, rfl⟩⟩)
+    { exists (i, j), (i', j'); aesop }
     { exists (i, j), (i, j'); aesop }; { exists (i, j), (i', j); aesop }
 
 /-- Pair membership for `×ᴹ` -/
@@ -208,7 +208,7 @@ protected lemma Mset.prod_empty_r (A : Mset α) : (∅ : Mset α) ×ᴹ A = ∅ 
       (A.pairmem p.1 q.1 ∧ B.pairmem p.2 q.2) ∨
        (p.1 = q.1 ∧ p.1 ∈ A ∧ B.pairmem p.2 q.2) ∨
        (p.2 = q.2 ∧ p.2 ∈ B ∧ A.pairmem p.1 q.1) := by
-  cases A using Quotient.ind; cases B using Quotient.ind;
+  cases A using Quotient.ind; cases B using Quotient.ind
   apply Ifam.prod_pairmem
 
 /-! ## Bijection -/
@@ -234,8 +234,8 @@ protected lemma Mset.Bij.prod_graph
     {A : Mset α} {B : Mset β} {A' : Mset α'} {B' : Mset β'} (r : A ≃ᴹ A') (s : B ≃ᴹ B') :
     (Mset.Bij.prod r s).graph =
       (fun ((a, a'), (b, b')) => ((a, b), (a', b'))) <$>ᴹ (r.graph ×ᴹ s.graph) := by
-  rw [Mset.Bij.prod]; revert r s; unfold Mset.Bij Mset.Bij.graph;
-  simp_out_eq A; simp_out_eq B; simp_out_eq A'; simp_out_eq B'; intro r s;
+  rw [Mset.Bij.prod]; revert r s; unfold Mset.Bij Mset.Bij.graph
+  simp_out_eq A; simp_out_eq B; simp_out_eq A'; simp_out_eq B'; intro r s
   trans; { apply Ifam.Bij.lift_mk_graph }; rw [Ifam.Bij.prod_graph]; rfl
 
 /-- Membership for the graph of `Mset.Bij.prod` -/
@@ -253,27 +253,27 @@ protected lemma Ifam.Bij.prod_cancel_l {A : Ifam α} {B C : Ifam β}
     (∀ a b a' c, ((a, b), (a', c)) ∈ r.graph → a = a') →
     ∃ s : B ≃ᴵ C, ∀ b c, (b, c) ∈ s.graph →
       ((A.elem i₀, b), (A.elem i₀, c)) ∈ r.graph := by
-  intro ne eq;
+  intro ne eq
   have fst_eq : ∀ p : (A ×ᴵ B).dom, r p = (p.1, (r p).2) := by
-    intro p;
+    intro p
     have mem : ((A.elem p.1, B.elem p.2), (A.elem (r p).1, C.elem (r p).2)) ∈ r.graph :=
       ⟨p, rfl⟩
     have eq' : (r p).1 = p.1 := by
-      by_contra ne';
+      by_contra ne'
       exact ne _ _ ⟨p.1, (r p).1, fun h => ne' h.symm, rfl, rfl⟩ (eq _ _ _ _ mem)
     rw [←eq']; rfl
   have fst_eq' : ∀ q : (A ×ᴵ C).dom, r.symm q = (q.1, (r.symm q).2) := by
-    intro q; have h := fst_eq (r.symm q); rw [Equiv.apply_symm_apply] at h;
+    intro q; have h := fst_eq (r.symm q); rw [Equiv.apply_symm_apply] at h
     rw [congrArg Prod.fst h]; rfl
   refine ⟨⟨fun j => (r (i₀, j)).2, fun k => (r.symm (i₀, k)).2, ?_, ?_⟩, ?_⟩
-  · intro j; have h := congrArg r.symm (fst_eq (i₀, j)).symm;
+  · intro j; have h := congrArg r.symm (fst_eq (i₀, j)).symm
     rw [Equiv.symm_apply_apply] at h; exact congrArg Prod.snd h
-  · intro k; have h := congrArg r (fst_eq' (i₀, k)).symm;
+  · intro k; have h := congrArg r (fst_eq' (i₀, k)).symm
     rw [Equiv.apply_symm_apply] at h; exact congrArg Prod.snd h
-  · rintro b c ⟨j, ej⟩;
+  · rintro b c ⟨j, ej⟩
     have eb : B.elem j = b := congrArg Prod.fst ej
     have ec : C.elem (r (i₀, j)).2 = c := congrArg Prod.snd ej
-    refine ⟨(i₀, j), ?_⟩; rw [←eb, ←ec];
+    refine ⟨(i₀, j), ?_⟩; rw [←eb, ←ec]
     exact congrArg (fun q => ((A.elem i₀, B.elem j), (A ×ᴵ C).elem q)) (fst_eq (i₀, j))
 
 /-- Cancel a common left factor with pairwise-distinct elements out of a bijection
@@ -283,24 +283,24 @@ protected lemma Mset.Bij.prod_cancel_l {A : Mset α} {B C : Mset β}
     a₀ ∈ A → (∀ a a', A.pairmem a a' → a ≠ a') →
     (∀ a b a' c, ((a, b), (a', c)) ∈ r.graph → a = a') →
     ∃ s : B ≃ᴹ C, ∀ b c, (b, c) ∈ s.graph → ((a₀, b), (a₀, c)) ∈ r.graph := by
-  intro mem ne eq;
+  intro mem ne eq
   have eAB : (A ×ᴹ B).out ≈ A.out ×ᴵ B.out := by
-    apply Quotient.exact; rw [Mset.out_eq];
+    apply Quotient.exact; rw [Mset.out_eq]
     rw (occs := [1]) [←A.out_eq]; rw (occs := [1]) [←B.out_eq]; rfl
   have eAC : (A ×ᴹ C).out ≈ A.out ×ᴵ C.out := by
-    apply Quotient.exact; rw [Mset.out_eq];
+    apply Quotient.exact; rw [Mset.out_eq]
     rw (occs := [1]) [←A.out_eq]; rw (occs := [1]) [←C.out_eq]; rfl
   let r' : A.out ×ᴵ B.out ≃ᴵ A.out ×ᴵ C.out :=
     (Ifam.Bij.lift_equiv eAB).symm.trans (Ifam.Bij.trans r (Ifam.Bij.lift_equiv eAC))
   have hg : Ifam.Bij.graph r' ≈ Ifam.Bij.graph r := by
     have hg2 : (Ifam.Bij.trans r (Ifam.Bij.lift_equiv eAC)).graph = Ifam.Bij.graph r := by
-      apply Ifam.Bij.trans_graph_id_r; intro _ _ mem';
+      apply Ifam.Bij.trans_graph_id_r; intro _ _ mem'
       rw [Ifam.Bij.lift_equiv_graph_mem] at mem'; exact mem'.1
-    rw [←hg2]; apply Ifam.Bij.trans_graph_id_l; intro _ _ mem';
+    rw [←hg2]; apply Ifam.Bij.trans_graph_id_l; intro _ _ mem'
     rw [Ifam.Bij.symm_graph_mem, Ifam.Bij.lift_equiv_graph_mem] at mem'; exact mem'.1.symm
   have hmem : ∀ p, p ∈ Ifam.Bij.graph r' ↔ p ∈ r.graph :=
     fun _ => iff_of_eq (Ifam.mem_proper _ _ hg)
-  rw [←Mset.out_mem] at mem; rcases mem with ⟨i₀, hi₀⟩;
+  rw [←Mset.out_mem] at mem; rcases mem with ⟨i₀, hi₀⟩
   rcases Ifam.Bij.prod_cancel_l r' i₀
     (by intro a a' pm; apply ne; rw [←Mset.out_pairmem]; exact pm)
     (fun a b a' c mem' => eq a b a' c ((hmem _).mp mem')) with ⟨s, hs⟩

@@ -56,13 +56,13 @@ lemma emp_unfold A : A ∈ emp (PROP := RProp ρ) ↔ A.val = 1 := by rfl
 /-- Simple formulation of `∀` on `RProp` -/
 lemma forall_simple :
     BIBase.forall = fun P : α → RProp ρ => .mk fun A => ∀ x, A ∈ P x := by
-  funext; apply set_ext; intro _; constructor; { tauto };
+  funext; apply set_ext; intro _; constructor; { tauto }
   simp only [unfold_mem]; rintro _ _ ⟨_, rfl⟩; tauto
 
 /-- Simple formulation of `∃` on `RProp` -/
 lemma exists_simple :
     BIBase.exists = fun P : α → RProp ρ => .mk fun A => ∃ x, A ∈ P x := by
-  funext P; apply set_ext; intro _; constructor;
+  funext P; apply set_ext; intro _; constructor
   { rintro ⟨_, ⟨_, rfl⟩, _⟩; tauto }; { rintro ⟨a, _⟩; exists P a; tauto }
 
 /-- Entailment is reflexive -/
@@ -81,7 +81,7 @@ instance RProp_instBI : BI (RProp ρ) where
   entails_refl := entails_refl _
   entails_trans := entails_trans _ _ _
   equiv_iff := by
-    intro _ _; constructor; { intro rfl; constructor <;> rfl };
+    intro _ _; constructor; { intro rfl; constructor <;> rfl }
     intro ⟨_, _⟩; apply entails_antisymm <;> trivial
   and_ne := by constructor; intro _ _ _ rfl _ _ rfl; rfl
   or_ne := by constructor; intro _ _ _ rfl _ _ rfl; rfl
@@ -109,13 +109,13 @@ instance RProp_instBI : BI (RProp ρ) where
   sep_mono := by intro _ _ _ _ _ _ _ ⟨A, B, _, _, _⟩; exists A, B; tauto
   sep_symm := by intro _ _ _ ⟨A, B, _, _, _⟩; exists B, A; rw [mul_comm]; trivial
   emp_sep := by
-    intro _; constructor;
+    intro _; constructor
     · rintro ⟨_, _⟩ ⟨⟨_, _⟩, _, rfl, val, rfl⟩; simp only [one_mul]; tauto
     · intro A _; exists ⟨1, PCM.valid_one⟩; exists A; rw [one_mul]; trivial
   sep_assoc_l := by
-    rintro _ _ _ ⟨_, val⟩ ⟨⟨_, _⟩, C, ⟨A, B, _, _, rfl⟩, _, rfl⟩;
-    exists A, ⟨B.val * C.val, by apply PCM.valid_mul_r; rw [←mul_assoc]; apply val⟩;
-    simp only [mul_assoc]; and_intros; { trivial }; { exists B, C }; { trivial };
+    rintro _ _ _ ⟨_, val⟩ ⟨⟨_, _⟩, C, ⟨A, B, _, _, rfl⟩, _, rfl⟩
+    exists A, ⟨B.val * C.val, by apply PCM.valid_mul_r; rw [←mul_assoc]; apply val⟩
+    simp only [mul_assoc]; and_intros; { trivial }; { exists B, C }; { trivial }
   wand_intro := by
     intro _ _ _ toR A _ B _ _; apply toR; exists A, B
   wand_elim := by
@@ -155,12 +155,12 @@ lemma not_em : Q ⊢ P ∨ ¬ P := by tauto
 /-- The axiom of choice holds -/
 lemma choice {β : α → Sort*} (P : ∀ a, β a → RProp ρ) :
     (∀ x, ∃ y, P x y) =ᴮᴵ ∃ f : ∀ a, β a, ∀ x, P x (f x) := by
-  simp only [forall_simple, exists_simple];
+  simp only [forall_simple, exists_simple]
   apply set_ext; intro _; apply Classical.skolem
 
 /-- `<pers> P` is the pure fact that `emp` entails `P` -/
 lemma persistently_emp_entails : <pers> P =ᴮᴵ ⌜emp ⊢ P⌝ := by
-  apply set_ext; intro _; constructor; swap; { tauto };
+  apply set_ext; intro _; constructor; swap; { tauto }
   intro _ ⟨_, _⟩; rw [emp_unfold]; intro rfl; trivial
 
 /-! ## Ownership -/
@@ -178,10 +178,10 @@ lemma emp_as_own : emp = own (ρ := ρ) 1 := rfl
 
 /-- `∗` of `own`s is `own` of the product -/
 lemma own_sep : own (ρ := ρ) r ∗ own s =ᴮᴵ own (r * s) := by
-  apply set_ext; intro ⟨_, val⟩; constructor;
+  apply set_ext; intro ⟨_, val⟩; constructor
   · rintro ⟨⟨_, _⟩, ⟨_, _⟩, rfl, rfl, rfl⟩; simp only [own_unfold, Mseti.pure_mul]
-  · intro rfl; revert val; rw [Mseti.pure_mul]; intro val;
-    exists ⟨pure r, by apply PCM.valid_mul_l _ (pure s); trivial⟩;
+  · intro rfl; revert val; rw [Mseti.pure_mul]; intro val
+    exists ⟨pure r, by apply PCM.valid_mul_l _ (pure s); trivial⟩
     exists ⟨pure s, by apply PCM.valid_mul_r (pure r); trivial⟩
 
 /-! ## Preciseness -/
@@ -214,7 +214,7 @@ instance emp_instPrecise : Precise (ρ := ρ) emp := own_instPrecise _
 
 /-- Preciseness of `∗` -/
 instance sep_instPrecise [Precise P] [Precise Q] : Precise iprop(P ∗ Q) := by
-  constructor; rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩;
+  constructor; rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩
   simp only [precise P _ _ elP elP', precise Q _ _ elQ elQ']
 
 /-! ## Satisfiability -/
@@ -233,7 +233,7 @@ lemma satis (P : RProp ρ) [Satis P] : ∃ A, A ∈ P := by
 /-- Satisfiability is the same as not being `False` -/
 lemma satis_ne_false : Satis P ↔ P ≠ iprop(False) := by
   constructor; { intro ⟨_, _⟩ rfl; trivial }
-  intro ne; constructor; apply Classical.not_forall_not.mp; intro el;
+  intro ne; constructor; apply Classical.not_forall_not.mp; intro el
   suffices P =ᴮᴵ False by { tauto }; ext1; constructor <;> tauto
 
 /-- Satisfiability is monotone -/
@@ -296,8 +296,8 @@ lemma incomp_own : r # s → own r #ᴿ own s := by
 
 /-- Incompatibility over `∗` -/
 lemma incomp_sep_l : (P #ᴿ Q) → P ∗ R #ᴿ Q := by
-  rintro inc ⟨_, val⟩ _ ⟨_, _, _, _, rfl⟩ _ _ _; simp only [Mseti.mul_mem];
-  rintro ⟨_, _, _, _, rfl⟩ _; apply PCMI.incomp_mul_l;
+  rintro inc ⟨_, val⟩ _ ⟨_, _, _, _, rfl⟩ _ _ _; simp only [Mseti.mul_mem]
+  rintro ⟨_, _, _, _, rfl⟩ _; apply PCMI.incomp_mul_l
   { apply val; simp only [Mseti.mul_mem]; tauto }; { apply inc <;> try trivial }
 
 /-- Incompatibility over `∗` -/
@@ -343,19 +343,19 @@ instance emp_instUnambig : Unambig (ρ := ρ) emp := by apply own_instUnambig
 /-- Unambiguity over `∗` -/
 instance sep_instUnambig [Unambig P] [Unambig Q] :
     Unambig iprop(P ∗ Q) := by
-  constructor; rintro ⟨_, val⟩ ⟨_, _, elP, _, rfl⟩ _ _; simp only [Mseti.mul_pairmem];
-  rintro ⟨_, _, _, _, rfl, rfl, (⟨_, _⟩ | ⟨rfl, _, _⟩ | ⟨rfl, _, _⟩)⟩;
-  swap;
-  { apply PCMI.incomp_mul_r;
-    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_l] };
-    symm; apply PCMI.incomp_mul_r;
-    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_r] };
-    apply unambig Q <;> tauto };
+  constructor; rintro ⟨_, val⟩ ⟨_, _, elP, _, rfl⟩ _ _; simp only [Mseti.mul_pairmem]
+  rintro ⟨_, _, _, _, rfl, rfl, (⟨_, _⟩ | ⟨rfl, _, _⟩ | ⟨rfl, _, _⟩)⟩
+  swap
+  { apply PCMI.incomp_mul_r
+    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_l] }
+    symm; apply PCMI.incomp_mul_r
+    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_r] }
+    apply unambig Q <;> tauto }
   all_goals
-  { apply PCMI.incomp_mul_l;
-    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_l] };
-    symm; apply PCMI.incomp_mul_l;
-    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_r] };
+  { apply PCMI.incomp_mul_l
+    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_l] }
+    symm; apply PCMI.incomp_mul_l
+    { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_r] }
     apply unambig P <;> tauto }
 
 /-! ## Frameability -/
@@ -378,7 +378,7 @@ lemma Frameable.make : Precise P → Unambig P → Frameable P := by
 
 /-- Frameability is antitone -/
 lemma frameable_anti [Frameable Q] : (P ⊢ Q) → Frameable P := by
-  intro PQ; apply Frameable.make;
+  intro PQ; apply Frameable.make
   { apply precise_anti _ _ PQ }; { apply unambig_anti _ _ PQ }
 
 /-- Frameability of `False` -/
@@ -409,15 +409,15 @@ scoped delab_rules Coher
 
 /-- Coherence is symmetric -/
 @[symm] lemma coher_symm : (P ≎ᴿ Q) → Q ≎ᴿ P := by
-  intro coh _ _ elQ elP; rcases coh _ _ elP elQ with ⟨f, eq⟩; exists f.symm; intro _ _;
+  intro coh _ _ elQ elP; rcases coh _ _ elP elQ with ⟨f, eq⟩; exists f.symm; intro _ _
   simp only [Mset.Bij.symm_graph, Mset.map'_mem]; rintro ⟨_, _, _⟩; symm; grind only
 
 /-- Coherence is transitive, under satisfiability of the middle proposition -/
 @[trans] lemma coher_trans [Satis Q] : (P ≎ᴿ Q) → (Q ≎ᴿ R) → P ≎ᴿ R := by
-  intro coh coh' _ _ elP elR; have ⟨_, elQ⟩ := satis Q;
-  rcases coh _ _ elP elQ with ⟨f, coh⟩; rcases coh' _ _ elQ elR with ⟨g, coh'⟩;
-  exists f.trans g; intro _ _ mem;
-  rcases Mset.Bij.trans_graph_mem _ _ _ _ mem with ⟨_, _, _⟩;
+  intro coh coh' _ _ elP elR; have ⟨_, elQ⟩ := satis Q
+  rcases coh _ _ elP elQ with ⟨f, coh⟩; rcases coh' _ _ elQ elR with ⟨g, coh'⟩
+  exists f.trans g; intro _ _ mem
+  rcases Mset.Bij.trans_graph_mem _ _ _ _ mem with ⟨_, _, _⟩
   trans; { apply coh; trivial }; { apply coh'; trivial }
 
 /-- Coherence is antitone -/
@@ -437,15 +437,15 @@ lemma coher_false : False ≎ᴿ P := nofun
 
 /-- Coherence over `own` -/
 lemma coher_own : r ≎ s → own r ≎ᴿ own s := by
-  intro coh ⟨_, _⟩ ⟨_, _⟩ rfl rfl; exists Mset.Bij.pure _ _; intro _ _;
+  intro coh ⟨_, _⟩ ⟨_, _⟩ rfl rfl; exists Mset.Bij.pure _ _; intro _ _
   simp only [Mset.Bij.pure_graph, Mset.pure_mem]; rintro ⟨_, _⟩; trivial
 
 /-- Coherence over `∗` -/
 lemma coher_sep : (P ≎ᴿ P') → (Q ≎ᴿ Q') → P ∗ Q ≎ᴿ P' ∗ Q' := by
-  rintro cohP cohQ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩;
-  rcases cohP _ _ elP elP' with ⟨r, _⟩; rcases cohQ _ _ elQ elQ' with ⟨s, _⟩;
-  exists Mseti.Bij.mul r s; intro _ _;
-  simp only [Mseti.Bij.mul_graph, Mset.seq'_mem, Mset.map'_mem];
+  rintro cohP cohQ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _, elP, elQ, rfl⟩ ⟨_, _, elP', elQ', rfl⟩
+  rcases cohP _ _ elP elP' with ⟨r, _⟩; rcases cohQ _ _ elQ elQ' with ⟨s, _⟩
+  exists Mseti.Bij.mul r s; intro _ _
+  simp only [Mseti.Bij.mul_graph, Mset.seq'_mem, Mset.map'_mem]
   rintro ⟨_, ⟨_, _, rfl⟩, _, _, _, ⟨_, _⟩, _⟩; apply PCMC.coher_mul <;> tauto
 
 /-! ## Probability -/
@@ -467,7 +467,7 @@ lemma prob_anti [Prob Q p] : (P ⊢ Q) → Prob P p := by
 
 /-- Probability under preciseness -/
 lemma precise_prob [Precise P] : ∃ p, Prob P p := by
-  rcases em (∃ A, A ∈ P) with ⟨A, el⟩ | _; swap; { exists 0; constructor; tauto };
+  rcases em (∃ A, A ∈ P) with ⟨A, el⟩ | _; swap; { exists 0; constructor; tauto }
   exists PCMP.prob A.val; constructor; intro _ el'; rw [precise P _ _ el el']
 
 /-- Probability of `∃` -/
@@ -492,7 +492,7 @@ instance emp_instProb : Prob (ρ := ρ) emp 1 := by
 
 /-- Probability of `∗` -/
 instance sep_instProb [Prob P p] [Prob Q q] : Prob iprop(P ∗ Q) (p * q) := by
-  constructor; rintro ⟨_, val⟩ ⟨_, _, elP, elQ, rfl⟩;
+  constructor; rintro ⟨_, val⟩ ⟨_, _, elP, elQ, rfl⟩
   rw [PCMP.prob_mul _ _ val, prob P p _ elP, prob Q q _ elQ]
 
 end RBI

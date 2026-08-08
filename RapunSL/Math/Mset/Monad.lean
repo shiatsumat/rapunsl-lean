@@ -102,15 +102,15 @@ protected noncomputable def Ifam.join {α} (A : Ifam (Mset α)) : Mset α :=
 /-- `join` respects `≈` -/
 @[gcongr] protected lemma Ifam.join_proper (A B : Ifam (Mset α)) :
     A ≈ B → A.join = B.join := by
-  intro ⟨f, AB⟩; apply Quotient.sound;
+  intro ⟨f, AB⟩; apply Quotient.sound
   let g : (⨁ᴵ i, (A.elem i).out).dom ≃ (⨁ᴵ i, (B.elem i).out).dom :=
     { toFun := fun ⟨i, k⟩ => ⟨f i, congrArg (·.out.dom) (AB i) ▸ k⟩,
       invFun := fun ⟨j, k⟩ => ⟨f.symm j,
         congrArg (·.out.dom) (Ifam.equiv_elem_eq_symm AB j).symm ▸ k⟩,
       left_inv := by intro _; grind only [Equiv.symm_apply_apply],
-      right_inv := by intro _; grind only [Equiv.apply_symm_apply] };
-  exists g; rw [←Equiv.toFun_as_coe g]; intro ⟨i, _⟩; revert g;
-  simp only [Ifam.bigoplus_elem]; generalize AB i = eq; revert eq;
+      right_inv := by intro _; grind only [Equiv.apply_symm_apply] }
+  exists g; rw [←Equiv.toFun_as_coe g]; intro ⟨i, _⟩; revert g
+  simp only [Ifam.bigoplus_elem]; generalize AB i = eq; revert eq
   generalize B.elem (f i) = Bj; intro rfl; rfl
 
 /-- `join` for `Mset` -/
@@ -122,22 +122,22 @@ protected noncomputable def Mset.join {α} : Mset (Mset α) → Mset α :=
 /-- `<$>ᴹ` commutes with `join` -/
 protected lemma Mset.map_join (f : α → β) (A : Mset (Mset α)) :
     f <$>ᴹ Mset.join A = Mset.join (Mset.map f <$>ᴹ A) := by
-  revert A; apply Quotient.ind; intro ⟨_, F⟩;
-  apply Quotient.sound; rw [Ifam.bigoplus_map']; apply Ifam.bigoplus_proper;
-  simp only [Ifam.map_elem]; intro i; cases F i using Quotient.ind;
+  revert A; apply Quotient.ind; intro ⟨_, F⟩
+  apply Quotient.sound; rw [Ifam.bigoplus_map']; apply Ifam.bigoplus_proper
+  simp only [Ifam.map_elem]; intro i; cases F i using Quotient.ind
   grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
 /-- `<*>ᴹ` as a `join` of `<$>ᴹ`s -/
 protected lemma Mset.join_map_seq (F : Mset (α → β)) :
     Mset.join ((· <$>ᴹ A) <$>ᴹ F) = F <*>ᴹ A := by
-  cases F using Quotient.ind; cases A using Quotient.ind;
-  apply Quotient.sound; simp only [Ifam.map_elem]; trans;
+  cases F using Quotient.ind; cases A using Quotient.ind
+  apply Quotient.sound; simp only [Ifam.map_elem]; trans
   { apply Ifam.bigoplus_proper; { intro _; apply Quotient.mk_out } }
   exists { toFun := fun ⟨i, j⟩ => ⟨i, j⟩, invFun := fun ⟨i, j⟩ => ⟨i, j⟩ }; intro _; rfl
 
 /-- `join` over `pure` -/
 protected lemma Mset.join_pure (A : Mset α) : Mset.join (pure A) = A := by
-  cases A using Quotient.ind; apply Quotient.sound;
+  cases A using Quotient.ind; apply Quotient.sound
   simp only [Ifam.pure_elem]; grw [Quotient.mk_out]; apply Ifam.unary_bigoplus
 
 /-- Summing the singletons of an indexed family gives it back -/
@@ -146,18 +146,18 @@ protected lemma Ifam.bigoplus_pure (A : Ifam α) : Ifam.bigoplus (pure <$>ᴵ A)
 
 /-- `join` over a multiset of singletons -/
 protected lemma Mset.join_pure_map (A : Mset α) : Mset.join (pure <$>ᴹ A) = A := by
-  cases A using Quotient.ind; apply Quotient.sound; trans; swap;
+  cases A using Quotient.ind; apply Quotient.sound; trans; swap
   { apply Ifam.bigoplus_pure }; apply Ifam.bigoplus_proper; intro _; apply Quotient.mk_out
 
 /-- `join` is associative -/
 protected lemma Mset.join_join (A : Mset (Mset (Mset α))) :
     Mset.join (Mset.join A) = Mset.join (Mset.join <$>ᴹ A) := by
-  revert A; apply Quotient.ind; intro ⟨_, F⟩; apply Quotient.sound;
-  unfold Mset.join Ifam.join; simp only [Ifam.map_elem]; trans; swap;
-  { apply Ifam.bigoplus_proper;
-    { intro i; rewrite [←(F i).out_eq, Quotient.lift_mk];
+  revert A; apply Quotient.ind; intro ⟨_, F⟩; apply Quotient.sound
+  unfold Mset.join Ifam.join; simp only [Ifam.map_elem]; trans; swap
+  { apply Ifam.bigoplus_proper
+    { intro i; rewrite [←(F i).out_eq, Quotient.lift_mk]
       symm; unfold Mset.bigoplus; apply Quotient.mk_out } }
-  exists { toFun := fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, invFun := fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩ };
+  exists { toFun := fun ⟨⟨i, j⟩, k⟩ => ⟨i, ⟨j, k⟩⟩, invFun := fun ⟨i, ⟨j, k⟩⟩ => ⟨⟨i, j⟩, k⟩ }
   intro _; rfl
 
 /-! ## Monad -/
@@ -198,7 +198,7 @@ protected lemma Mset.bind_map (F : Mset (α → β)) (A : Mset α) :
 /-- `>>=ᴹ` is associative -/
 protected lemma Mset.bind_assoc (A : Mset α) (K : α → Mset β) (L : β → Mset γ) :
     (A >>=ᴹ K) >>=ᴹ L = A >>=ᴹ fun a => K a >>=ᴹ L := by
-  have eq : (fun a => (K a).bind L) = Mset.join ∘ Mset.map L ∘ K := rfl; rw [eq];
+  have eq : (fun a => (K a).bind L) = Mset.join ∘ Mset.map L ∘ K := rfl; rw [eq]
   unfold Mset.bind; rw [Mset.comp_map, ←Mset.join_join, Mset.map_join, ←Mset.comp_map]
 
 /-- Monad laws for `Mset` -/
@@ -236,7 +236,7 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
 /-- Membership for `join` -/
 @[simp] protected lemma Mset.join_mem (A : Mset (Mset α)) a :
     (a ∈ Mset.join A) = ∃ B ∈ A, a ∈ B := by
-  cases A using Quotient.ind; rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.bigoplus_mem];
+  cases A using Quotient.ind; rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.bigoplus_mem]
   ext1; constructor; { tauto }; intro ⟨_, ⟨_, rfl⟩, _⟩; tauto
 
 /-- Membership for `>>=ᴹ` -/
@@ -297,11 +297,11 @@ protected instance Mset.instCommApplicative : CommApplicative Mset where
     A.join.pairmem a a' ↔
       ((∃ B ∈ A, B.pairmem a a') ∨
        ∃ B B', A.pairmem B B' ∧ a ∈ B ∧ a' ∈ B') := by
-  revert A; apply Quotient.ind; intro A;
-  rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.bigoplus_pairmem];
-  apply iff_of_eq; congr <;> ext1;
+  revert A; apply Quotient.ind; intro A
+  rw [Mset.join, Quotient.lift_mk, Ifam.join, Mset.bigoplus_pairmem]
+  apply iff_of_eq; congr <;> ext1
   { constructor; { tauto }; intro ⟨_, ⟨_, rfl⟩, _⟩; tauto }
-  constructor; swap; { intro ⟨_, _, ⟨i, i', _, rfl, rfl⟩, _, _⟩; exists i, i' };
+  constructor; swap; { intro ⟨_, _, ⟨i, i', _, rfl, rfl⟩, _, _⟩; exists i, i' }
   intro ⟨i, i', _, el, el'⟩; exists A.elem i, A.elem i'; constructor; { exists i, i' }; { tauto }
 
 /-- Pair membership for `>>=ᴹ` -/

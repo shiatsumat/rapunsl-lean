@@ -90,7 +90,7 @@ scoped[Mseti] notation "⨁ᴹⁱ " i ", " A => Mseti.bigoplus (fun i => A)
 /-- `⊕ᴹⁱ` as a `⨁ᴹⁱ` over `Bool` -/
 lemma Mseti.oplus_as_bigoplus (A B : Mseti α) :
     A ⊕ᴹⁱ B = ⨁ᴹⁱ (b : Bool), if b then A else B := by
-  ext1; simp only [Mseti.oplus_val, Mseti.bigoplus_val, Mset.oplus_as_bigoplus];
+  ext1; simp only [Mseti.oplus_val, Mseti.bigoplus_val, Mset.oplus_as_bigoplus]
   congr; ext1 b; cases b <;> rfl
 
 /-! ## Product -/

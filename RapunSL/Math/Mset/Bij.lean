@@ -122,7 +122,7 @@ protected noncomputable def Mset.Bij.graph {A : Mset α} {B : Mset β}
 /-- The graph of `Ifam.Bij.symm` -/
 @[simp] protected lemma Ifam.Bij.symm_graph {A : Ifam α} {B : Ifam β} (r : A ≃ᴵ B) :
     r.symm.graph ≈ (fun (a, b) => (b, a)) <$>ᴵ r.graph := by
-  exists r.symm; intro i; simp only [Ifam.Bij.graph, Ifam.map]; congr; symm;
+  exists r.symm; intro i; simp only [Ifam.Bij.graph, Ifam.map]; congr; symm
   apply Equiv.apply_symm_apply
 
 /-- Membership for the graph of `Ifam.Bij.symm` -/
@@ -146,7 +146,7 @@ protected noncomputable def Mset.Bij.graph {A : Mset α} {B : Mset β}
 protected lemma Mset.Bij.trans_graph_mem {A : Mset α} {B : Mset β} {C : Mset γ}
     (r : A ≃ᴹ B) (s : B ≃ᴹ C) a c :
     (a, c) ∈ (r.trans s).graph → ∃ b, (a, b) ∈ r.graph ∧ (b, c) ∈ s.graph := by
-  rintro ⟨i, _, _⟩; exists B.out.elem (r i); and_intros;
+  rintro ⟨i, _, _⟩; exists B.out.elem (r i); and_intros
   { exists i; }; { exists r i }
 
 /-- The graph of `Ifam.Bij.trans` with a bijection of a map-like graph -/
@@ -154,7 +154,7 @@ protected lemma Ifam.Bij.trans_graph_map_l {A : Ifam α} {B : Ifam β} {C : Ifam
     (r : A ≃ᴵ B) (s : B ≃ᴵ C) (f : β → α) :
     (∀ a b, (a, b) ∈ r.graph → a = f b) →
     (r.trans s).graph ≈ (fun (b, c) => (f b, c)) <$>ᴵ s.graph := by
-  intro eq; exists r; intro i;
+  intro eq; exists r; intro i
   simp only [Ifam.Bij.graph, Equiv.trans_apply, Ifam.map_elem] at *; congr; apply eq; exists i
 
 /-- The graph of `Mset.Bij.trans` with a bijection of a map-like graph -/
@@ -169,7 +169,7 @@ protected lemma Ifam.Bij.trans_graph_map_r {A : Ifam α} {B : Ifam β} {C : Ifam
     (r : A ≃ᴵ B) (s : B ≃ᴵ C) (f : β → γ) :
     (∀ b c, (b, c) ∈ s.graph → c = f b) →
     (r.trans s).graph = (fun (a, b) => (a, f b)) <$>ᴵ r.graph := by
-  intro eq; apply congr_arg (Ifam.mk _); ext1 i;
+  intro eq; apply congr_arg (Ifam.mk _); ext1 i
   simp only [Ifam.Bij.graph, Equiv.trans_apply] at *; congr; apply eq; exists r i
 
 /-- The graph of `Mset.Bij.trans` with a bijection of a map-like graph -/
@@ -228,9 +228,9 @@ protected lemma Mset.Bij.trans_graph_id_r {A : Mset α} {B B' : Mset β}
 /-- The graph of `Ifam.Bij.lift_mk` -/
 @[simp] protected lemma Ifam.Bij.lift_mk_graph {A : Ifam α} {B : Ifam β} (r : A ≃ᴵ B) :
     r.lift_mk.graph = ⟦ r.graph ⟧ := by
-  apply Quotient.sound; rw [Ifam.Bij.lift_mk];
-  rw [←Ifam.Bij.trans_graph_id_r r (Bij.mk_out B).symm];
-  { apply Ifam.Bij.trans_graph_id_l; simp only [Ifam.Bij.mk_out_graph_mem]; tauto };
+  apply Quotient.sound; rw [Ifam.Bij.lift_mk]
+  rw [←Ifam.Bij.trans_graph_id_r r (Bij.mk_out B).symm]
+  { apply Ifam.Bij.trans_graph_id_l; simp only [Ifam.Bij.mk_out_graph_mem]; tauto }
   simp only [Ifam.Bij.symm_graph_mem, Ifam.Bij.mk_out_graph_mem]; tauto
 
 /-- Membership for the graph of `Ifam.Bij.lift_mk` -/
@@ -265,7 +265,7 @@ protected noncomputable def Mset.Bij.graph_codom {A : Mset α} {B : Mset β}
 /-- The graph of `Mset.Bij.graph_dom` -/
 @[simp] protected lemma Mset.Bij.graph_dom_graph (A : Mset α) (B : Mset β) (r : A ≃ᴹ B) :
     r.graph_dom.graph = (fun (a, b) => ((a, b), a)) <$>ᴹ r.graph := by
-  apply Quotient.sound; rw [Mset.Bij.graph_dom, ←Ifam.Bij.graph_dom_graph];
+  apply Quotient.sound; rw [Mset.Bij.graph_dom, ←Ifam.Bij.graph_dom_graph]
   apply Ifam.Bij.trans_graph_id_l; simp only [Mset.Bij.graph, Ifam.Bij.mk_out_graph_mem]; tauto
 
 /-- Membership for the graph of `Mset.Bij.graph_dom` -/
@@ -280,7 +280,7 @@ protected noncomputable def Mset.Bij.graph_codom {A : Mset α} {B : Mset β}
 /-- The graph of `Mset.Bij.graph_codom` -/
 @[simp] protected lemma Mset.Bij.graph_codom_graph (A : Mset α) (B : Mset β) (r : A ≃ᴹ B) :
     r.graph_codom.graph = (fun (a, b) => ((a, b), b)) <$>ᴹ r.graph := by
-  apply Quotient.sound; rw [Mset.Bij.graph_codom, ←Ifam.Bij.graph_codom_graph];
+  apply Quotient.sound; rw [Mset.Bij.graph_codom, ←Ifam.Bij.graph_codom_graph]
   apply Ifam.Bij.trans_graph_id_l; simp only [Mset.Bij.graph, Ifam.Bij.mk_out_graph_mem]; tauto
 
 /-- Membership for the graph of `Mset.Bij.graph_codom` -/
@@ -298,7 +298,7 @@ protected lemma Ifam.Bij.graph_eq_map {A : Ifam α} {B : Ifam β} (r : A ≃ᴵ 
 /-- Get `<$>ᴹ` information from a map-like graph -/
 protected lemma Mset.Bij.graph_eq_map {A : Mset α} {B : Mset β} (r : A ≃ᴹ B) (f : α → β) :
     (∀ a b, (a, b) ∈ r.graph → b = f a) → B = f <$>ᴹ A := by
-  rw (occs := [2]) [←A.out_eq, ←B.out_eq]; intro eq; apply Quotient.sound;
+  rw (occs := [2]) [←A.out_eq, ←B.out_eq]; intro eq; apply Quotient.sound
   revert eq; apply Ifam.Bij.graph_eq_map
 
 /-- Get `<$>ᴵ` information from a map-like graph -/
@@ -326,7 +326,7 @@ protected lemma Mset.Bij.graph_eq {A B : Mset α} (r : A ≃ᴹ B) :
 /-- Equality between `≃ᴵ`s by negation of pair membership -/
 protected lemma Ifam.Bij.eq_graph_no_pairmem {A : Ifam α} {B : Ifam β} (r s : A ≃ᴵ B) :
     (∀ a b b', (a, b) ∈ r.graph → (a, b') ∈ s.graph → ¬ B.pairmem b b') → r = s := by
-  intro h; ext1 i; by_contra ne;
+  intro h; ext1 i; by_contra ne
   apply h (A.elem i); { exists i }; { exists i }; { exists r i, s i }
 
 /-- Equality between `≃ᴹ`s by negation of pair membership -/
@@ -411,11 +411,11 @@ protected noncomputable def Mset.Bij.map (f : α → α') (g : β → β')
 @[simp] protected lemma Mset.Bij.map_graph (f : α → α') (g : β → β') {A B} (r : A ≃ᴹ B) :
     (Mset.Bij.map f g r).graph = (fun (a, b) => (f a, g b)) <$>ᴹ r.graph := by
   have eq :
-    (fun (a, b) => (f a, g b)) = ((fun (a, b) => (f a, b)) ∘ (fun (a, b) => (a, g b))) := rfl;
-  simp only [eq, Mset.comp_map, Mset.Bij.map]; trans;
-  { apply Mset.Bij.trans_graph_map_l _ _ f; intro _ _;
-    rw [Mset.Bij.map_l_graph_mem]; tauto };
-  congr; apply Mset.Bij.trans_graph_map_r; intro _ _;
+    (fun (a, b) => (f a, g b)) = ((fun (a, b) => (f a, b)) ∘ (fun (a, b) => (a, g b))) := rfl
+  simp only [eq, Mset.comp_map, Mset.Bij.map]; trans
+  { apply Mset.Bij.trans_graph_map_l _ _ f; intro _ _
+    rw [Mset.Bij.map_l_graph_mem]; tauto }
+  congr; apply Mset.Bij.trans_graph_map_r; intro _ _
   rw [Mset.Bij.map_r_graph_mem]; tauto
 
 /-- Membership for the graph of `Mset.Bij.map` -/
@@ -426,8 +426,8 @@ protected noncomputable def Mset.Bij.map (f : α → α') (g : β → β')
 /-- `<$>ᴹ` respects functions that agree on all members -/
 protected lemma Mset.map_congr {A : Mset α} {f g : α → β} :
     (∀ a ∈ A, f a = g a) → f <$>ᴹ A = g <$>ᴹ A := by
-  intro h; apply Mset.Bij.graph_eq_map (Mset.Bij.map_r f A) g;
-  intro _ _ mem; rw [Mset.Bij.map_r_graph_mem] at mem;
+  intro h; apply Mset.Bij.graph_eq_map (Mset.Bij.map_r f A) g
+  intro _ _ mem; rw [Mset.Bij.map_r_graph_mem] at mem
   rcases mem with ⟨rfl, _⟩; apply h; trivial
 
 /-- Unpack the graph of a bijection out of a mapped multiset into a multiset of pairs -/
@@ -436,12 +436,12 @@ protected lemma Mset.Bij.graph_unmap_l {A : Mset α} {B : Mset β} (f : α → �
     ∃ S : Mset (α × β), Prod.fst <$>ᴹ S = A ∧ Prod.snd <$>ᴹ S = B ∧
       (fun (a, b) ↦ (f a, b)) <$>ᴹ S = r.graph := by
   refine ⟨((Mset.Bij.map_r f A).trans r).graph,
-    Mset.Bij.graph_fst _, Mset.Bij.graph_snd _, ?_⟩;
+    Mset.Bij.graph_fst _, Mset.Bij.graph_snd _, ?_⟩
   have e : r = (Mset.Bij.map_r f A).symm.trans ((Mset.Bij.map_r f A).trans r) := by
     ext1 i; simp only [Equiv.trans_apply, Equiv.apply_symm_apply]
   conv_rhs => rw [e]
-  symm; apply Mset.Bij.trans_graph_map_l;
-  intro _ _ mem; rw [Mset.Bij.symm_graph_mem, Mset.Bij.map_r_graph_mem] at mem;
+  symm; apply Mset.Bij.trans_graph_map_l
+  intro _ _ mem; rw [Mset.Bij.symm_graph_mem, Mset.Bij.map_r_graph_mem] at mem
   exact mem.1
 
 /-! ### For `∅` -/
@@ -462,7 +462,7 @@ protected noncomputable def Mset.Bij.empty : (∅ : Mset α) ≃ᴹ (∅ : Mset 
 /-- The graph of `Mset.Bij.empty` -/
 @[simp] protected lemma Mset.Bij.empty_graph :
     Mset.Bij.empty.graph (α := α) (β := β) = ∅ := by
-  rw [Mset.Bij.empty, Ifam.Bij.lift_mk_graph]; apply Quotient.sound;
+  rw [Mset.Bij.empty, Ifam.Bij.lift_mk_graph]; apply Quotient.sound
   apply Ifam.Bij.empty_graph
 
 /-- Membership for the graph of `Mset.Bij.empty` -/

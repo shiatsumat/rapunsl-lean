@@ -39,11 +39,11 @@ instance bi_entails_instIsEquiv : IsEquiv PROP BiEntails where
 
 /-- `∨` as an `∃` over `Bool` -/
 lemma or_as_exists : P ∨ Q ⊣⊢ ∃ b : Bool, if b then P else Q := by
-  constructor;
-  · iintro (_ | _);
-    { iexists true; simp only [reduceIte]; itrivial };
+  constructor
+  · iintro (_ | _)
+    { iexists true; simp only [reduceIte]; itrivial }
     { iexists false; simp only [Bool.false_eq_true, reduceIte]; itrivial }
-  · iintro ⟨%b, _⟩; cases b <;> simp only [Bool.false_eq_true, reduceIte];
+  · iintro ⟨%b, _⟩; cases b <;> simp only [Bool.false_eq_true, reduceIte]
     { iright; itrivial }; { ileft; itrivial }
 
 /-- `False` as an `∃` over `Empty` -/

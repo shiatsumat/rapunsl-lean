@@ -188,24 +188,24 @@ protected instance Prod.instPCMC [PCMC α] [PCMICan β] : PCMC (α × β) where
     symm := by
       rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩; and_intros; swap; { rfl }; symm; trivial
     trans := by
-      rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩ ⟨_, rfl⟩;
+      rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩ ⟨_, rfl⟩
       and_intros; swap; { rfl }; trans <;> assumption
   }
   coher_valid' := by
-    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨coh, rfl⟩ ⟨val, _⟩; and_intros; swap; { trivial };
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨coh, rfl⟩ ⟨val, _⟩; and_intros; swap; { trivial }
     apply PCMC.coher_valid' _ _ coh val
   coher_mul_l := by
-    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩; and_intros; swap; { rfl };
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl⟩; and_intros; swap; { rfl }
     apply PCMC.coher_mul_l; trivial
   coher_mul_inv_l := by
-    intro (_, _) (_, _) (_, _) ⟨_, _⟩; simp only [mk_mul_mk] at *; intro ⟨_, _⟩;
-    and_intros; { apply PCMC.coher_mul_inv_l <;> trivial };
+    intro (_, _) (_, _) (_, _) ⟨_, _⟩; simp only [mk_mul_mk] at *; intro ⟨_, _⟩
+    and_intros; { apply PCMC.coher_mul_inv_l <;> trivial }
     { apply PCMCan.mul_cancel_l <;> trivial }
   incomp_neg_coher := by
-    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨val, _⟩ (inc | inc) ⟨coh, rfl⟩;
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨val, _⟩ (inc | inc) ⟨coh, rfl⟩
     { apply PCMC.incomp_neg_coher _ _ val inc coh }; { apply irrefl _ inc }
   coher_incomp := by
-    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨coh, rfl⟩ (inc | inc) <;> simp only at *;
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨coh, rfl⟩ (inc | inc) <;> simp only at *
     { left; apply PCMC.coher_incomp _ _ _ coh inc }; { right; trivial }
 
 /-! ## RR, i.e., resource ring -/
@@ -277,9 +277,9 @@ open Classical in
 /-- `+` is commutative -/
 protected noncomputable instance instAddCommMagma : AddCommMagma α where
   add_comm := by
-    intro a b; rcases Classical.em (a ≎ b) with (h | h); swap;
+    intro a b; rcases Classical.em (a ≎ b) with (h | h); swap
     { rw [RR.add_one _ _ h]; symm; apply RR.add_one; rw [PCMC.coher_symm]; trivial }
-    apply RR.radd_unique _ _ _ _ (RR.add_radd _ _ h); apply RR.radd_comm';
+    apply RR.radd_unique _ _ _ _ (RR.add_radd _ _ h); apply RR.radd_comm'
     apply RR.add_radd; symm; trivial
 
 /-- `+ᴿ` is coherent with the right argument -/
@@ -304,32 +304,32 @@ protected lemma add_valid_r : a ≎ b → (✓ (a + b) ↔ ✓ b) := by
 
 /-- `+` inherits incompatibility from the left summand -/
 protected lemma add_incomp_l : a ≎ b → a # c → a + b # c := by
-  intro coh inc; apply PCMC.coher_incomp a;
+  intro coh inc; apply PCMC.coher_incomp a
   { symm; apply RR.add_coher_l; trivial }; { trivial }
 
 /-- `+` inherits incompatibility from the right summand -/
 protected lemma add_incomp_r : a ≎ b → b # c → a + b # c := by
-  intro coh inc; rw [add_comm]; apply RR.add_incomp_l;
+  intro coh inc; rw [add_comm]; apply RR.add_incomp_l
   { symm; trivial }; { trivial }
 
 /-- `+` preserves incompatibility of summands -/
 protected lemma add_incomp (a' b' : α) : a ≎ b → a' ≎ b' → a # a' → a + b # a' + b' := by
-  intro coh coh' inc; symm; apply RR.add_incomp_l _ _ _ coh'; symm;
+  intro coh coh' inc; symm; apply RR.add_incomp_l _ _ _ coh'; symm
   apply RR.add_incomp_l _ _ _ coh; trivial
 
 /-- `+ᴿ` is associative -/
 protected lemma radd_assoc_r :
     b +ᴿ c =ᴿ bc → a +ᴿ bc =ᴿ abc → ∃ ab, a +ᴿ b =ᴿ ab ∧ ab +ᴿ c =ᴿ abc := by
-  simp only [RR.radd_comm b c, RR.radd_comm a bc, RR.radd_comm a b, RR.radd_comm _ c abc];
+  simp only [RR.radd_comm b c, RR.radd_comm a bc, RR.radd_comm a b, RR.radd_comm _ c abc]
   apply RR.radd_assoc_l
 
 /-- `+` is associative under coherence -/
 protected lemma add_assoc : a ≎ b → b ≎ c → (a + b) + c = a + (b + c) := by
-  intro h h'; have e1 := RR.add_radd _ _ h;
+  intro h h'; have e1 := RR.add_radd _ _ h
   have e2 := RR.add_radd (a + b) c
-    (by trans; swap; { apply h' }; symm; apply RR.radd_coher_r _ _ _ e1);
-  have ⟨bc, e1', e2'⟩ := RR.radd_assoc_l _ _ _ _ _ e1 e2;
-  rcases RR.radd_add _ _ _ h' e1' with rfl; symm;
+    (by trans; swap; { apply h' }; symm; apply RR.radd_coher_r _ _ _ e1)
+  have ⟨bc, e1', e2'⟩ := RR.radd_assoc_l _ _ _ _ _ e1 e2
+  rcases RR.radd_add _ _ _ h' e1' with rfl; symm
   apply RR.radd_add _ _ _ _ e2'; trans; { exact h }; apply RR.radd_coher_l _ _ _ e1'
 
 /-- `+ᴿ` distributes over `*` -/
@@ -338,8 +338,8 @@ protected lemma radd_mul_r : a +ᴿ b =ᴿ ab → a * c +ᴿ b * c =ᴿ ab * c :
 
 /-- `+` distributes over `*` under coherence -/
 protected lemma add_mul_l : b ≎ c → a * (b + c) = a * b + a * c := by
-  intro h; have e1 := RR.add_radd _ _ h;
-  have e2 := RR.radd_mul_l a _ _ _ e1; symm; apply RR.radd_add _ _ _ _ e2;
+  intro h; have e1 := RR.add_radd _ _ h
+  have e2 := RR.radd_mul_l a _ _ _ e1; symm; apply RR.radd_add _ _ _ _ e2
   apply PCMC.coher_mul_r; trivial
 
 /-- `+` distributes over `*` under coherence -/
@@ -358,23 +358,23 @@ protected instance Prod.instRR (α : Type u) (β : Type u') [RR α] [PCMICan β]
   prob_mul := by intro _ _ ⟨_, _⟩; apply PCMP.prob_mul; trivial
   radd p q r := RR.radd p.1 q.1 r.1 ∧ p.2 = q.2 ∧ q.2 = r.2
   radd_unique := by
-    intro (_, _) (_, _) (_, _) (_, _); simp only; intro ⟨e, rfl, rfl⟩ ⟨e', rfl, rfl⟩;
+    intro (_, _) (_, _) (_, _) (_, _); simp only; intro ⟨e, rfl, rfl⟩ ⟨e', rfl, rfl⟩
     congr; exact RR.radd_unique _ _ _ _ e e'
   coher_radd := by
-    rintro ⟨_, b⟩ ⟨_, _⟩ ⟨e, rfl⟩; have ⟨s, _⟩ := RR.coher_radd _ _ e;
+    rintro ⟨_, b⟩ ⟨_, _⟩ ⟨e, rfl⟩; have ⟨s, _⟩ := RR.coher_radd _ _ e
     exists ⟨s, b⟩
   radd_coher := by
-    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl, rfl⟩; and_intros; swap; { rfl };
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl, rfl⟩; and_intros; swap; { rfl }
     apply RR.radd_coher; trivial
   radd_coher_l := by
-    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl, rfl⟩; and_intros; swap; { rfl };
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl, rfl⟩; and_intros; swap; { rfl }
     apply RR.radd_coher_l; trivial
   radd_comm' := by
-    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl, rfl⟩; simp only at *;
+    rintro ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, rfl, rfl⟩; simp only at *
     rw [RR.radd_comm]; trivial
   radd_assoc_l := by
-    rintro ⟨_, b⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨e, rfl, rfl⟩ ⟨e', rfl, rfl⟩; simp only at *;
+    rintro ⟨_, b⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨e, rfl, rfl⟩ ⟨e', rfl, rfl⟩; simp only at *
     have ⟨s, _, _⟩ := RR.radd_assoc_l _ _ _ _ _ e e'; exists ⟨s, b⟩
   radd_mul_l := by
-    rintro ⟨_, b⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨e, rfl, rfl⟩; simp only at *;
+    rintro ⟨_, b⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨_, _⟩ ⟨e, rfl, rfl⟩; simp only at *
     and_intros; rotate_left 1; { rfl }; { rfl }; apply RR.radd_mul_l; trivial

@@ -32,7 +32,7 @@ scoped[Ifam] infixr:60 " ⊕ᴵ " => Ifam.oplus
 @[gcongr] protected lemma Ifam.oplus_proper (A A' B B' : Ifam α) :
     A ≈ A' → B ≈ B' → A ⊕ᴵ B ≈ A' ⊕ᴵ B' :=
   fun ⟨f, AB⟩ ⟨g, A'B'⟩ => by
-    exists Equiv.sumCongr f g;
+    exists Equiv.sumCongr f g
     rintro (_ | _) <;> simp_all only [Ifam.oplus_elem_inl, Ifam.oplus_elem_inr] <;> rfl
 
 /-- Sum of two multisets -/
@@ -53,7 +53,7 @@ protected lemma Ifam.oplus_map' (f : α → β) (A B : Ifam α) :
 /-- `<$>ᴹ` distributes over `⊕ᴹ` -/
 protected lemma Mset.oplus_map' (f : α → β) (A B : Mset α) :
     f <$>ᴹ (A ⊕ᴹ B) = f <$>ᴹ A ⊕ᴹ f <$>ᴹ B := by
-  cases A using Quotient.ind; cases B using Quotient.ind;
+  cases A using Quotient.ind; cases B using Quotient.ind
   apply Quotient.sound; apply Ifam.oplus_map'
 
 /-- `<$>` distributes over `⊕ᴹ` -/
@@ -70,7 +70,7 @@ protected lemma Ifam.oplus_comm (A B : Ifam α) : A ⊕ᴵ B ≈ B ⊕ᴵ A := b
 protected instance Mset.oplus_Commutative :
     Std.Commutative (Mset.oplus (α := α)) where
   comm A B := by
-    cases A using Quotient.ind; cases B using Quotient.ind;
+    cases A using Quotient.ind; cases B using Quotient.ind
     apply Quotient.sound; apply Ifam.oplus_comm
 
 /-! ### `⊕` is unital -/
@@ -95,7 +95,7 @@ protected lemma Ifam.oplus_assoc (A B C : Ifam α) : (A ⊕ᴵ B) ⊕ᴵ C ≈ A
 protected instance Mset.oplus_Associative :
     Std.Associative (Mset.oplus (α := α)) where
   assoc A B C := by
-    cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind;
+    cases A using Quotient.ind; cases B using Quotient.ind; cases C using Quotient.ind
     apply Quotient.sound; apply Ifam.oplus_assoc
 
 /-! ## Big sum -/
@@ -110,7 +110,7 @@ scoped[Ifam] notation "⨁ᴵ " i ", " A => Ifam.bigoplus (fun i => A)
 /-- `⨁ᴵ` respects `≈` -/
 @[gcongr] protected lemma Ifam.bigoplus_proper (A A' : ι → Ifam α) :
     (∀ i, A i ≈ A' i) → Ifam.bigoplus A ≈ Ifam.bigoplus A' := by
-  intro AA'; have ⟨f, AA'⟩ := Classical.skolem.mp AA';
+  intro AA'; have ⟨f, AA'⟩ := Classical.skolem.mp AA'
   exists Equiv.sigmaCongrRight f; tauto
 
 /-- The index domain of `⨁ᴵ` -/
@@ -137,7 +137,7 @@ protected lemma Ifam.bigoplus_map' (f : α → β) (A : ι → Ifam α) :
 /-- `<$>ᴹ` distributes over `⨁ᴹ` -/
 protected lemma Mset.bigoplus_map' (f : α → β) (A : ι → Mset α) :
     f <$>ᴹ Mset.bigoplus A = ⨁ᴹ i, f <$>ᴹ A i := by
-  apply Quotient.sound; rw [Ifam.bigoplus_map']; gcongr with i; simp only;
+  apply Quotient.sound; rw [Ifam.bigoplus_map']; gcongr with i; simp only
   cases A i using Quotient.ind; grw [Quotient.mk_out]; symm; apply Quotient.mk_out
 
 /-- `<$>` distributes over `⨁ᴹ` -/
@@ -166,8 +166,8 @@ protected lemma Ifam.bigoplus_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι,
 /-- `⨁ᴹ` is associative: a nested `⨁ᴹ` is a `⨁ᴹ` over the `Sigma` type -/
 protected lemma Mset.bigoplus_assoc {ι : Type} {ι' : ι → Type} (A : ∀ ι, ι' ι → Mset α) :
     (⨁ᴹ i, Mset.bigoplus (A i)) = ⨁ᴹ (⟨i, j⟩ : Sigma ι'), A i j := by
-  apply Quotient.sound; trans;
-  { apply Ifam.bigoplus_proper; { intro _; apply Quotient.mk_out } };
+  apply Quotient.sound; trans
+  { apply Ifam.bigoplus_proper; { intro _; apply Quotient.mk_out } }
   apply Ifam.bigoplus_assoc
 
 /-! ### `empty` as `bigoplus` -/
@@ -193,7 +193,7 @@ protected lemma Ifam.unary_bigoplus (A : Unit → Ifam α) : Ifam.bigoplus A ≈
 
 /-- `⨁ᴹ` over `Unit` is trivial -/
 protected lemma Mset.unary_bigoplus (A : Unit → Mset α) : Mset.bigoplus A = A () := by
-  cases eq : A () using Quotient.ind; apply Quotient.sound;
+  cases eq : A () using Quotient.ind; apply Quotient.sound
   grw [Ifam.unary_bigoplus, eq, Quotient.mk_out]
 
 /-! ### `⊕` as `bigoplus` -/
@@ -201,17 +201,17 @@ protected lemma Mset.unary_bigoplus (A : Unit → Mset α) : Mset.bigoplus A = A
 /-- `⊕ᴵ` as a `⨁ᴵ` over `Bool` -/
 protected lemma Ifam.oplus_as_bigoplus (A B : Ifam α) :
     F true = A → F false = B → A ⊕ᴵ B ≈ Ifam.bigoplus F := by
-  intro rfl rfl;
+  intro rfl rfl
   exists { toFun := fun | .inl i => ⟨true, i⟩ | .inr i => ⟨false, i⟩,
            invFun := fun | ⟨true, i⟩ => .inl i | ⟨false, i⟩ => .inr i,
            left_inv := by rintro (_ | _) <;> rfl,
-           right_inv := by rintro ⟨_ | _, _⟩ <;> rfl };
+           right_inv := by rintro ⟨_ | _, _⟩ <;> rfl }
   rintro (_ | _) <;> rfl
 
 /-- `⊕ᴹ` as a `⨁ᴹ` over `Bool` -/
 protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
     A ⊕ᴹ B = ⨁ᴹ (b : Bool), if b then A else B := by
-  rw (occs := [1]) [←A.out_eq, ←B.out_eq];
+  rw (occs := [1]) [←A.out_eq, ←B.out_eq]
   apply Quotient.sound; apply Ifam.oplus_as_bigoplus <;> rfl
 
 /-! ## Membership -/
@@ -219,14 +219,14 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
 /-- Membership for `⊕ᴵ` -/
 @[simp] protected lemma Ifam.oplus_mem (a : α) (A B : Ifam α) :
     a ∈ A ⊕ᴵ B ↔ a ∈ A ∨ a ∈ B := by
-  constructor;
+  constructor
   · rintro ⟨i | j, rfl⟩; { left; exists i }; { right; exists j }
   · rintro (⟨i, rfl⟩ | ⟨i, rfl⟩); { exists .inl i }; { exists .inr i }
 
 /-- Membership for `⊕ᴹ` -/
 @[simp] protected lemma Mset.oplus_mem (A B : Mset α) a :
     a ∈ A ⊕ᴹ B ↔ a ∈ A ∨ a ∈ B := by
-  cases A using Quotient.ind; cases B using Quotient.ind;
+  cases A using Quotient.ind; cases B using Quotient.ind
   apply Ifam.oplus_mem
 
 /-- Membership for `⨁ᴵ` -/
@@ -257,14 +257,14 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
 @[simp] protected lemma Ifam.oplus_pairmem (a b : α) (A B : Ifam α) :
     (A ⊕ᴵ B).pairmem a b ↔
       (A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b) := by
-  constructor;
-  · rintro ⟨(i | i), (j | j), ne, rfl, rfl⟩;
+  constructor
+  · rintro ⟨(i | i), (j | j), ne, rfl, rfl⟩
     · left; exists i, j; tauto
     · right; left; and_intros; { exists i }; { exists j }
     · right; right; left; and_intros; { exists i }; { exists j }
     · right; right; right; exists i, j; tauto
   · rintro (⟨i, j, ne, rfl, rfl⟩ | ⟨⟨i, rfl⟩, ⟨j, rfl⟩⟩ |
-      ⟨⟨i, rfl⟩, ⟨j, rfl⟩⟩ | ⟨i, j, ne, rfl, rfl⟩);
+      ⟨⟨i, rfl⟩, ⟨j, rfl⟩⟩ | ⟨i, j, ne, rfl, rfl⟩)
     { exists .inl i, .inl j; aesop }; { exists .inl i, .inr j; tauto }
     { exists .inr i, .inl j; tauto }; { exists .inr i, .inr j; aesop }
 
@@ -272,18 +272,18 @@ protected lemma Mset.oplus_as_bigoplus (A B : Mset α) :
 @[simp] protected lemma Mset.oplus_pairmem (a b : α) (A B : Mset α) :
     (A ⊕ᴹ B).pairmem a b ↔
       A.pairmem a b ∨ (a ∈ A ∧ b ∈ B) ∨ (a ∈ B ∧ b ∈ A) ∨ B.pairmem a b := by
-  cases A using Quotient.ind; cases B using Quotient.ind;
+  cases A using Quotient.ind; cases B using Quotient.ind
   apply Ifam.oplus_pairmem
 
 /-- Pair membership for `⨁ᴵ` -/
 @[simp] protected lemma Ifam.bigoplus_pairmem {ι : Type} (A : ι → Ifam α) a b :
     (⨁ᴵ i, A i).pairmem a b ↔
       (∃ i, (A i).pairmem a b) ∨ (∃ i i', i ≠ i' ∧ a ∈ A i ∧ b ∈ A i') := by
-  constructor;
-  · rintro ⟨⟨i, j⟩, ⟨i', j'⟩, ne, rfl, rfl⟩;
+  constructor
+  · rintro ⟨⟨i, j⟩, ⟨i', j'⟩, ne, rfl, rfl⟩
     rcases Classical.em (i = i') with rfl | ne; { left; exists i, j, j'; aesop }
     right; exists i, i'; constructor; { trivial }; and_intros; { exists j }; { exists j' }
-  · rintro (⟨i, j, j', ne, rfl, rfl⟩ | ⟨i, i', ne, ⟨j, rfl⟩, ⟨j', rfl⟩⟩);
+  · rintro (⟨i, j, j', ne, rfl, rfl⟩ | ⟨i, i', ne, ⟨j, rfl⟩, ⟨j', rfl⟩⟩)
     { exists ⟨i, j⟩, ⟨i, j'⟩; aesop }; { exists ⟨i, j⟩, ⟨i', j'⟩; aesop }
 
 /-- Pair membership for `⨁ᴹ` -/
@@ -319,8 +319,8 @@ protected noncomputable def Mset.Bij.oplus
 @[simp] protected lemma Mset.Bij.oplus_graph
     {A A' : Mset α} {B B' : Mset β} (r : A ≃ᴹ B) (s : A' ≃ᴹ B') :
     (Mset.Bij.oplus r s).graph = r.graph ⊕ᴹ s.graph := by
-  rw [Mset.Bij.oplus]; revert r s; unfold Mset.Bij Mset.Bij.graph;
-  simp_out_eq A; simp_out_eq B; simp_out_eq A'; simp_out_eq B'; intro _ _;
+  rw [Mset.Bij.oplus]; revert r s; unfold Mset.Bij Mset.Bij.graph
+  simp_out_eq A; simp_out_eq B; simp_out_eq A'; simp_out_eq B'; intro _ _
   trans; { apply Ifam.Bij.lift_mk_graph }; rw [Ifam.Bij.oplus_graph]; rfl
 
 /-! ### For `⨁` -/
@@ -344,8 +344,8 @@ protected noncomputable def Mset.Bij.bigoplus {A : ι → Mset α} {B : ι → M
 @[simp] protected lemma Mset.Bij.bigoplus_graph
     {A : ι → Mset α} {B : ι → Mset β} (r : ∀ i, A i ≃ᴹ B i) :
     (Mset.Bij.bigoplus r).graph = ⨁ᴹ i, (r i).graph := by
-  rw [Mset.Bij.bigoplus]; trans; { apply Ifam.Bij.lift_mk_graph };
-  rw [Ifam.Bij.bigoplus_graph, Mset.bigoplus]; apply Quotient.sound;
+  rw [Mset.Bij.bigoplus]; trans; { apply Ifam.Bij.lift_mk_graph }
+  rw [Ifam.Bij.bigoplus_graph, Mset.bigoplus]; apply Quotient.sound
   gcongr; symm; apply Quotient.mk_out
 
 /-- Membership for the graph of `Mset.Bij.bigoplus` -/

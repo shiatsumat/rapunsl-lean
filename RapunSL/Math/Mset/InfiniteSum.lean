@@ -30,7 +30,7 @@ scoped[Ifam] notation "∑ᴵ " a " ∈ᴵ " A ", " b:67 => Ifam.tsum (fun a => 
 @[to_additive /-- `∑ᴵ` respects `≈` -/]
 protected lemma Ifam.tprod_proper {α} (k : α → κ) A B :
     A ≈ B → ∏ᴵ a ∈ᴵ A, k a = ∏ᴵ b ∈ᴵ B, k b := by
-  have ⟨ι, A⟩ := A; have ⟨ι', B⟩ := B; rintro ⟨ιι', AB⟩; simp only at *;
+  have ⟨ι, A⟩ := A; have ⟨ι', B⟩ := B; rintro ⟨ιι', AB⟩; simp only at *
   trans; swap; { apply Equiv.tprod_eq ιι' }; simp only [Ifam.tprod]; congr;  ext1 _; rw [AB]
 
 /-- Infinite product over a multiset -/
@@ -50,7 +50,7 @@ scoped[Mset] notation "∑ᴹ " a " ∈ᴹ " A ", " b:67 => Mset.tsum (fun a => 
 @[to_additive /-- `∑ᴹ` respects functions that agree on all members -/]
 protected lemma Mset.tprod_proper (k k' : α → κ) A :
     (∀ a ∈ A, k a = k' a) → ∏ᴹ a ∈ᴹ A, k a = ∏ᴹ a ∈ᴹ A, k' a := by
-  intro eq; cases A using Quotient.ind; simp only [Mset.tprod, Quotient.lift_mk, Ifam.tprod];
+  intro eq; cases A using Quotient.ind; simp only [Mset.tprod, Quotient.lift_mk, Ifam.tprod]
   congr; ext1 i; apply eq; exists i
 
 /-- `∏ᴹ` respects functions that agree on all members, `gcongr` form -/
@@ -91,7 +91,7 @@ variable [ContinuousMul κ]
 protected lemma Mset.tprod_oplus [T2Space κ] (k : α → κ) A B :
     (∀ ι : Type, ∀ k : ι → κ, Multipliable k) →
     Mset.tprod k (A ⊕ᴹ B) = Mset.tprod k A * Mset.tprod k B := by
-  intro mul; cases A using Quotient.ind; cases B using Quotient.ind;
+  intro mul; cases A using Quotient.ind; cases B using Quotient.ind
   apply Multipliable.tprod_sum <;> apply mul
 
 /-- `∏ᴹ` distributes over `⨁ᴹ` -/
@@ -99,9 +99,9 @@ protected lemma Mset.tprod_oplus [T2Space κ] (k : α → κ) A B :
 protected lemma Mset.tprod_bigoplus [T3Space κ] (k : α → κ) (A : ι → Mset α) :
     (∀ ι : Type, ∀ k : ι → κ, Multipliable k) →
     Mset.tprod k (Mset.bigoplus A) = ∏' i, Mset.tprod k (A i) := by
-  intro mul; trans;
-  { apply Multipliable.tprod_sigma' <;> intros <;> apply mul };
-  simp only [Ifam.bigoplus_elem]; congr; ext1 i; cases A i using Quotient.ind;
+  intro mul; trans
+  { apply Multipliable.tprod_sigma' <;> intros <;> apply mul }
+  simp only [Ifam.bigoplus_elem]; congr; ext1 i; cases A i using Quotient.ind
   apply Ifam.tprod_proper; apply Quotient.mk_out
 
 /-- `∏ᴹ` over `×ᴹ` as an iterated product -/
@@ -109,7 +109,7 @@ protected lemma Mset.tprod_bigoplus [T3Space κ] (k : α → κ) (A : ι → Mse
 protected lemma Mset.tprod_prod [T3Space κ] (k : α × β → κ) A B :
     (∀ ι : Type, ∀ k : ι → κ, Multipliable k) →
     Mset.tprod k (A ×ᴹ B) = ∏ᴹ a ∈ᴹ A, ∏ᴹ b ∈ᴹ B, k (a, b) := by
-  intro mul; cases A using Quotient.ind; cases B using Quotient.ind;
+  intro mul; cases A using Quotient.ind; cases B using Quotient.ind
   apply Multipliable.tprod_prod' <;> intros <;> apply mul
 
 end ContinuousMul
@@ -136,7 +136,7 @@ protected lemma Mset.tsum_mul_right [T2Space κ] (k : α → κ) A l :
 protected lemma Mset.tsum_mul_tsum [T3Space κ] (k : α → κ) (l : β → κ) A B :
     (∀ ι : Type, ∀ k : ι → κ, Summable k) →
     Mset.tsum k A * Mset.tsum l B = ∑ᴹ (a, b) ∈ᴹ A ×ᴹ B, k a * l b := by
-  intro sum; cases A using Quotient.ind; cases B using Quotient.ind;
+  intro sum; cases A using Quotient.ind; cases B using Quotient.ind
   apply Summable.tsum_mul_tsum <;> apply sum
 
 end TopologicalSemiring
@@ -171,7 +171,7 @@ protected lemma ENNReal.Mset.tsum_mul_right (k : α → ℝ≥0∞) A l :
 /-- The product of two `∑ᴹ`s as a `∑ᴹ` over `×ᴹ`, for `ℝ≥0∞` -/
 protected lemma ENNReal.Mset.tsum_mul_tsum (k : α → ℝ≥0∞) (l : β → ℝ≥0∞) A B :
     Mset.tsum k A * Mset.tsum l B = ∑ᴹ (a, b) ∈ᴹ A ×ᴹ B, k a * l b := by
-  rw [ENNReal.Mset.tsum_prod, ←ENNReal.Mset.tsum_mul_right];
+  rw [ENNReal.Mset.tsum_prod, ←ENNReal.Mset.tsum_mul_right]
   congr; ext1 _; rw [ENNReal.Mset.tsum_mul_left]
 
 end ENNReal

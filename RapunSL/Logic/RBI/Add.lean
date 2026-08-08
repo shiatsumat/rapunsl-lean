@@ -25,9 +25,9 @@ scoped macro:50 A:term:50 " +ᴿᴹ " B:term " =ᴿᴹ " C:term:50 : term => `(R
 
 /-- `+ᴿᴹ` is commutative -/
 lemma rmadd_comm' : A +ᴿᴹ B =ᴿᴹ C → B +ᴿᴹ A =ᴿᴹ C := by
-  rintro ⟨AB, coh, rfl⟩; exists AB.symm; and_intros;
+  rintro ⟨AB, coh, rfl⟩; exists AB.symm; and_intros
   · intro _ _; rw [Bij.symm_graph_mem]; intro _; symm; apply coh; trivial
-  · simp only [Bij.symm_graph, ←Mset.comp_map];
+  · simp only [Bij.symm_graph, ←Mset.comp_map]
     congr; ext1 ⟨a, b⟩; rw [add_comm a b]; rfl
 
 /-- `+ᴿᴹ` is commutative -/
@@ -38,44 +38,44 @@ lemma rmadd_comm : A +ᴿᴹ B =ᴿᴹ C ↔ B +ᴿᴹ A =ᴿᴹ C := by
 lemma pairs_rmadd (S : Mset (ρ × ρ)) :
     (∀ a b, (a, b) ∈ S → a ≎ b) →
     (Prod.fst <$>ᴹ S) +ᴿᴹ (Prod.snd <$>ᴹ S) =ᴿᴹ (fun (a, b) ↦ a + b) <$>ᴹ S := by
-  intro coh;
+  intro coh
   have hg : ((Mset.Bij.map_l Prod.fst S).trans (Mset.Bij.map_r Prod.snd S)).graph = S := by
     rw [Mset.Bij.trans_graph_map_l (Mset.Bij.map_l Prod.fst S) (Mset.Bij.map_r Prod.snd S)
-      Prod.fst (by intro _ _ mem; rw [Mset.Bij.map_l_graph_mem] at mem; exact mem.1)];
+      Prod.fst (by intro _ _ mem; rw [Mset.Bij.map_l_graph_mem] at mem; exact mem.1)]
     rw [Mset.Bij.map_r_graph, ←Mset.comp_map]; exact Mset.id_map S
-  exists (Mset.Bij.map_l Prod.fst S).trans (Mset.Bij.map_r Prod.snd S); and_intros;
+  exists (Mset.Bij.map_l Prod.fst S).trans (Mset.Bij.map_r Prod.snd S); and_intros
   { rw [hg]; exact coh }; { rw [hg] }
 
 /-- Construct `+ᴿᴹ` from two coherent images of a common multiset -/
 lemma rmadd_map {σ : Type*} (S : Mset σ) (f g : σ → ρ) {A B C : Mset ρ} :
     (∀ x ∈ S, f x ≎ g x) → f <$>ᴹ S = A → g <$>ᴹ S = B →
     (fun x ↦ f x + g x) <$>ᴹ S = C → A +ᴿᴹ B =ᴿᴹ C := by
-  rintro coh rfl rfl rfl;
+  rintro coh rfl rfl rfl
   have hcoh : ∀ a b, (a, b) ∈ (fun x ↦ (f x, g x)) <$>ᴹ S → a ≎ b := by
-    intro a b mem; rw [Mset.map'_mem] at mem;
-    rcases mem with ⟨x, memS, eq⟩; injection eq with ea eb; subst ea; subst eb;
+    intro a b mem; rw [Mset.map'_mem] at mem
+    rcases mem with ⟨x, memS, eq⟩; injection eq with ea eb; subst ea; subst eb
     exact coh _ memS
-  have h := pairs_rmadd _ hcoh;
+  have h := pairs_rmadd _ hcoh
   rw [←Mset.comp_map, ←Mset.comp_map, ←Mset.comp_map] at h; exact h
 
 /-- `+ᴿᴹ` preserves inhabitedness -/
 lemma rmadd_inhab : A +ᴿᴹ B =ᴿᴹ C → A.inhab → C.inhab := by
-  rintro ⟨r, _, rfl⟩ inh; rw [Mset.inhab_map'];
+  rintro ⟨r, _, rfl⟩ inh; rw [Mset.inhab_map']
   rw [←Mset.Bij.graph_fst r, Mset.inhab_map'] at inh; exact inh
 
 /-- `+ᴿᴹ` transfers validity of the left-hand summand to the sum -/
 lemma rmadd_valid : A +ᴿᴹ B =ᴿᴹ C → (∀ a ∈ A, ✓ a) → ∀ c ∈ C, ✓ c := by
-  rintro ⟨r, coh, rfl⟩ val c elC;
-  rw [Mset.map'_mem] at elC; rcases elC with ⟨⟨a, b⟩, mem, rfl⟩;
-  refine (RR.add_valid_l _ _ (coh _ _ mem)).mpr ?_;
+  rintro ⟨r, coh, rfl⟩ val c elC
+  rw [Mset.map'_mem] at elC; rcases elC with ⟨⟨a, b⟩, mem, rfl⟩
+  refine (RR.add_valid_l _ _ (coh _ _ mem)).mpr ?_
   apply val; rw [←Mset.Bij.graph_fst r, Mset.map'_mem]; exact ⟨_, mem, rfl⟩
 
 /-- `+ᴿᴹ` transfers validity of the sum to the left-hand summand -/
 lemma rmadd_valid_l : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ a ∈ A, ✓ a := by
-  rintro ⟨r, coh, rfl⟩ val a elA;
-  rw [←Mset.Bij.graph_fst r, Mset.map'_mem] at elA;
-  rcases elA with ⟨⟨a', b⟩, mem, rfl⟩;
-  refine (RR.add_valid_l _ _ (coh _ _ mem)).mp ?_;
+  rintro ⟨r, coh, rfl⟩ val a elA
+  rw [←Mset.Bij.graph_fst r, Mset.map'_mem] at elA
+  rcases elA with ⟨⟨a', b⟩, mem, rfl⟩
+  refine (RR.add_valid_l _ _ (coh _ _ mem)).mp ?_
   apply val; rw [Mset.map'_mem]; exact ⟨_, mem, rfl⟩
 
 /-- `+ᴿᴹ` transfers validity of the sum to the right-hand summand -/
@@ -85,10 +85,10 @@ lemma rmadd_valid_r : A +ᴿᴹ B =ᴿᴹ C → (∀ c ∈ C, ✓ c) → ∀ b �
 /-- `+ᴿᴹ` is deterministic when the right-hand summand is valid and pairwise incompatible -/
 lemma rmadd_unique_r : (∀ b ∈ B, ✓ b) → (∀ b b', B.pairmem b b' → b # b') →
     A +ᴿᴹ B =ᴿᴹ C → A +ᴿᴹ B =ᴿᴹ C' → C = C' := by
-  rintro val inc ⟨r, coh, rfl⟩ ⟨s, coh', rfl⟩;
+  rintro val inc ⟨r, coh, rfl⟩ ⟨s, coh', rfl⟩
   suffices eq : r = s by rw [eq]
-  apply Mset.Bij.eq_graph_no_pairmem; intro a b b' mem mem' pm;
-  apply PCMC.incomp_neg_coher b b';
+  apply Mset.Bij.eq_graph_no_pairmem; intro a b b' mem mem' pm
+  apply PCMC.incomp_neg_coher b b'
   · apply val; apply Mset.pairmem_mem_l _ _ _ pm
   · apply inc; trivial
   · trans a; { symm; apply coh; trivial }; { apply coh'; trivial }
@@ -96,49 +96,49 @@ lemma rmadd_unique_r : (∀ b ∈ B, ✓ b) → (∀ b b', B.pairmem b b' → b 
 /-- `+ᴿᴹ` is deterministic when the left-hand summand is valid and pairwise incompatible -/
 lemma rmadd_unique_l : (∀ a ∈ A, ✓ a) → (∀ a a', A.pairmem a a' → a # a') →
     A +ᴿᴹ B =ᴿᴹ C → A +ᴿᴹ B =ᴿᴹ C' → C = C' := by
-  intro val inc _ _;
+  intro val inc _ _
   apply rmadd_unique_r B A C C' val inc <;> { apply rmadd_comm'; trivial }
 
 /-- `+ᴿᴹ` is associative -/
 lemma rmadd_assoc_l :
     A +ᴿᴹ B =ᴿᴹ AB → AB +ᴿᴹ C =ᴿᴹ ABC → ∃ BC, B +ᴿᴹ C =ᴿᴹ BC ∧ A +ᴿᴹ BC =ᴿᴹ ABC := by
-  rintro ⟨r₁, coh₁, rfl⟩ ⟨r₂, coh₂, rfl⟩;
-  rcases Mset.Bij.graph_unmap_l (fun ((a, b) : ρ × ρ) ↦ a + b) r₂ with ⟨S, hS1, hS2, hgr⟩;
+  rintro ⟨r₁, coh₁, rfl⟩ ⟨r₂, coh₂, rfl⟩
+  rcases Mset.Bij.graph_unmap_l (fun ((a, b) : ρ × ρ) ↦ a + b) r₂ with ⟨S, hS1, hS2, hgr⟩
   have pw : ∀ a b c, ((a, b), c) ∈ S → b ≎ c ∧ a ≎ b + c ∧ (a + b) + c = a + (b + c) := by
-    intro a b c mem;
+    intro a b c mem
     have ahb : a ≎ b := by
       apply coh₁; rw [←hS1, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩
     have abhc : a + b ≎ c := by
       apply coh₂; rw [←hgr, Mset.map'_mem]; exact ⟨((a, b), c), mem, rfl⟩
     have _ : b ≎ c := by grw [←abhc]; symm; apply RR.add_coher_r; trivial
-    and_intros; { trivial };
+    and_intros; { trivial }
     { grw [ahb]; symm; apply RR.add_coher_l; trivial }; { apply RR.add_assoc <;> trivial }
-  exists (fun ((a, b), c) ↦ b + c) <$>ᴹ S; simp only; and_intros;
-  · apply rmadd_map S (fun ((a, b), c) ↦ b) Prod.snd _ _ hS2 rfl;
-    { rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).1 };
+  exists (fun ((a, b), c) ↦ b + c) <$>ᴹ S; simp only; and_intros
+  · apply rmadd_map S (fun ((a, b), c) ↦ b) Prod.snd _ _ hS2 rfl
+    { rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).1 }
     { rw [←Mset.Bij.graph_snd r₁, ←hS1, ←Mset.comp_map]; rfl }
-  · apply rmadd_map S (fun ((a, b), c) ↦ a) (fun ((a, b), c) ↦ b + c);
-    { rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.1 };
-    { rw [←Mset.Bij.graph_fst r₁, ←hS1, ←Mset.comp_map]; rfl }; { rfl };
-    { rw [←hgr, ←Mset.comp_map]; apply Mset.map_congr;
+  · apply rmadd_map S (fun ((a, b), c) ↦ a) (fun ((a, b), c) ↦ b + c)
+    { rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.1 }
+    { rw [←Mset.Bij.graph_fst r₁, ←hS1, ←Mset.comp_map]; rfl }; { rfl }
+    { rw [←hgr, ←Mset.comp_map]; apply Mset.map_congr
       rintro ⟨⟨a, b⟩, c⟩ mem; exact (pw _ _ _ mem).2.2.symm }
 
 /-- `*` over `Mseti`s distributes over `+ᴿᴹ` -/
 lemma rmadd_mul_l (A : Mseti ρ) {B C BC : Mseti ρ} :
     B.val +ᴿᴹ C.val =ᴿᴹ BC.val → (A * B).val +ᴿᴹ (A * C).val =ᴿᴹ (A * BC).val := by
-  rintro ⟨r, coh, hBC⟩;
-  apply rmadd_map (A.val ×ᴹ r.graph) (fun (a, (b, _)) ↦ a * b) (fun (a, (_, c)) ↦ a * c);
-  · rintro ⟨a, b, c⟩ mem; rw [Mset.prod_mem] at mem;
+  rintro ⟨r, coh, hBC⟩
+  apply rmadd_map (A.val ×ᴹ r.graph) (fun (a, (b, _)) ↦ a * b) (fun (a, (_, c)) ↦ a * c)
+  · rintro ⟨a, b, c⟩ mem; rw [Mset.prod_mem] at mem
     change a * b ≎ a * c; apply PCMC.coher_mul_r; exact coh _ _ mem.2
-  · rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold];
-    rw (occs := [2]) [←Mset.Bij.graph_fst r];
+  · rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold]
+    rw (occs := [2]) [←Mset.Bij.graph_fst r]
     rw [Mset.prod_map'_r, ←Mset.comp_map]; rfl
-  · rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold];
-    rw (occs := [2]) [←Mset.Bij.graph_snd r];
+  · rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold]
+    rw (occs := [2]) [←Mset.Bij.graph_snd r]
     rw [Mset.prod_map'_r, ←Mset.comp_map]; rfl
-  · rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold, hBC, Mset.prod_map'_r, ←Mset.comp_map];
-    apply Mset.map_congr; rintro ⟨a, b, c⟩ mem; rw [Mset.prod_mem] at mem;
-    change a * b + a * c = a * (b + c); symm;
+  · rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold, hBC, Mset.prod_map'_r, ←Mset.comp_map]
+    apply Mset.map_congr; rintro ⟨a, b, c⟩ mem; rw [Mset.prod_mem] at mem
+    change a * b + a * c = a * (b + c); symm
     apply RR.add_mul_l; exact coh _ _ mem.2
 
 /-- Auxiliary for `rmadd_mul_inv_l`: extract a sum of the right factors -/
@@ -146,42 +146,42 @@ private lemma rmadd_mul_inv_l' (A : Mseti ρ) {B C : Mseti ρ} {D : Mset ρ} :
     (A * B).val +ᴿᴹ (A * C).val =ᴿᴹ D → (∀ d ∈ D, ✓ d) →
     (∀ a a', A.val.pairmem a a' → a # a') →
     ∃ BC, B.val +ᴿᴹ C.val =ᴿᴹ BC := by
-  intro hadd val incA;
+  intro hadd val incA
   have hmB : (A * B).val = Function.uncurry HMul.hMul <$>ᴹ (A.val ×ᴹ B.val) := by
     rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold]
   have hmC : (A * C).val = Function.uncurry HMul.hMul <$>ᴹ (A.val ×ᴹ C.val) := by
     rw [Mseti.mul_val, Mset.map_seq, Mset.map_unfold]
-  rw [hmB, hmC] at hadd;
-  have valAB := rmadd_valid_l _ _ _ hadd val;
-  have valAC := rmadd_valid_r _ _ _ hadd val;
-  rcases hadd with ⟨r, coh, -⟩;
+  rw [hmB, hmC] at hadd
+  have valAB := rmadd_valid_l _ _ _ hadd val
+  have valAC := rmadd_valid_r _ _ _ hadd val
+  rcases hadd with ⟨r, coh, -⟩
   let r₂ : A.val ×ᴹ B.val ≃ᴹ A.val ×ᴹ C.val :=
     (Mset.Bij.map_r (Function.uncurry HMul.hMul) (A.val ×ᴹ B.val)).trans
       (r.trans (Mset.Bij.map_l (Function.uncurry HMul.hMul) (A.val ×ᴹ C.val)))
   have key : ∀ a b a' c, ((a, b), (a', c)) ∈ r₂.graph →
       (a, b) ∈ A.val ×ᴹ B.val ∧ (a', c) ∈ A.val ×ᴹ C.val ∧ a * b ≎ a' * c := by
-    intro a b a' c mem;
-    rcases Mset.Bij.trans_graph_mem _ _ _ _ mem with ⟨x, mem₁, mem₂⟩;
-    rw [Mset.Bij.map_r_graph_mem] at mem₁; rcases mem₁ with ⟨rfl, memAB⟩;
-    rcases Mset.Bij.trans_graph_mem _ _ _ _ mem₂ with ⟨y, mem₃, mem₄⟩;
-    rw [Mset.Bij.map_l_graph_mem] at mem₄; rcases mem₄ with ⟨rfl, memAC⟩;
+    intro a b a' c mem
+    rcases Mset.Bij.trans_graph_mem _ _ _ _ mem with ⟨x, mem₁, mem₂⟩
+    rw [Mset.Bij.map_r_graph_mem] at mem₁; rcases mem₁ with ⟨rfl, memAB⟩
+    rcases Mset.Bij.trans_graph_mem _ _ _ _ mem₂ with ⟨y, mem₃, mem₄⟩
+    rw [Mset.Bij.map_l_graph_mem] at mem₄; rcases mem₄ with ⟨rfl, memAC⟩
     exact ⟨memAB, memAC, coh _ _ mem₃⟩
   have fst_eq : ∀ a b a' c, ((a, b), (a', c)) ∈ r₂.graph → a = a' := by
-    intro a b a' c mem;
-    rcases key _ _ _ _ mem with ⟨memAB, memAC, cohr⟩;
-    have vab : ✓ (a * b) := valAB _ (by rw [Mset.map'_mem]; exact ⟨(a, b), memAB, rfl⟩);
-    have va'c : ✓ (a' * c) := valAC _ (by rw [Mset.map'_mem]; exact ⟨(a', c), memAC, rfl⟩);
-    by_contra ne; rw [Mset.prod_mem] at memAB memAC;
-    have inc : a # a' := incA _ _ (Mset.mem_ne_pairmem _ _ _ memAB.1 memAC.1 ne);
-    apply PCMC.incomp_neg_coher _ _ vab ?_ cohr;
-    symm; apply PCMI.incomp_mul_l _ _ _ va'c; symm;
+    intro a b a' c mem
+    rcases key _ _ _ _ mem with ⟨memAB, memAC, cohr⟩
+    have vab : ✓ (a * b) := valAB _ (by rw [Mset.map'_mem]; exact ⟨(a, b), memAB, rfl⟩)
+    have va'c : ✓ (a' * c) := valAC _ (by rw [Mset.map'_mem]; exact ⟨(a', c), memAC, rfl⟩)
+    by_contra ne; rw [Mset.prod_mem] at memAB memAC
+    have inc : a # a' := incA _ _ (Mset.mem_ne_pairmem _ _ _ memAB.1 memAC.1 ne)
+    apply PCMC.incomp_neg_coher _ _ vab ?_ cohr
+    symm; apply PCMI.incomp_mul_l _ _ _ va'c; symm
     exact PCMI.incomp_mul_l _ _ _ vab inc
-  rcases A.prop with ⟨a₀, mem₀⟩;
+  rcases A.prop with ⟨a₀, mem₀⟩
   rcases Mset.Bij.prod_cancel_l r₂ mem₀
-    (by rintro a a' pm rfl; exact PCMI.incomp_irrefl _ (incA _ _ pm)) fst_eq with ⟨s, hs⟩;
-  refine ⟨_, s, ?_, rfl⟩; intro b c mem;
-  rcases key _ _ _ _ (hs _ _ mem) with ⟨memAB, -, cohr⟩;
-  refine PCMC.coher_mul_inv_r a₀ b c (valAB _ ?_) cohr;
+    (by rintro a a' pm rfl; exact PCMI.incomp_irrefl _ (incA _ _ pm)) fst_eq with ⟨s, hs⟩
+  refine ⟨_, s, ?_, rfl⟩; intro b c mem
+  rcases key _ _ _ _ (hs _ _ mem) with ⟨memAB, -, cohr⟩
+  refine PCMC.coher_mul_inv_r a₀ b c (valAB _ ?_) cohr
   rw [Mset.map'_mem]; exact ⟨(a₀, b), memAB, rfl⟩
 
 /-- Cancel a common frame `A *` out of `+ᴿᴹ`, under validity of the sum and
@@ -191,10 +191,10 @@ lemma rmadd_mul_inv_l (A : Mseti ρ) {B C : Mseti ρ} {D : Mset ρ} :
     (∀ a a', A.val.pairmem a a' → a # a') →
     (∀ x x', (A * B).val.pairmem x x' → x # x') →
     ∃ BC : Mseti ρ, (B.val +ᴿᴹ C.val =ᴿᴹ BC.val) ∧ D = (A * BC).val := by
-  intro hadd val incA incAB;
-  rcases rmadd_mul_inv_l' A hadd val incA with ⟨BC', hBC⟩;
-  have inh : BC'.inhab := rmadd_inhab _ _ _ hBC B.prop;
-  refine ⟨⟨_, inh⟩, hBC, ?_⟩;
+  intro hadd val incA incAB
+  rcases rmadd_mul_inv_l' A hadd val incA with ⟨BC', hBC⟩
+  have inh : BC'.inhab := rmadd_inhab _ _ _ hBC B.prop
+  refine ⟨⟨_, inh⟩, hBC, ?_⟩
   exact rmadd_unique_l (A * B).val (A * C).val _ _ (rmadd_valid_l _ _ _ hadd val) incAB hadd
     (rmadd_mul_l A (BC := ⟨_, inh⟩) hBC)
 
@@ -231,12 +231,12 @@ lemma add_unfold :
 
 /-- `+` is monotone -/
 @[gcongr] lemma add_mono : (P ⊢ P') → (Q ⊢ Q') → P + Q ⊢ P' + Q' := by
-  intro PP' QQ' _ ⟨A, B, _, _, _⟩; exists A, B; and_intros;
+  intro PP' QQ' _ ⟨A, B, _, _, _⟩; exists A, B; and_intros
   { apply PP'; trivial }; { apply QQ'; trivial }; trivial
 
 /-- `+` is commutative -/
 private lemma add_comm' : P + Q ⊢ Q + P := by
-  intro _ ⟨A, B, _, _, _⟩; exists B, A; and_intros; { trivial }; { trivial };
+  intro _ ⟨A, B, _, _, _⟩; exists B, A; and_intros; { trivial }; { trivial }
   apply rmadd_comm'; trivial
 
 /-- `+` is commutative -/
@@ -245,18 +245,18 @@ instance RProp.instAddCommMagma : AddCommMagma (RProp ρ) where
 
 /-- `+` is associative -/
 private lemma add_assoc' : (P + Q) + R ⊢ P + (Q + R) := by
-  rintro D ⟨ABv, Cv, ⟨Av, Bv, elP, elQ, hAB⟩, elR, hABC⟩;
-  rcases rmadd_assoc_l _ _ _ _ _ hAB hABC with ⟨BC, hBC, hA⟩;
-  have inh : BC.inhab := rmadd_inhab _ _ _ hBC Bv.val.prop;
-  have val : ∀ b ∈ BC, ✓ b := rmadd_valid_r _ _ _ hA D.prop;
-  exists Av, ⟨⟨BC, inh⟩, val⟩; and_intros;
+  rintro D ⟨ABv, Cv, ⟨Av, Bv, elP, elQ, hAB⟩, elR, hABC⟩
+  rcases rmadd_assoc_l _ _ _ _ _ hAB hABC with ⟨BC, hBC, hA⟩
+  have inh : BC.inhab := rmadd_inhab _ _ _ hBC Bv.val.prop
+  have val : ∀ b ∈ BC, ✓ b := rmadd_valid_r _ _ _ hA D.prop
+  exists Av, ⟨⟨BC, inh⟩, val⟩; and_intros
   { trivial }; { exists Bv, Cv }; { trivial }
 
 /-- `+` is associative -/
 instance RProp.instAddCommSemigroup : AddCommSemigroup (RProp ρ) where
   add_assoc := by
-    intro P Q R; apply entails_antisymm; { apply add_assoc' };
-    rw [add_comm P (Q + R), add_comm Q R, add_comm P Q, add_comm (Q + P) R];
+    intro P Q R; apply entails_antisymm; { apply add_assoc' }
+    rw [add_comm P (Q + R), add_comm Q R, add_comm P Q, add_comm (Q + P) R]
     apply add_assoc'
 
 /-! ### Sum over an finite inhabited type -/
@@ -275,7 +275,7 @@ lemma finisum_mono (P Q : ι → RProp ρ) :
 
 /-- Introduce `-+`, absorbing the left operand of `+` -/
 lemma cross_intro_l : (P + Q ⊢ R) → Q ⊢ P -+ R := by
-  intro toR A elQ B elP C hadd; apply toR; exists B, A; and_intros;
+  intro toR A elQ B elP C hadd; apply toR; exists B, A; and_intros
   { trivial }; { trivial }; apply rmadd_comm'; trivial
 
 /-- Introduce `-+`, absorbing the right operand of `+` -/
@@ -292,7 +292,7 @@ lemma cross_elim_r : (P -+ Q) + P ⊢ Q := by
 
 /-- `-+` is the right adjoint of `+` -/
 lemma cross_adj : (P + Q ⊢ R) ↔ (Q ⊢ P -+ R) := by
-  constructor; { apply cross_intro_l };
+  constructor; { apply cross_intro_l }
   intro Qto; grw [Qto]; apply cross_elim_l
 
 /-- `-+` is antitone on the left and monotone on the right -/
@@ -304,7 +304,7 @@ lemma cross_adj : (P + Q ⊢ R) ↔ (Q ⊢ P -+ R) := by
 /-- `+` commutes with `∃` in the right operand -/
 lemma add_exists_l (Q : α → RProp ρ) :
     P + (∃ a, Q a) =ᴮᴵ ∃ a, P + Q a := by
-  ext1; constructor; swap; { apply exists_elim; intro a; grw [exists_intro (Ψ := Q) a] };
+  ext1; constructor; swap; { apply exists_elim; intro a; grw [exists_intro (Ψ := Q) a] }
   rw [cross_adj]; apply exists_elim; intro a; rw [←cross_adj]; apply exists_intro a
 
 /-- `+` commutes with `∃` in the left operand -/
@@ -333,30 +333,30 @@ lemma finisum_exists {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
     (∑ᶠⁱ i, ∃ a, P i a) =ᴮᴵ ∃ f : (∀ i, α i), ∑ᶠⁱ i, P i (f i) := by
   suffices h : ∀ n {α : Fin (n + 1) → Sort _} (P : ∀ k, α k → RProp ρ),
       (∑ᶠⁱ k, ∃ a, P k a) =ᴮᴵ ∃ f : (∀ k, α k), ∑ᶠⁱ k, P k (f k) by
-    rw [finisum_fin (fun i ↦ ∃ a, P i a), h _ fun k ↦ P (Finitype.equivFin.symm k)];
-    ext1; constructor;
-    · apply exists_elim; intro g;
-      grw [←exists_intro ((Equiv.piCongrLeft' α Finitype.equivFin).symm g)];
-      rw [finisum_fin (fun i ↦ P i ((Equiv.piCongrLeft' α Finitype.equivFin).symm g i))];
+    rw [finisum_fin (fun i ↦ ∃ a, P i a), h _ fun k ↦ P (Finitype.equivFin.symm k)]
+    ext1; constructor
+    · apply exists_elim; intro g
+      grw [←exists_intro ((Equiv.piCongrLeft' α Finitype.equivFin).symm g)]
+      rw [finisum_fin (fun i ↦ P i ((Equiv.piCongrLeft' α Finitype.equivFin).symm g i))]
       simp only [Equiv.piCongrLeft'_symm_apply_apply]; rfl
-    · apply exists_elim; intro f;
+    · apply exists_elim; intro f
       grw [←exists_intro fun k ↦ f (Finitype.equivFin.symm k), finisum_fin]
   intro n; induction n with
   | zero =>
-    intro α P; simp only [Nat.reduceAdd, finisum_fin_one];
-    ext1; constructor;
-    · apply exists_elim; intro a;
-      grw [←exists_intro (Ψ := fun f : ∀ k, α k ↦ P 0 (f 0)) (Fin.cases a fun i ↦ i.elim0)];
+    intro α P; simp only [Nat.reduceAdd, finisum_fin_one]
+    ext1; constructor
+    · apply exists_elim; intro a
+      grw [←exists_intro (Ψ := fun f : ∀ k, α k ↦ P 0 (f 0)) (Fin.cases a fun i ↦ i.elim0)]
       simp only [Fin.cases_zero]; rfl
     · apply exists_elim; intro f; exact exists_intro (f 0)
   | succ n ih =>
-    intro α P; simp only [finisum_fin_succ];
-    rw [ih fun k ↦ P k.castSucc]; simp only [add_exists_r, add_exists_l];
-    ext1; constructor;
-    · apply exists_elim; intro a; apply exists_elim; intro g;
-      grw [←exists_intro (Fin.lastCases a g)];
+    intro α P; simp only [finisum_fin_succ]
+    rw [ih fun k ↦ P k.castSucc]; simp only [add_exists_r, add_exists_l]
+    ext1; constructor
+    · apply exists_elim; intro a; apply exists_elim; intro g
+      grw [←exists_intro (Fin.lastCases a g)]
       simp only [Fin.lastCases_last, Fin.lastCases_castSucc]; rfl
-    · apply exists_elim; intro f;
+    · apply exists_elim; intro f
       grw [←exists_intro (f (Fin.last (n + 1))),
         ←exists_intro fun k : Fin (n + 1) ↦ f k.castSucc]
 
@@ -364,12 +364,12 @@ lemma finisum_exists {α : ι → Sort*} (P : ∀ i, α i → RProp ρ) :
 
 /-- Frame a proposition from the left into `+` -/
 lemma sum_frame_l : P ∗ (Q + R) ⊢ (P ∗ Q) + (P ∗ R) := by
-  rintro D ⟨Av, BCv, elP, ⟨Bv, Cv, elQ, elR, hBC⟩, hD⟩;
+  rintro D ⟨Av, BCv, elP, ⟨Bv, Cv, elQ, elR, hBC⟩, hD⟩
   have hadd : (Av.val * Bv.val).val +ᴿᴹ (Av.val * Cv.val).val =ᴿᴹ D.val.val := by
     rw [hD]; exact rmadd_mul_l Av.val hBC
-  have valB : ✓ (Av.val * Bv.val) := rmadd_valid_l _ _ _ hadd D.prop;
-  have valC : ✓ (Av.val * Cv.val) := rmadd_valid_r _ _ _ hadd D.prop;
-  exists ⟨Av.val * Bv.val, valB⟩, ⟨Av.val * Cv.val, valC⟩; and_intros;
+  have valB : ✓ (Av.val * Bv.val) := rmadd_valid_l _ _ _ hadd D.prop
+  have valC : ✓ (Av.val * Cv.val) := rmadd_valid_r _ _ _ hadd D.prop
+  exists ⟨Av.val * Bv.val, valB⟩, ⟨Av.val * Cv.val, valC⟩; and_intros
   { exists Av, Bv }; { exists Av, Cv }; { exact hadd }
 
 /-- Frame a proposition from the right into `+` -/
@@ -378,8 +378,8 @@ lemma sum_frame_r : (P + Q) ∗ R ⊢ (P ∗ R) + (Q ∗ R) := by
 
 /-- Frame a proposition from the left into `∑ᶠⁱ` -/
 lemma finisum_frame_l (Q : ι → RProp ρ) : P ∗ (∑ᶠⁱ i, Q i) ⊢ ∑ᶠⁱ i, (P ∗ Q i) := by
-  apply finisum_rel (fun Q R ↦ iprop(P ∗ Q) ⊢ R) Q fun i ↦ iprop(P ∗ Q i); swap;
-  { intro _; rfl };
+  apply finisum_rel (fun Q R ↦ iprop(P ∗ Q) ⊢ R) Q fun i ↦ iprop(P ∗ Q i); swap
+  { intro _; rfl }
   intro _ _ _ _ frame frame'; grw [sum_frame_l, frame, frame']
 
 /-- Frame a proposition from the right into `∑ᶠⁱ` -/
@@ -388,12 +388,12 @@ lemma finisum_frame_r (P : ι → RProp ρ) Q : (∑ᶠⁱ i, P i) ∗ Q ⊢ ∑
 
 /-- Unframe a frameable proposition from the left out of `+` -/
 lemma sum_unframe_l [Frameable P] [Unambig Q] : (P ∗ Q) + (P ∗ R) =ᴮᴵ P ∗ (Q + R) := by
-  ext1; constructor; swap; { apply sum_frame_l };
-  rintro D ⟨Ev, Fv, ⟨Av, Bv, elP, elQ, hE⟩, ⟨Av', Cv, elP', elR, hF⟩, hadd⟩;
-  rcases precise P _ _ elP elP' with rfl; rw [hE, hF] at hadd;
+  ext1; constructor; swap; { apply sum_frame_l }
+  rintro D ⟨Ev, Fv, ⟨Av, Bv, elP, elQ, hE⟩, ⟨Av', Cv, elP', elR, hF⟩, hadd⟩
+  rcases precise P _ _ elP elP' with rfl; rw [hE, hF] at hadd
   have incAB : ∀ x x', (Av.val * Bv.val).val.pairmem x x' → x # x' := by
     rw [←hE]; exact unambig iprop(P ∗ Q) Ev ⟨Av, Bv, elP, elQ, hE⟩
-  rcases rmadd_mul_inv_l Av.val hadd D.prop (unambig P _ elP) incAB with ⟨BC, hBC, hD⟩;
+  rcases rmadd_mul_inv_l Av.val hadd D.prop (unambig P _ elP) incAB with ⟨BC, hBC, hD⟩
   have valBC : ✓ BC := by
     apply PCM.valid_mul_r Av.val BC; intro x mem; apply D.prop; rwa [hD]
   exact ⟨Av, ⟨BC, valBC⟩, elP, ⟨Bv, Cv, elQ, elR, hBC⟩, Subtype.ext hD⟩
@@ -405,8 +405,8 @@ lemma sum_unframe_r [Unambig P] [Frameable R] : (P ∗ R) + (Q ∗ R) =ᴮᴵ (P
 /-- Unframe a frameable proposition from the left out of `∑ᶠⁱ` -/
 lemma finisum_unframe_l P (Q : ι → RProp ρ) [Frameable P] [∀ i, Unambig (Q i)] :
     (∑ᶠⁱ i, (P ∗ Q i)) =ᴮᴵ P ∗ (∑ᶠⁱ i, Q i) := by
-  apply finisum_rel' (fun R R' : RProp ρ ↦ R =ᴮᴵ P ∗ R') (fun i ↦ iprop(P ∗ Q i)) Q; swap;
-  { intro _; rfl };
+  apply finisum_rel' (fun R R' : RProp ρ ↦ R =ᴮᴵ P ∗ R') (fun i ↦ iprop(P ∗ Q i)) Q; swap
+  { intro _; rfl }
   intro _ _ _ eq; rw [eq, sum_unframe_l]
 
 /-- Unframe a frameable proposition from the right out of `∑ᶠⁱ` -/
@@ -418,19 +418,19 @@ lemma finisum_unframe_r (P : ι → RProp ρ) Q [∀ i, Unambig (P i)] [Frameabl
 
 /-- Preciseness of `+` -/
 instance add_instPrecise [Frameable P] [Precise Q] : Precise (P + Q) := by
-  constructor;
-  rintro Cv Cv' ⟨Av, Bv, elP, elQ, hC⟩ ⟨Av', Bv', elP', elQ', hC'⟩;
-  rcases precise P _ _ elP elP' with rfl; rcases precise Q _ _ elQ elQ' with rfl;
-  apply Subtype.ext; apply Subtype.ext;
+  constructor
+  rintro Cv Cv' ⟨Av, Bv, elP, elQ, hC⟩ ⟨Av', Bv', elP', elQ', hC'⟩
+  rcases precise P _ _ elP elP' with rfl; rcases precise Q _ _ elQ elQ' with rfl
+  apply Subtype.ext; apply Subtype.ext
   exact rmadd_unique_l _ _ _ _ Av.prop (unambig P _ elP) hC hC'
 
 /-- Incompatibility over `+` -/
 lemma incomp_add_l : (P #ᴿ Q) → P + R #ᴿ Q := by
-  rintro inc Cv Bv ⟨Av, Rv, elP, elR, r, coh, hC⟩ elQ c b elC elB;
-  rw [hC, Mset.map'_mem] at elC;
-  rcases elC with ⟨⟨a, x⟩, mem, rfl⟩;
-  apply RR.add_incomp_l _ _ _ (coh _ _ mem);
-  apply inc _ _ elP elQ _ _ ?_ elB;
+  rintro inc Cv Bv ⟨Av, Rv, elP, elR, r, coh, hC⟩ elQ c b elC elB
+  rw [hC, Mset.map'_mem] at elC
+  rcases elC with ⟨⟨a, x⟩, mem, rfl⟩
+  apply RR.add_incomp_l _ _ _ (coh _ _ mem)
+  apply inc _ _ elP elQ _ _ ?_ elB
   rw [←Mset.Bij.graph_fst r, Mset.map'_mem]; exact ⟨(a, x), mem, rfl⟩
 
 /-- Incompatibility over `+` -/
@@ -443,13 +443,13 @@ lemma incomp_finisum (P : ι → RProp ρ) : (∀ i, P i #ᴿ Q) → (∑ᶠⁱ 
 
 /-- Unambiguity of `+` -/
 instance add_instUnambig [Unambig P] : Unambig (P + Q) := by
-  constructor;
-  rintro Cv ⟨Av, Bv, elP, elQ, r, coh, hC⟩ c c' pm;
-  rw [hC, Mset.map'_pairmem] at pm;
-  rcases pm with ⟨⟨a, b⟩, ⟨a', b'⟩, pm, rfl, rfl⟩;
+  constructor
+  rintro Cv ⟨Av, Bv, elP, elQ, r, coh, hC⟩ c c' pm
+  rw [hC, Mset.map'_pairmem] at pm
+  rcases pm with ⟨⟨a, b⟩, ⟨a', b'⟩, pm, rfl, rfl⟩
   have pmA : Av.val.val.pairmem a a' := by
     rw [←Mset.Bij.graph_fst r, Mset.map'_pairmem]; exact ⟨(a, b), (a', b'), pm, rfl, rfl⟩
-  apply RR.add_incomp;
+  apply RR.add_incomp
   · exact coh _ _ (Mset.pairmem_mem_l _ _ _ pm)
   · exact coh _ _ (Mset.pairmem_mem_r _ _ _ pm)
   · exact unambig P _ elP _ _ pmA
@@ -484,14 +484,14 @@ instance finisum_instPrecise (P : ι → RProp ρ) [∀ i, Frameable (P i)] : Pr
 
 /-- Coherence over `+` -/
 lemma coher_add' : (P ≎ᴿ P') → P + Q ≎ᴿ P' := by
-  rintro coh Cv Bv ⟨Av, Qv, elP, elQ, r, cohr, hC⟩ elP';
-  rcases coh _ _ elP elP' with ⟨f, cohf⟩; rw [hC];
-  exists (Mset.Bij.map_l (fun (a, b) ↦ a + b) r.graph).trans (r.graph_dom.trans f);
-  intro c b' mem;
-  rcases Mset.Bij.trans_graph_mem _ _ _ _ mem with ⟨⟨a, b⟩, mem₁, mem₂⟩;
-  rcases Mset.Bij.trans_graph_mem _ _ _ _ mem₂ with ⟨a', mem₃, mem₄⟩;
-  rw [Mset.Bij.map_l_graph_mem] at mem₁; rw [Mset.Bij.graph_dom_graph_mem] at mem₃;
-  rcases mem₁ with ⟨rfl, memr⟩; rcases mem₃ with ⟨_, rfl⟩;
+  rintro coh Cv Bv ⟨Av, Qv, elP, elQ, r, cohr, hC⟩ elP'
+  rcases coh _ _ elP elP' with ⟨f, cohf⟩; rw [hC]
+  exists (Mset.Bij.map_l (fun (a, b) ↦ a + b) r.graph).trans (r.graph_dom.trans f)
+  intro c b' mem
+  rcases Mset.Bij.trans_graph_mem _ _ _ _ mem with ⟨⟨a, b⟩, mem₁, mem₂⟩
+  rcases Mset.Bij.trans_graph_mem _ _ _ _ mem₂ with ⟨a', mem₃, mem₄⟩
+  rw [Mset.Bij.map_l_graph_mem] at mem₁; rw [Mset.Bij.graph_dom_graph_mem] at mem₃
+  rcases mem₁ with ⟨rfl, memr⟩; rcases mem₃ with ⟨_, rfl⟩
   trans a'; { apply RR.add_coher_l; apply cohr; trivial }; { apply cohf; trivial }
 
 /-- Coherence over `+` -/
@@ -509,31 +509,31 @@ lemma coher_finisum (P Q : ι → RProp ρ) :
 
 /-- Satisfiability of `+` -/
 lemma add_satis [Satis P] [Satis Q] : (P ≎ᴿ Q) → Satis iprop(P + Q) := by
-  intro cohPQ; constructor;
-  rcases satis P with ⟨Av, elP⟩; rcases satis Q with ⟨Bv, elQ⟩;
-  rcases cohPQ _ _ elP elQ with ⟨r, coh⟩;
+  intro cohPQ; constructor
+  rcases satis P with ⟨Av, elP⟩; rcases satis Q with ⟨Bv, elQ⟩
+  rcases cohPQ _ _ elP elQ with ⟨r, coh⟩
   have hadd : Av.val.val +ᴿᴹ Bv.val.val =ᴿᴹ (fun (a, b) ↦ a + b) <$>ᴹ r.graph :=
-    ⟨r, coh, rfl⟩;
-  have inh := rmadd_inhab _ _ _ hadd Av.val.prop;
-  have val := rmadd_valid _ _ _ hadd Av.prop;
+    ⟨r, coh, rfl⟩
+  have inh := rmadd_inhab _ _ _ hadd Av.val.prop
+  have val := rmadd_valid _ _ _ hadd Av.prop
   exact ⟨⟨⟨_, inh⟩, val⟩, Av, Bv, elP, elQ, hadd⟩
 
 /-- Satisfiability of `∑ᶠⁱ` -/
 lemma finisum_satis (P : ι → RProp ρ) [∀ i, Satis (P i)] :
     (∀ i j, i ≠ j → P i ≎ᴿ P j) → Satis iprop(∑ᶠⁱ i, P i) := by
-  intro coh;
+  intro coh
   suffices h : ∀ n (P : Fin (n + 1) → RProp ρ), (∀ k, Satis (P k)) →
       (∀ k l, k ≠ l → P k ≎ᴿ P l) → Satis iprop(∑ᶠⁱ k, P k) by
-    rw [finisum_fin P]; apply h _ _ fun _ ↦ inferInstance;
+    rw [finisum_fin P]; apply h _ _ fun _ ↦ inferInstance
     intro _ _ ne; exact coh _ _ fun e ↦ ne (Finitype.equivFin.symm.injective e)
   intro n; induction n with
   | zero => intro P sat _; simp only [Nat.reduceAdd, finisum_fin_one]; exact sat 0
   | succ n ih =>
-    intro P sat coh; simp only [finisum_fin_succ];
+    intro P sat coh; simp only [finisum_fin_succ]
     have _ := ih (fun k ↦ P k.castSucc) (fun _ ↦ sat _)
-      fun _ _ ne ↦ coh _ _ fun e ↦ ne (Fin.castSucc_injective _ e);
-    have _ := sat (Fin.last (n + 1));
-    apply add_satis; apply coher_finisum';
+      fun _ _ ne ↦ coh _ _ fun e ↦ ne (Fin.castSucc_injective _ e)
+    have _ := sat (Fin.last (n + 1))
+    apply add_satis; apply coher_finisum'
     intro k; exact coh _ _ (Fin.castSucc_lt_last k).ne
 
 end RBI

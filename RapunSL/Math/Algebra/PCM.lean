@@ -93,7 +93,7 @@ protected instance Prod.instPCM [PCM α] [PCM β] : PCM (α × β) where
   valid p := ✓ p.1 ∧ ✓ p.2
   valid_one := by and_intros <;> apply PCM.valid_one
   valid_mul_l := by
-    intro _ _ ⟨val, val'⟩; and_intros;
+    intro _ _ ⟨val, val'⟩; and_intros
     { apply PCM.valid_mul_l _ _ val }; { apply PCM.valid_mul_l _ _ val' }
 
 /-- Unfold `1` for products -/
@@ -161,7 +161,7 @@ instance Excl.instPCMCan : PCMCan (Excl α) where
 /-- Product cancellative PCM -/
 instance Prod.instPCMCan [PCMCan α] [PCMCan β] : PCMCan (α × β) where
   mul_cancel_l := by
-    intro (_, _) (_, _) (_, _) ⟨_, _⟩; simp only [mk_mul_mk, mk.injEq] at *;
+    intro (_, _) (_, _) (_, _) ⟨_, _⟩; simp only [mk_mul_mk, mk.injEq] at *
     intro ⟨_, _⟩; and_intros <;> apply PCMCan.mul_cancel_l <;> trivial
 
 /-- Pi cancellative PCM -/
