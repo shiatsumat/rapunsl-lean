@@ -343,8 +343,7 @@ instance emp_instUnambig : Unambig (ρ := ρ) emp := by apply own_instUnambig
 instance sep_instUnambig [Unambig P] [Unambig Q] :
     Unambig iprop(P ∗ Q) := by
   constructor; rintro ⟨_, val⟩ ⟨_, _, elP, _, rfl⟩ _ _; simp only [Mseti.mul_pairmem]
-  rintro ⟨_, _, _, _, rfl, rfl, (⟨_, _⟩ | ⟨rfl, _, _⟩ | ⟨rfl, _, _⟩)⟩
-  swap
+  rintro ⟨_, _, _, _, rfl, rfl, (⟨_, _⟩ | ⟨rfl, _, _⟩ | ⟨rfl, _, _⟩)⟩; swap
   { apply PCMI.incomp_mul_r
     { apply val; rw [Mseti.mul_mem]; grind only [Mset.pairmem_mem_l] }
     symm; apply PCMI.incomp_mul_r
