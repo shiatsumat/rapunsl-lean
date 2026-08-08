@@ -235,7 +235,7 @@ protected lemma Mset.Bij.prod_graph
     (Mset.Bij.prod r s).graph =
       (fun ((a, a'), (b, b')) => ((a, b), (a', b'))) <$>ᴹ (r.graph ×ᴹ s.graph) := by
   rw [Mset.Bij.prod]; revert r s; unfold Mset.Bij Mset.Bij.graph
-  simp_out_eq A; simp_out_eq B; simp_out_eq A'; simp_out_eq B'; intro r s
+  simp_out_eq A; simp_out_eq B; simp_out_eq A'; simp_out_eq B'; intro _ _
   trans; { apply Ifam.Bij.lift_mk_graph }; rw [Ifam.Bij.prod_graph]; rfl
 
 /-- Membership for the graph of `Mset.Bij.prod` -/
